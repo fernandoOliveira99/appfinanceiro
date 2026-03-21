@@ -1,0 +1,200 @@
+"use client";
+
+import { useState } from "react";
+import { useRouter } from "next/navigation";
+import Link from "next/link";
+import { theme } from "@config/design-system";
+import { signIn } from "next-auth/react";
+
+export default function RegisterPage() {
+  const router = useRouter();
+  const [name, setName] = useState("");
+  const [email, setEmail] = useState("");
+  const [password, setPassword] = useState("");
+  const [step, setStep] = useState("form"); // 'form' | 'verify'
+  const [code, setCode] = useState("");
+  const [error, setError] = useState("");
+  const [loading, setLoading] = useState(false);
+
+  async function handleSubmit(e) {
+    e.preventDefault();
+    setLoading(true);
+    setError("");
+    try {
+      const res = await fetch("/api/auth/register", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ name, email, password })
+      });
+      
+      const data = await res.json();
+      if (!res.ok) {
+        setError(data.error || "Falha ao criar conta.");
+        return;
+      }
+
+      // Se o registro exige verificação, muda para o passo de código
+      if (data.requiresVerification) {
+        setStep("verify");
+      } else {
+        window.location.href = `/login?registered=true&email=${encodeURIComponent(email)}`;
+      }
+    } catch {
+      setError("Erro de rede ao criar conta.");
+    } finally {
+      setLoading(false);
+    }
+  }
+
+  async function handleVerify(e) {
+    e.preventDefault();
+    setLoading(true);
+    setError("");
+    try {
+      const res = await fetch("/api/auth/verify-email", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ email, code })
+      });
+
+      const data = await res.json();
+      if (!res.ok) {
+        setError(data.error || "Código inválido ou expirado.");
+        return;
+      }
+
+      // Verificação bem-sucedida, redireciona para login
+      window.location.href = `/login?verified=true&email=${encodeURIComponent(email)}`;
+    } catch {
+      setError("Erro ao verificar código.");
+    } finally {
+      setLoading(false);
+    }
+  }
+
+  return (
+    <div className="flex min-h-[calc(100vh-80px)] items-center justify-center p-4">
+      <div className={`${theme.cardStyles.base} max-w-md w-full overflow-hidden`}>
+        {step === "form" ? (
+          <form
+            onSubmit={handleSubmit}
+            className={`${theme.spacing.cardPadding} space-y-8`}
+          >
+            <div className="space-y-2 text-center">
+              <h1 className="text-3xl font-black text-white tracking-tight">Criar Conta</h1>
+              <p className="text-sm text-slate-400 font-medium">
+                Comece a organizar suas finanças pessoais.
+              </p>
+            </div>
+
+            {error && (
+              <div className="text-xs text-rose-400 bg-rose-500/10 border border-rose-500/40 rounded-xl px-4 py-3 font-bold animate-pulse">
+                {error}
+              </div>
+            )}
+
+            <div className="space-y-5">
+              <div className="space-y-2">
+                <label className="text-xs font-bold uppercase tracking-widest text-slate-500 ml-1">Nome Completo</label>
+                <input
+                  className="w-full bg-slate-900/50 border border-slate-800 rounded-2xl px-4 py-3.5 text-sm outline-none focus:border-violet-500/50 focus:ring-4 focus:ring-violet-500/10 transition-all text-white placeholder:text-slate-600"
+                  placeholder="Seu nome"
+                  value={name}
+                  onChange={(e) => setName(e.target.value)}
+                  required
+                />
+              </div>
+              <div className="space-y-2">
+                <label className="text-xs font-bold uppercase tracking-widest text-slate-500 ml-1">E-mail</label>
+                <input
+                  type="email"
+                  className="w-full bg-slate-900/50 border border-slate-800 rounded-2xl px-4 py-3.5 text-sm outline-none focus:border-violet-500/50 focus:ring-4 focus:ring-violet-500/10 transition-all text-white placeholder:text-slate-600"
+                  placeholder="seu@email.com"
+                  value={email}
+                  onChange={(e) => setEmail(e.target.value)}
+                  required
+                />
+              </div>
+              <div className="space-y-2">
+                <label className="text-xs font-bold uppercase tracking-widest text-slate-500 ml-1">Senha</label>
+                <input
+                  type="password"
+                  className="w-full bg-slate-900/50 border border-slate-800 rounded-2xl px-4 py-3.5 text-sm outline-none focus:border-violet-500/50 focus:ring-4 focus:ring-violet-500/10 transition-all text-white placeholder:text-slate-600"
+                  placeholder="••••••••"
+                  value={password}
+                  onChange={(e) => setPassword(e.target.value)}
+                  required
+                />
+              </div>
+
+              <button
+                type="submit"
+                className="w-full py-4 rounded-2xl bg-violet-600 hover:bg-violet-500 text-white font-black transition-all shadow-xl shadow-violet-900/20 active:scale-95 disabled:opacity-50"
+                disabled={loading}
+              >
+                {loading ? "Criando conta..." : "Criar conta"}
+              </button>
+
+              <p className="text-xs text-center text-slate-500 font-medium pt-2">
+                Já tem uma conta?{" "}
+                <Link href="/login" className="text-violet-400 hover:text-violet-300 font-bold underline underline-offset-4 decoration-violet-500/30">
+                  Fazer login agora
+                </Link>
+              </p>
+            </div>
+          </form>
+        ) : (
+          <form
+            onSubmit={handleVerify}
+            className={`${theme.spacing.cardPadding} space-y-8`}
+          >
+            <div className="space-y-2 text-center">
+              <h1 className="text-3xl font-black text-white tracking-tight">Verificar E-mail</h1>
+              <p className="text-sm text-slate-400 font-medium">
+                Enviamos um código de 6 dígitos para <span className="text-white font-bold">{email}</span>.
+              </p>
+            </div>
+
+            {error && (
+              <div className="text-xs text-rose-400 bg-rose-500/10 border border-rose-500/40 rounded-xl px-4 py-3 font-bold animate-pulse">
+                {error}
+              </div>
+            )}
+
+            <div className="space-y-6">
+              <div className="space-y-2">
+                <label className="text-xs font-bold uppercase tracking-widest text-slate-500 text-center block">Digite o código abaixo</label>
+                <input
+                  type="text"
+                  maxLength={6}
+                  className="w-full bg-slate-900/50 border border-slate-800 rounded-2xl px-4 py-6 text-3xl font-black text-center tracking-[12px] outline-none focus:border-violet-500/50 focus:ring-4 focus:ring-violet-500/10 transition-all text-white placeholder:text-slate-800"
+                  placeholder="000000"
+                  value={code}
+                  onChange={(e) => setCode(e.target.value.replace(/\D/g, ""))}
+                  required
+                />
+              </div>
+
+              <button
+                type="submit"
+                className="w-full py-4 rounded-2xl bg-violet-600 hover:bg-violet-500 text-white font-black transition-all shadow-xl shadow-violet-900/20 active:scale-95 disabled:opacity-50"
+                disabled={loading || code.length !== 6}
+              >
+                {loading ? "Verificando..." : "Confirmar Código"}
+              </button>
+
+              <button
+                type="button"
+                onClick={() => setStep("form")}
+                className="w-full text-xs text-slate-500 hover:text-slate-300 font-bold uppercase tracking-widest transition-colors"
+              >
+                Voltar para o cadastro
+              </button>
+            </div>
+          </form>
+        )}
+      </div>
+    </div>
+  );
+}
+

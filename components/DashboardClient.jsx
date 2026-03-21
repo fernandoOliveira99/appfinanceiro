@@ -1,0 +1,492 @@
+"use client";
+
+import { useEffect, useState } from "react";
+import { theme } from "@config/design-system";
+import FinanceCards from "@components/FinanceCards";
+import TransactionList from "@components/TransactionList";
+import { calculateTotals } from "@lib/finance-utils";
+import Charts from "@components/Charts";
+import TransactionModal from "@components/TransactionModal";
+import FinanceAI from "@components/FinanceAI";
+import FinanceGoals from "@components/FinanceGoals";
+import DashboardHeader from "@components/DashboardHeader";
+import GuidedTutorial from "@components/GuidedTutorial";
+import FinancialInsightsCard from "@components/FinancialInsightsCard";
+import IntelligentInsights from "@components/IntelligentInsights";
+import CategoryRanking from "@components/CategoryRanking";
+import FinancialHealthScore from "@components/FinancialHealthScore";
+import UpcomingBills from "@components/UpcomingBills";
+import CategoryBudgets from "@components/CategoryBudgets";
+import ReportExporter from "@components/ReportExporter";
+import RecurringTransactionsManager from "@components/RecurringTransactionsManager";
+import WelcomeExperience from "@components/WelcomeExperience";
+import Achievements from "@components/Achievements";
+import AchievementUnlockPopup from "@components/AchievementUnlockPopup";
+import SmartTips from "@components/SmartTips";
+import { generateDashboardReport } from "@lib/report";
+import { Zap, Plus, ArrowUpCircle, ArrowDownCircle, Target, PieChart, Trophy, Smile, Sparkles } from "lucide-react";
+import { personalities } from "@lib/personalities";
+
+export default function DashboardClient({ user, initialSalary, initialTransactions }) {
+  const [salary, setSalary] = useState(initialSalary ?? 0);
+  const [transactions, setTransactions] = useState(initialTransactions || []);
+  const [goals, setGoals] = useState([]);
+  const [month, setMonth] = useState("Mês atual");
+  const [downloading, setDownloading] = useState(false);
+  const [categoryChartData, setCategoryChartData] = useState(null);
+  const [modalMode, setModalMode] = useState(null); // 'income' | 'expense' | null
+  const [editingTransaction, setEditingTransaction] = useState(null);
+  const [economyMode, setEconomyMode] = useState(false);
+  const [fabOpen, setFabOpen] = useState(false);
+  const [activeTab, setActiveTab] = useState("overview"); // 'overview' | 'goals' | 'analysis' | 'achievements'
+  const [showWelcome, setShowWelcome] = useState(false);
+  const [forceShowTutorial, setForceShowTutorial] = useState(false);
+ const [achievementQueue, setAchievementQueue] = useState([]);
+  const [currentAchievement, setCurrentAchievement] = useState(null);
+  const [showTips, setShowTips] = useState(true);
+
+  useEffect(() => {
+    const saved = localStorage.getItem('show_smart_tips');
+    if (saved !== null) {
+      setShowTips(JSON.parse(saved));
+    }
+  }, []);
+
+  useEffect(() => {
+    localStorage.setItem('show_smart_tips', JSON.stringify(showTips));
+  }, [showTips]);
+
+  const [mascotId, setMascotId] = useState("goku");
+
+  useEffect(() => {
+    // Escuta evento customizado para reiniciar tutorial
+    const handleRestart = () => {
+      setForceShowTutorial(true);
+      window.scrollTo({ top: 0, behavior: 'smooth' });
+    };
+    window.addEventListener('restart-tutorial', handleRestart);
+
+    const handleAchievement = (e) => {
+      if (e.detail?.length > 0) {
+        setAchievementQueue(prev => [...prev, ...e.detail]);
+      }
+    };
+    window.addEventListener('achievement-unlocked', handleAchievement);
+    
+    // Verifica se veio via URL parameter
+    const params = new URLSearchParams(window.location.search);
+    if (params.get('restartTutorial') === 'true') {
+      setForceShowTutorial(true);
+      // Limpa a URL sem recarregar
+      window.history.replaceState({}, '', '/dashboard');
+    }
+
+    return () => {
+      window.removeEventListener('restart-tutorial', handleRestart);
+      window.removeEventListener('achievement-unlocked', handleAchievement);
+    };
+  }, []);
+
+  useEffect(() => {
+    if (user?.first_login) {
+      setShowWelcome(true);
+    }
+  }, [user]);
+
+  const handleFinishWelcome = async (startTutorial = false) => {
+    try {
+      await fetch("/api/user/first-login", { method: "POST" });
+      setShowWelcome(false);
+      if (startTutorial) {
+        setForceShowTutorial(true);
+      }
+    } catch (error) {
+      console.error("Error updating first login:", error);
+      setShowWelcome(false);
+    }
+  };
+
+  useEffect(() => {
+    async function refresh() {
+      const [txRes, salaryRes, catChartRes, goalsRes, achievementsRes] = await Promise.all([
+        fetch("/api/transactions"),
+        fetch("/api/settings/salary"),
+        fetch("/api/charts/categories"),
+        fetch("/api/goals"),
+        fetch("/api/achievements")
+      ]);
+      if (txRes.ok) {
+        setTransactions(await txRes.json());
+      }
+      if (salaryRes.ok) {
+        const data = await salaryRes.json();
+        setSalary(data.salary ?? 0);
+      }
+      if (catChartRes.ok) {
+        const catData = await catChartRes.json();
+        setCategoryChartData(catData);
+      }
+      if (goalsRes.ok) {
+        setGoals(await goalsRes.json());
+      }
+      if (achievementsRes.ok) {
+        const data = await achievementsRes.json();
+        if (data.newlyUnlocked?.length > 0) {
+          window.dispatchEvent(new CustomEvent('achievement-unlocked', { detail: data.newlyUnlocked }));
+        }
+      }
+    }
+    refresh();
+  }, []);
+
+  // Achievement queue manager
+  useEffect(() => {
+    if (achievementQueue.length > 0 && !currentAchievement) {
+      setCurrentAchievement(achievementQueue[0]);
+      setAchievementQueue(prev => prev.slice(1));
+    }
+  }, [achievementQueue, currentAchievement]);
+
+  const expenses = transactions.filter((t) => t.type === "expense");
+  const income = transactions.filter((t) => t.type === "income");
+  const { totalExpenses, byCategory } = calculateTotals(expenses);
+  const totalIncome = income.reduce((acc, t) => acc + (Number(t.amount) || 0), 0);
+
+  const today = new Date();
+
+  // --- Last Month Comparison ---
+  const lastMonthDate = new Date();
+  lastMonthDate.setMonth(lastMonthDate.getMonth() - 1);
+  const lastMonth = lastMonthDate.getMonth();
+  const lastMonthYear = lastMonthDate.getFullYear();
+
+  const lastMonthTransactions = transactions.filter(t => {
+    const d = new Date(t.date || t.created_at);
+    return d.getMonth() === lastMonth && d.getFullYear() === lastMonthYear;
+  });
+
+  const lastMonthExpenses = lastMonthTransactions
+    .filter(t => t.type === 'expense')
+    .reduce((acc, t) => acc + Number(t.amount), 0);
+  
+  const lastMonthIncome = lastMonthTransactions
+    .filter(t => t.type === 'income')
+    .reduce((acc, t) => acc + Number(t.amount), 0);
+
+  const currentBalance = totalIncome - totalExpenses;
+
+  // --- Real Previous Balance (Balance before the very last transaction) ---
+  const lastTransaction = transactions[0];
+  let balanceBeforeLast = currentBalance;
+  let lastMovementDate = null;
+
+  if (lastTransaction) {
+    const amount = Number(lastTransaction.amount) || 0;
+    if (lastTransaction.type === 'income') {
+      balanceBeforeLast = currentBalance - amount;
+    } else {
+      balanceBeforeLast = currentBalance + amount;
+    }
+    // Prioritize created_at to get the exact time of the transaction
+    lastMovementDate = lastTransaction.created_at 
+      ? new Date(lastTransaction.created_at) 
+      : new Date(lastTransaction.date);
+  }
+
+  // --- Real Balance History (Cumulative) ---
+  const balanceHistory = [];
+  let runningBalance = 0;
+  // Use reverse copy to calculate chronologically
+  [...transactions].reverse().forEach(t => {
+    const amount = Number(t.amount) || 0;
+    if (t.type === 'income') {
+      runningBalance += amount;
+    } else {
+      runningBalance -= amount;
+    }
+    balanceHistory.unshift({
+      date: t.created_at || t.date,
+      balance: runningBalance,
+      type: t.type,
+      amount: amount
+    });
+  });
+
+  const recentBalanceHistory = balanceHistory.slice(0, 5);
+
+  const recent = transactions.slice(0, 8);
+  
+  // --- Previsão de Saldo (Forecast) ---
+  const daysInMonth = new Date(today.getFullYear(), today.getMonth() + 1, 0).getDate();
+  const daysRemaining = daysInMonth - today.getDate();
+  
+  // Cálculo da média de gastos diários (baseado nos dias decorridos do mês atual)
+  const currentDay = today.getDate() || 1;
+  const averageDailySpending = totalExpenses / currentDay;
+  const estimatedEndBalance = currentBalance - (averageDailySpending * daysRemaining);
+
+  async function handleSaveTransaction(tx) {
+    const isUpdate = Boolean(tx.id);
+    const url = isUpdate ? `/api/transactions/${tx.id}` : "/api/transactions";
+    const method = isUpdate ? "PATCH" : "POST";
+
+    const res = await fetch(url, {
+      method,
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify(tx)
+    });
+
+    if (res.ok) {
+      const saved = await res.json();
+      
+      // Handle newly unlocked achievements
+      if (saved.newlyUnlocked?.length > 0) {
+        window.dispatchEvent(new CustomEvent('achievement-unlocked', { detail: saved.newlyUnlocked }));
+      }
+
+      if (isUpdate) {
+        setTransactions((prev) => prev.map(t => t.id === saved.id ? saved : t));
+      } else {
+        setTransactions((prev) => [saved, ...prev]);
+      }
+      
+      // Refresh category data for charts
+      const catChartRes = await fetch("/api/charts/categories");
+      if (catChartRes.ok) {
+        setCategoryChartData(await catChartRes.json());
+      }
+      setEditingTransaction(null);
+      setModalMode(null);
+    }
+  }
+
+  async function handleDownloadReport() {
+    setDownloading(true);
+    try {
+      generateDashboardReport({
+        monthLabel: month,
+        salary,
+        incomeTotal: totalIncome,
+        expenseTotal: totalExpenses,
+        transactions
+      });
+    } finally {
+      setDownloading(false);
+    }
+  }
+
+  const isEmpty = salary === 0 && transactions.length === 0;
+
+  function handleDeleted(id) {
+    setTransactions((prev) => prev.filter((t) => t.id !== id));
+  }
+
+  return (
+    <div className="w-full max-w-full overflow-x-hidden md:overflow-visible space-y-6 md:space-y-8 pb-32 md:pb-8">
+      {showWelcome && (
+        <WelcomeExperience 
+          onStartTutorial={() => handleFinishWelcome(true)} 
+          onSkip={() => handleFinishWelcome(false)} 
+        />
+      )}
+
+      <GuidedTutorial 
+        run={forceShowTutorial} 
+        onFinish={() => setForceShowTutorial(false)} 
+        setActiveTab={setActiveTab}
+      />
+      
+      <DashboardHeader 
+        user={user} 
+        onAddIncome={() => setModalMode("income")} 
+        onAddExpense={() => setModalMode("expense")} 
+      />
+
+
+
+      {/* Economy Mode & Tips Toggle - Hidden in 'Goals' and 'Analysis' on Mobile */}
+      <div className={`${activeTab !== 'overview' ? 'hidden md:flex' : 'flex'} items-center justify-end gap-3 md:gap-4`}>
+        <button
+          onClick={() => setShowTips(!showTips)}
+          className={`flex items-center gap-2 px-4 py-3 rounded-2xl border transition-all ${showTips ? 'bg-indigo-600/10 border-indigo-500/30 text-indigo-600 dark:text-indigo-400' : 'bg-white dark:bg-slate-900/50 border-slate-200 dark:border-slate-800 text-slate-400'}`}
+          title={showTips ? "Ocultar Dicas" : "Mostrar Dicas"}
+        >
+          <Sparkles size={18} className={showTips ? 'fill-indigo-500/20' : ''} />
+          <span className="text-[10px] font-black uppercase tracking-widest hidden sm:inline">
+            {showTips ? 'Dicas Ativas' : 'Dicas Desativadas'}
+          </span>
+        </button>
+
+        <button
+          onClick={() => setEconomyMode(!economyMode)}
+          className={`flex items-center gap-3 px-6 py-3 rounded-2xl border transition-all ${economyMode ? 'bg-emerald-600/20 border-emerald-500/50 text-emerald-600 dark:text-emerald-400 shadow-lg shadow-emerald-900/10' : 'bg-white dark:bg-slate-900/50 border-slate-200 dark:border-slate-800 text-slate-500 dark:text-slate-400 hover:bg-slate-50 dark:hover:bg-slate-800/80 shadow-sm hover:shadow-md'}`}
+        >
+          <Zap size={18} className={economyMode ? 'fill-emerald-500 dark:fill-emerald-400' : ''} />
+          <span className="text-[10px] font-black uppercase tracking-widest">
+            {economyMode ? 'Modo Economia Ativo' : 'Ativar Modo Economia'}
+          </span>
+          <div className={`w-10 h-5 rounded-full relative transition-colors ${economyMode ? 'bg-emerald-500' : 'bg-slate-200 dark:bg-slate-700'}`}>
+            <div className={`absolute top-1 w-3 h-3 rounded-full bg-white shadow-sm transition-all ${economyMode ? 'left-6' : 'left-1'}`} />
+          </div>
+        </button>
+      </div>
+
+      {/* Segmented Control Tabs (App Style) - Now below Economy Toggle */}
+      <div className="md:hidden sticky top-2 z-30 px-0 py-2">
+        <div className="flex bg-white/90 dark:bg-slate-900/90 backdrop-blur-md p-1 rounded-2xl border border-slate-200 dark:border-slate-800 shadow-xl">
+          {[
+            { id: 'overview', label: 'Resumo', icon: <Zap size={14} /> },
+            { id: 'goals', label: 'Metas', icon: <Target size={14} /> },
+            { id: 'analysis', label: 'Análise', icon: <PieChart size={14} /> },
+            { id: 'achievements', label: 'Troféus', icon: <Trophy size={14} /> }
+          ].map((tab) => (
+            <button
+              key={tab.id}
+              onClick={() => {
+                setActiveTab(tab.id);
+                window.scrollTo({ top: 0, behavior: 'smooth' });
+              }}
+              className={`flex-1 flex items-center justify-center gap-2 py-2.5 rounded-xl text-[10px] font-black uppercase tracking-widest transition-all ${
+                activeTab === tab.id 
+                  ? 'bg-violet-600 text-white shadow-lg shadow-violet-600/20' 
+                  : 'text-slate-500 dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-800/50'
+              }`}
+            >
+              {tab.icon}
+              {tab.label}
+            </button>
+          ))}
+        </div>
+      </div>
+
+      {/* 1. TOP SECTION: Cards (Summary & Prediction) - Always shown in overview, hidden in other tabs on mobile */}
+      <div className={`${activeTab !== 'overview' ? 'hidden md:grid' : 'grid'} grid-cols-1 lg:grid-cols-4 gap-6`}>
+        {showTips && (
+          <div className="lg:col-span-4 animate-in fade-in slide-in-from-top-4 duration-500">
+            <SmartTips mascotId={mascotId} />
+          </div>
+        )}
+        <div className="lg:col-span-3">
+          <FinanceCards 
+        salary={salary} 
+        totalExpenses={totalExpenses} 
+        totalIncome={totalIncome} 
+        forecastBalance={estimatedEndBalance}
+        previousBalance={balanceBeforeLast}
+        lastMovementDate={lastMovementDate}
+        onAddIncome={() => setModalMode("income")}
+        onAddExpense={() => setModalMode("expense")}
+        transactions={transactions}
+        balanceHistory={recentBalanceHistory}
+      />
+        </div>
+        <div>
+          <FinancialHealthScore transactions={transactions} goals={goals} />
+        </div>
+      </div>
+
+      {/* 2. INTELLIGENT INSIGHTS (Suspicious Spending & Economy Tips) - Overview and Analysis Tabs on Mobile */}
+      <div className={`${(activeTab !== 'analysis' && activeTab !== 'overview') ? 'hidden md:grid' : 'grid'} grid-cols-1 lg:grid-cols-2 gap-4 sm:gap-8 w-full max-w-full overflow-hidden`}>
+        <IntelligentInsights transactions={transactions} economyMode={economyMode} />
+        <UpcomingBills />
+      </div>
+
+      {/* Upcoming Bills in Overview on Mobile */}
+      <div className={`${activeTab === 'overview' ? 'block md:hidden' : 'hidden'}`}>
+        <UpcomingBills />
+      </div>
+
+      {/* 3. ALERTS SECTION - Analysis Tab on Mobile */}
+      <div className={`${activeTab !== 'analysis' ? 'hidden md:block' : 'block'}`}>
+        <FinancialInsightsCard transactions={transactions} />
+      </div>
+
+      {/* 4. CATEGORY RANKING & BUDGETS - Analysis and Goals Tabs */}
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
+        <div className={`${activeTab !== 'analysis' ? 'hidden md:block' : 'block'}`}>
+          <CategoryRanking transactions={transactions} />
+        </div>
+        <div className={`${activeTab !== 'goals' ? 'hidden md:block' : 'block'}`}>
+          <CategoryBudgets transactions={transactions} />
+        </div>
+      </div>
+
+      {/* 5. MIDDLE SECTION: Charts & Goals Progress - Analysis and Goals Tabs */}
+      <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
+        <div className={`${activeTab !== 'analysis' ? 'hidden md:block' : 'block'} lg:col-span-2`}>
+          <Charts 
+            categoryData={categoryChartData ?? byCategory} 
+            income={totalIncome} 
+            expenses={totalExpenses} 
+            lastMonthIncome={lastMonthIncome}
+            lastMonthExpenses={lastMonthExpenses}
+          />
+        </div>
+        <div className={`${activeTab !== 'goals' ? 'hidden md:block' : 'block'} space-y-8`}>
+          <FinanceGoals 
+            currentBalance={currentBalance} 
+            onTransactionAdded={handleSaveTransaction} 
+          />
+        </div>
+      </div>
+
+      {/* Recurring Transactions Manager - Analysis Tab */}
+      <div className={`${activeTab !== 'analysis' ? 'hidden md:block' : 'block'}`}>
+        <RecurringTransactionsManager />
+      </div>
+
+      {/* 6. ACHIEVEMENTS SECTION - Achievements Tab on Mobile */}
+      <div className={`${activeTab !== 'achievements' ? 'hidden md:block' : 'block'} mt-8`}>
+        <Achievements />
+      </div>
+
+      {/* 4. BOTTOM SECTION: Recent transactions list - Overview Tab on Mobile */}
+      <div className={`${activeTab !== 'overview' ? 'hidden md:block' : 'block'}`}>
+        <TransactionList 
+          title="Movimentações Recentes" 
+          transactions={recent} 
+          onDeleted={handleDeleted}
+          onEdit={(tx) => {
+            setEditingTransaction(tx);
+            setModalMode(tx.type);
+          }}
+        />
+      </div>
+
+      {/* Export Section */}
+      <ReportExporter 
+        transactions={transactions} 
+        user={user} 
+        balance={currentBalance} 
+        income={totalIncome} 
+        expenses={totalExpenses} 
+      />
+
+      {/* Transaction Modal */}
+      <TransactionModal
+        open={Boolean(modalMode)}
+        mode={modalMode}
+        initialData={editingTransaction}
+        onClose={() => {
+          setModalMode(null);
+          setEditingTransaction(null);
+        }}
+        onSave={handleSaveTransaction}
+      />
+
+      {/* AI Financial Assistant - Fixed Side */}
+      <div className="fixed bottom-24 left-4 z-50 pointer-events-none">
+        <div className="pointer-events-auto">
+          <FinanceAI user={user} mascotId={mascotId} setMascotId={setMascotId} />
+        </div>
+      </div>
+
+      {/* Achievement Unlock Popup */}
+       <AchievementUnlockPopup 
+         achievement={currentAchievement} 
+         onComplete={() => setCurrentAchievement(null)} 
+         mascotId={mascotId}
+       />
+    </div>
+  );
+}

@@ -1,0 +1,16 @@
+node_modules
+.next
+.env
+.env.local
+.env.*.local
+dist
+build
+*.log
+.DS_Store
+# Cache de ferramentas
+.cache
+.npm
+.yarn-integrity
+.parcel-cache
+.turbo
+*.tsbuildinfo

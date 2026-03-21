@@ -1,0 +1,24 @@
+{
+  "name": "App Finanças",
+  "short_name": "Finanças",
+  "description": "Dashboard pessoal de finanças com visual fintech moderno.",
+  "start_url": "/",
+  "display": "standalone",
+  "background_color": "#020617",
+  "theme_color": "#7c3aed",
+  "icons": [
+    {
+      "src": "https://ui-avatars.com/api/?name=F&background=7c3aed&color=fff&size=192&rounded=true",
+      "sizes": "192x192",
+      "type": "image/png",
+      "purpose": "any maskable"
+    },
+    {
+      "src": "https://ui-avatars.com/api/?name=F&background=7c3aed&color=fff&size=512&rounded=true",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "any maskable"
+    }
+  ],
+  "orientation": "portrait"
+}
