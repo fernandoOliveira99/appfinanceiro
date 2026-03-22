@@ -155,10 +155,20 @@ export default function DashboardClient({ user, initialSalary, initialTransactio
     refresh();
   }, []);
 
-  const expenses = transactions.filter((t) => t.type === "expense");
-  const income = transactions.filter((t) => t.type === "income");
-  const { totalExpenses, byCategory } = calculateTotals(expenses);
-  const totalIncome = income.reduce((acc, t) => acc + (Number(t.amount) || 0), 0);
+  // 1. Receitas: Tudo que entra no saldo (Salário + Resgates de Metas)
+  const incomeTransactions = transactions.filter((t) => t.type === "income");
+  const totalIncome = incomeTransactions.reduce((acc, t) => acc + (Number(t.amount) || 0), 0);
+
+  // 2. Despesas Reais: Gastos do dia a dia (NÃO inclui dinheiro guardado em metas)
+  const realExpensesTransactions = transactions.filter((t) => t.type === "expense" && t.category !== "Metas");
+  const { totalExpenses, byCategory } = calculateTotals(realExpensesTransactions);
+
+  // 3. Contribuições para Metas: Dinheiro que saiu do saldo para ser guardado
+  const goalContributionsTransactions = transactions.filter((t) => t.type === "expense" && t.category === "Metas");
+  const totalGoalContributions = goalContributionsTransactions.reduce((acc, t) => acc + (Number(t.amount) || 0), 0);
+
+  // 4. Saldo Atual: Receitas - (Despesas + Metas)
+  const currentBalance = totalIncome - totalExpenses - totalGoalContributions;
 
   const today = new Date();
 
@@ -174,14 +184,12 @@ export default function DashboardClient({ user, initialSalary, initialTransactio
   });
 
   const lastMonthExpenses = lastMonthTransactions
-    .filter(t => t.type === 'expense')
+    .filter(t => t.type === 'expense' && t.category !== 'Metas')
     .reduce((acc, t) => acc + Number(t.amount), 0);
   
   const lastMonthIncome = lastMonthTransactions
     .filter(t => t.type === 'income')
     .reduce((acc, t) => acc + Number(t.amount), 0);
-
-  const currentBalance = totalIncome - totalExpenses;
 
   // --- Real Previous Balance (Balance before the very last transaction) ---
   const lastTransaction = transactions[0];
@@ -216,7 +224,8 @@ export default function DashboardClient({ user, initialSalary, initialTransactio
       date: t.created_at || t.date,
       balance: runningBalance,
       type: t.type,
-      amount: amount
+      amount: amount,
+      category: t.category
     });
   });
 
@@ -338,6 +347,7 @@ export default function DashboardClient({ user, initialSalary, initialTransactio
         salary={salary} 
         totalExpenses={totalExpenses} 
         totalIncome={totalIncome} 
+        currentBalance={currentBalance}
         forecastBalance={estimatedEndBalance}
         previousBalance={balanceBeforeLast}
         lastMovementDate={lastMovementDate}

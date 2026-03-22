@@ -496,7 +496,7 @@ export default function FinanceGoals({ currentBalance = 0, onTransactionAdded, h
                   )}
 
                   {/* Action Buttons */}
-                  <div className="flex items-center gap-2 pt-2 opacity-0 group-hover:opacity-100 transition-opacity">
+                  <div className="flex items-center gap-2 pt-2 transition-all">
                     <button
                       onClick={() => handleDeleteGoal(goal.id)}
                       className="p-2.5 rounded-xl bg-rose-50 dark:bg-rose-500/10 text-rose-600 dark:text-rose-500 hover:bg-rose-600 hover:text-white transition-all border border-rose-100 dark:border-rose-500/20"

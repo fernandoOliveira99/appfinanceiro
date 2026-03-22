@@ -59,12 +59,13 @@ export default function RootLayout({ children }) {
         />
       </head>
       <body
-        className={`${theme.colors.background} min-h-screen text-slate-900 dark:text-slate-50 overflow-x-hidden max-w-full w-full select-none touch-pan-y`}
+        className={`${theme.colors.background} min-h-screen text-slate-900 dark:text-slate-50 overflow-x-hidden w-full select-none touch-pan-y`}
       >
         <AuthProvider>
-          {/* MOBILE LAYOUT: top bar controla navegação em telas pequenas */}
-          <MobileTopBar />
-          <div className={`relative min-h-screen ${theme.colors.background} pb-8 md:pb-0 overflow-x-hidden w-full`}>
+          <div className="w-full max-w-full overflow-x-hidden relative">
+            {/* MOBILE LAYOUT: top bar controla navegação em telas pequenas */}
+            <MobileTopBar />
+            <div className={`relative min-h-screen ${theme.colors.background} pb-28 md:pb-0 overflow-x-hidden w-full`}>
             <div className="absolute inset-0 opacity-40 blur-3xl pointer-events-none bg-violet-500/10 dark:bg-violet-500/5" />
             <div className="relative flex min-h-screen w-full">
               {/* DESKTOP LAYOUT: sidebar fixa à esquerda */}
@@ -82,6 +83,7 @@ export default function RootLayout({ children }) {
                 </div>
               </main>
             </div>
+          </div>
           </div>
         </AuthProvider>
       </body>

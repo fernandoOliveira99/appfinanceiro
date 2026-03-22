@@ -10,6 +10,7 @@ export default function FinanceCards({
   salary, 
   totalExpenses, 
   totalIncome, 
+  currentBalance,
   forecastBalance, 
   previousBalance, 
   lastMovementDate, 
@@ -19,7 +20,7 @@ export default function FinanceCards({
   balanceHistory = [],
   hideValues = false
 }) {
-  const saldo = totalIncome - totalExpenses;
+  const saldo = currentBalance !== undefined ? currentBalance : (totalIncome - totalExpenses);
   const [showHistory, setShowHistory] = useState(false);
 
   // Cálculo real da variação acumulada de todos os valores adicionados
@@ -57,7 +58,7 @@ export default function FinanceCards({
                 <div className="h-7 w-7 md:h-12 md:w-12 rounded-lg md:rounded-2xl bg-violet-500/10 flex items-center justify-center text-sm md:text-2xl shadow-inner border border-violet-500/20 shrink-0">💰</div>
                 <div className="min-w-0 flex-1">
                   <p className="text-[7px] md:text-xs font-black uppercase tracking-tighter md:tracking-[0.2em] text-slate-500 dark:text-slate-400 leading-none">Saldo</p>
-                  <h3 className={`text-sm xs:text-base md:text-5xl font-black ${saldo >= 0 ? "text-emerald-600 dark:text-emerald-400" : "text-rose-600 dark:text-rose-400"} tracking-tight mt-0.5 md:mt-1 truncate leading-tight`}>
+                  <h3 className={`text-sm xs:text-base md:text-5xl font-black ${saldo >= 0 ? "text-emerald-600 dark:text-emerald-400" : "text-rose-600 dark:text-rose-400"} tracking-tight mt-0.5 md:mt-1 truncate leading-tight whitespace-nowrap`}>
                     {formatCurrencyBRL(saldo, hideValues)}
                   </h3>
                 </div>
@@ -90,7 +91,7 @@ export default function FinanceCards({
               <div className="h-7 w-7 md:h-12 md:w-12 rounded-lg md:rounded-2xl bg-rose-500/10 flex items-center justify-center text-sm md:text-2xl shadow-inner border border-rose-500/20 shrink-0">📉</div>
               <div className="min-w-0 flex-1">
                 <p className="text-[7px] md:text-xs font-black uppercase tracking-tighter md:tracking-[0.2em] text-slate-500 dark:text-slate-400 leading-none">Despesas</p>
-                <h3 className="text-sm xs:text-base md:text-4xl font-black text-rose-600 dark:text-rose-500 mt-0.5 md:mt-1 truncate leading-tight">
+                <h3 className="text-sm xs:text-base md:text-4xl font-black text-rose-600 dark:text-rose-500 mt-0.5 md:mt-1 truncate leading-tight whitespace-nowrap">
                   {formatCurrencyBRL(totalExpenses, hideValues)}
                 </h3>
               </div>
@@ -166,7 +167,11 @@ export default function FinanceCards({
                     <div>
                       <p className="text-xs font-black text-slate-400 uppercase tracking-widest">{formatDateTime(item.date)}</p>
                       <h4 className={`text-sm font-bold ${item.type === 'income' ? 'text-emerald-500' : 'text-rose-500'}`}>
-                        {item.type === 'income' ? 'Entrada de Saldo' : 'Saída / Despesa'}
+                        {item.type === 'income' 
+                          ? 'Entrada de Saldo' 
+                          : item.category === 'Metas' 
+                            ? 'Saída / Meta' 
+                            : 'Saída / Despesa'}
                       </h4>
                     </div>
                   </div>

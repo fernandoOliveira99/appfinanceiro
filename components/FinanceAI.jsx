@@ -1,6 +1,7 @@
 "use client";
 
 import { useState, useEffect, useRef, useCallback } from "react";
+import { motion, AnimatePresence } from "framer-motion";
 import { theme } from "@config/design-system";
 import { 
   Bot, 
@@ -343,56 +344,27 @@ export default function FinanceAI({ user, mascotId, setMascotId }) {
 
   return (
     <>
-      {showNotification && !isOpen && (
-        <div 
-          onClick={() => { setIsOpen(true); setShowNotification(false); }}
-          className="fixed bottom-40 right-6 md:bottom-28 md:right-8 z-50 max-w-[280px] animate-in slide-in-from-right-10 fade-in duration-500 cursor-pointer group"
+      <div className="fixed bottom-28 md:bottom-6 right-6 z-[9999] pointer-events-auto">
+        <button
+          onClick={() => setIsOpen(true)}
+          className={`h-12 w-12 md:h-14 md:w-14 rounded-2xl flex items-center justify-center shadow-2xl transition-all active:scale-90 group relative ${selectedMascot.bg} border border-white/10`}
         >
-          <div className="bg-slate-900/95 backdrop-blur-xl border border-indigo-500/30 rounded-2xl p-4 shadow-2xl shadow-indigo-500/20 relative transition-all duration-500 group-hover:max-w-[320px]">
-            <div className="absolute -top-1 -right-1 h-3 w-3 bg-indigo-500 rounded-full animate-ping"></div>
-            <div className="flex gap-3 items-center items-start">
-              <div className={`h-12 w-12 rounded-2xl ${notificationMessage.mascot?.bg || selectedMascot.bg} flex items-center justify-center flex-shrink-0 border border-white/5 shadow-inner ${notificationMessage.mascot?.color || selectedMascot.color} mt-1`}>
-                {(() => {
-                  const Icon = notificationMessage.mascot?.icon || MascotIcon;
-                  return <Icon size={24} className={notificationMessage.mascot?.animation || selectedMascot.animation} />;
-                })()}
-              </div>
-              <div className="flex flex-col gap-0.5 min-w-0 pr-4">
-                <p className={`text-[10px] font-black ${notificationMessage.mascot?.color || selectedMascot.color} uppercase tracking-widest`}>
-                  Dica do {notificationMessage.mascot?.name || selectedMascot.name}
-                </p>
-                <p className="text-xs text-slate-200 font-medium line-clamp-3 group-hover:line-clamp-none transition-all duration-500 leading-relaxed">
-                  {notificationMessage.text || `Tenho novas dicas para suas finanças hoje!`}
-                </p>
-              </div>
-            </div>
-            <button 
-              onClick={(e) => { e.stopPropagation(); setShowNotification(false); }}
-              className="absolute top-2 right-2 text-slate-500 hover:text-white"
-            >
-              <X size={14} />
-            </button>
-          </div>
-        </div>
-      )}
-
-      <div className="fixed bottom-28 right-6 md:bottom-8 md:right-8 z-40">
-        {!isOpen && (
-          <button
-            onClick={() => { setIsOpen(true); setShowNotification(false); }}
-            className={`h-16 w-16 rounded-full bg-slate-900 shadow-2xl shadow-indigo-500/30 flex items-center justify-center hover:scale-110 active:scale-95 transition-all duration-300 border-2 border-indigo-500/20 backdrop-blur-md group relative`}
-          >
-            <MascotIcon className={`h-8 w-8 ${selectedMascot.color} group-hover:rotate-12 transition-transform ${selectedMascot.animation}`} />
-            <div className="absolute -top-1 -right-1 h-4 w-4 bg-emerald-500 rounded-full border-2 border-slate-950 animate-pulse"></div>
-          </button>
-        )}
+          <div className="absolute inset-0 bg-gradient-to-tr from-white/10 to-transparent opacity-0 group-hover:opacity-100 transition-opacity rounded-2xl" />
+          <MascotIcon size={24} className={`${selectedMascot.color} ${selectedMascot.animation} md:hidden`} />
+          <MascotIcon size={28} className={`${selectedMascot.color} ${selectedMascot.animation} hidden md:block`} />
+          <div className="absolute -top-1 -right-1 h-3.5 w-3.5 md:h-4 md:w-4 bg-emerald-500 rounded-full border-2 md:border-4 border-slate-950 animate-pulse z-10" />
+        </button>
       </div>
 
-      {isOpen && (
-        <div className="fixed inset-0 md:inset-auto md:bottom-28 md:right-8 z-50 animate-in fade-in slide-in-from-bottom-10 duration-500">
-          <div 
-            className="w-full h-full md:w-[450px] md:h-[600px] flex flex-col shadow-2xl md:rounded-3xl overflow-hidden border-t md:border border-slate-800/50 bg-slate-950/95 backdrop-blur-xl"
-          >
+      <AnimatePresence>
+        {isOpen && (
+          <div className="fixed inset-0 z-[100000] flex items-end sm:items-center justify-center p-4 bg-slate-950/40 backdrop-blur-sm pointer-events-auto">
+            <motion.div
+              initial={{ opacity: 0, y: 20, scale: 0.95 }}
+              animate={{ opacity: 1, y: 0, scale: 1 }}
+              exit={{ opacity: 0, y: 20, scale: 0.95 }}
+              className="w-full max-w-lg sm:w-96 h-[80vh] sm:h-[600px] bg-white dark:bg-slate-900 rounded-[2.5rem] shadow-2xl border border-slate-200 dark:border-slate-800 overflow-hidden flex flex-col"
+            >
             <div className="p-6 flex items-center justify-between border-b border-slate-800/50 bg-slate-900/20">
               <div className="flex items-center gap-3">
                 <div className={`h-12 w-12 rounded-2xl ${selectedMascot.bg} flex items-center justify-center ${selectedMascot.color} shadow-inner border border-white/5 relative group`}>
@@ -593,7 +565,7 @@ export default function FinanceAI({ user, mascotId, setMascotId }) {
               <>
                 <div 
                   ref={scrollRef}
-                  className="flex-1 overflow-y-auto p-6 space-y-6 custom-scrollbar"
+                  className="flex-1 overflow-y-auto p-4 sm:p-6 space-y-6 custom-scrollbar"
                 >
                   {messages.length === 0 && !loading && (
                     <div className="flex flex-col items-center justify-center h-full text-center space-y-4 opacity-50">
@@ -662,8 +634,8 @@ export default function FinanceAI({ user, mascotId, setMascotId }) {
                   <form onSubmit={handleSendMessage} className="relative flex items-center gap-2">
                     <input
                       type="text"
-                      placeholder={`Pergunte algo ao ${selectedMascot.name}...`}
-                      className="flex-1 bg-slate-900 border border-slate-800 rounded-2xl px-5 py-4 text-sm text-white placeholder:text-slate-600 outline-none focus:border-indigo-500/50 transition-all pr-12"
+                      placeholder={`Pergunte ao ${selectedMascot.name}...`}
+                      className="flex-1 bg-slate-900 border border-slate-800 rounded-2xl pl-11 pr-12 py-4 text-sm text-white placeholder:text-slate-600 outline-none focus:border-indigo-500/50 transition-all shadow-inner truncate min-w-0"
                       value={inputValue}
                       onChange={(e) => setInputValue(e.target.value)}
                       disabled={loading}
@@ -682,9 +654,10 @@ export default function FinanceAI({ user, mascotId, setMascotId }) {
                 </div>
               </>
             )}
+            </motion.div>
           </div>
-        </div>
-      )}
+        )}
+      </AnimatePresence>
     </>
   );
 }

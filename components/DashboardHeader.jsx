@@ -82,7 +82,7 @@ export default function DashboardHeader({ user, onAddIncome, onAddExpense, hideV
   );
 
   return (
-    <section className={`${theme.cardStyles.base} rounded-[1.5rem] md:rounded-[2.5rem] p-4 md:p-8 shadow-2xl border border-slate-200/60 dark:border-slate-800/40 bg-white dark:bg-gradient-to-br dark:from-slate-900 dark:to-slate-950/50 relative transition-all duration-300`}>
+    <section className={`${theme.cardStyles.base} rounded-[1.5rem] md:rounded-[2.5rem] p-4 md:p-8 shadow-2xl border border-slate-200/60 dark:border-slate-800/40 bg-white dark:bg-gradient-to-br dark:from-slate-900 dark:to-slate-950/50 relative transition-all duration-300 overflow-hidden`}>
       <div className="absolute -top-10 -right-10 w-48 h-48 bg-violet-600/5 dark:bg-violet-600/10 rounded-full blur-3xl pointer-events-none"></div>
       <div className="absolute -bottom-10 -left-10 w-48 h-48 bg-emerald-600/5 dark:bg-emerald-600/10 rounded-full blur-3xl pointer-events-none"></div>
 
@@ -182,7 +182,7 @@ export default function DashboardHeader({ user, onAddIncome, onAddExpense, hideV
               </button>
             </div>
           </div>
-          <h1 className="text-2xl md:text-5xl font-black text-slate-900 dark:text-white tracking-tight">
+          <h1 className="text-2xl md:text-5xl font-black text-slate-900 dark:text-white tracking-tight truncate max-w-full">
             Olá, {capitalizedName} 👋
           </h1>
           <p className="text-[10px] md:text-base text-slate-500 dark:text-slate-400 max-w-lg font-medium">

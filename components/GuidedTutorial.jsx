@@ -54,38 +54,42 @@ export default function GuidedTutorial({ run, onFinish, setActiveTab }) {
     const mobileSteps = [
       {
         target: "#balance-area",
-        content: "Este é o seu resumo financeiro onde você pode ver seu saldo atual, receitas e despesas do mês.",
+        content: "Este é o seu resumo financeiro. Aqui você vê seu saldo atual, receitas e despesas totais do mês.",
         disableBeacon: true,
       },
       {
-        target: "#mobile-tabs",
-        content: "Use estas abas para navegar entre o Resumo, suas Metas e a Análise Financeira.",
+        target: "#forecast-section",
+        content: "Baseado nos seus gastos, calculamos quanto você terá no final do mês. Planejamento é tudo!",
       },
       {
         target: "#transaction-list",
-        content: "Aqui você acompanha o histórico detalhado de todas as suas movimentações.",
+        content: "Acompanhe cada centavo aqui. Você pode buscar, filtrar e gerenciar todas as suas movimentações.",
       },
       {
         target: "#fab-button",
-        content: "Use este botão para adicionar rapidamente novas receitas ou despesas.",
+        content: "Precisa registrar algo rápido? Use este botão flutuante para adicionar receitas ou despesas de qualquer lugar.",
         placement: "left"
       },
       {
+        target: "#mobile-tabs",
+        content: "Navegue entre o Resumo, suas Metas, Análises detalhadas e suas Contas Mensais fixas.",
+      },
+      {
         target: "#goals-section",
-        content: "Defina objetivos financeiros e acompanhe seu progresso aqui. Você pode até receber sugestões de quanto poupar por mês!",
+        content: "Defina seus sonhos aqui! Acompanhe o progresso e receba sugestões de quanto poupar para conquistar seus objetivos.",
       },
       {
         target: "#insights-section",
-        content: "Nossa IA analisa seus hábitos e te dá dicas personalizadas para economizar e melhorar sua saúde financeira.",
+        content: "Nossa IA analisa seu comportamento e te avisa sobre gastos suspeitos ou como economizar mais.",
       },
       {
         target: "#report-export-section",
-        content: "Precisa levar seus dados para fora? Exporte relatórios completos em PDF ou Excel com um clique.",
+        content: "Gere relatórios profissionais em PDF ou Excel para ter um controle ainda mais rigoroso fora do app.",
       },
       {
         target: "body",
         placement: "center",
-        content: "Você está pronto para começar a gerenciar suas finanças de forma inteligente!",
+        content: "Você agora conhece todas as ferramentas! Vamos transformar sua vida financeira hoje?",
       },
     ];
 
@@ -107,9 +111,9 @@ export default function GuidedTutorial({ run, onFinish, setActiveTab }) {
 
     // Lógica para trocar de abas no mobile durante o tutorial
     if (type === "step:after" && window.innerWidth < 768) {
-      if (index === 3) { // Depois do transaction-list, vai para Metas
+      if (index === 4) { // Depois do mobile-tabs, vai para Metas
         setActiveTab("goals");
-      } else if (index === 4) { // Depois do goals-section, vai para Análise
+      } else if (index === 5) { // Depois do goals-section, vai para Análise
         setActiveTab("analysis");
       }
     }
