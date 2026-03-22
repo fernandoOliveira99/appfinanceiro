@@ -76,6 +76,13 @@ export default function FinanceAI({ user, mascotId, setMascotId }) {
     return false;
   });
 
+  const [showTipsSetting, setShowTipsSetting] = useState(() => {
+    if (typeof window !== 'undefined') {
+      return localStorage.getItem('show_smart_tips') === 'true';
+    }
+    return false;
+  });
+
   const [inputValue, setInputValue] = useState("");
   const [showNotification, setShowNotification] = useState(false);
   const [notificationMessage, setNotificationMessage] = useState("");
@@ -218,6 +225,14 @@ export default function FinanceAI({ user, mascotId, setMascotId }) {
     setMascotId(mascot.id);
     localStorage.setItem(`user_mascot_${user?.id || 'guest'}`, mascot.id);
     setIsSettingsOpen(false);
+  };
+
+  const toggleTips = () => {
+    const newValue = !showTipsSetting;
+    setShowTipsSetting(newValue);
+    localStorage.setItem('show_smart_tips', String(newValue));
+    // Dispara evento para o DashboardClient atualizar o estado
+    window.dispatchEvent(new CustomEvent('toggle-smart-tips', { detail: newValue }));
   };
 
   useEffect(() => {
@@ -464,6 +479,37 @@ export default function FinanceAI({ user, mascotId, setMascotId }) {
                         );
                       })}
                     </div>
+                  </div>
+
+                  <div className="h-px bg-slate-800/50"></div>
+
+                  {/* Configurações de Dicas */}
+                  <div className="space-y-3">
+                    <div className="text-center space-y-1">
+                      <h3 className="text-sm font-black text-white uppercase tracking-wider">Interações</h3>
+                      <p className="text-[10px] text-slate-500 font-bold">DICAS DOS PERSONAGENS</p>
+                    </div>
+                    <button
+                      onClick={toggleTips}
+                      className={`w-full flex items-center justify-between p-4 rounded-2xl border transition-all ${
+                        showTipsSetting 
+                          ? 'bg-emerald-600/10 border-emerald-500/50 text-emerald-500' 
+                          : 'bg-slate-900/40 border-slate-800 text-slate-400 hover:border-slate-700'
+                      }`}
+                    >
+                      <div className="flex items-center gap-3">
+                        <div className={`h-10 w-10 rounded-xl flex items-center justify-center ${showTipsSetting ? 'bg-emerald-500/20' : 'bg-slate-800'}`}>
+                          <Sparkles size={20} />
+                        </div>
+                        <div className="flex flex-col items-start">
+                          <span className="text-sm font-bold text-white">Dicas da Galera</span>
+                          <span className="text-[10px] opacity-70 font-bold uppercase tracking-widest">Balões de dicas aleatórias</span>
+                        </div>
+                      </div>
+                      <div className={`w-10 h-5 rounded-full relative transition-colors ${showTipsSetting ? 'bg-emerald-500' : 'bg-slate-700'}`}>
+                        <div className={`absolute top-1 w-3 h-3 rounded-full bg-white shadow-sm transition-all ${showTipsSetting ? 'left-6' : 'left-1'}`} />
+                      </div>
+                    </button>
                   </div>
 
                   <div className="h-px bg-slate-800/50"></div>

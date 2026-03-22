@@ -6,7 +6,19 @@ import { History, TrendingUp, TrendingDown, DollarSign, Plus } from "lucide-reac
 import { useState } from "react";
 import { motion } from "framer-motion";
 
-export default function FinanceCards({ salary, totalExpenses, totalIncome, forecastBalance, previousBalance, lastMovementDate, onAddIncome, onAddExpense, transactions = [], balanceHistory = [] }) {
+export default function FinanceCards({ 
+  salary, 
+  totalExpenses, 
+  totalIncome, 
+  forecastBalance, 
+  previousBalance, 
+  lastMovementDate, 
+  onAddIncome, 
+  onAddExpense, 
+  transactions = [], 
+  balanceHistory = [],
+  hideValues = false
+}) {
   const saldo = totalIncome - totalExpenses;
   const [showHistory, setShowHistory] = useState(false);
 
@@ -46,7 +58,7 @@ export default function FinanceCards({ salary, totalExpenses, totalIncome, forec
                 <div className="min-w-0 flex-1">
                   <p className="text-[7px] md:text-xs font-black uppercase tracking-tighter md:tracking-[0.2em] text-slate-500 dark:text-slate-400 leading-none">Saldo</p>
                   <h3 className={`text-[11px] xs:text-xs md:text-4xl font-black ${saldo >= 0 ? "text-emerald-600 dark:text-emerald-400" : "text-rose-600 dark:text-rose-400"} tracking-tight mt-0.5 md:mt-1 truncate leading-tight`}>
-                    {formatCurrencyBRL(saldo)}
+                    {formatCurrencyBRL(saldo, hideValues)}
                   </h3>
                 </div>
               </div>
@@ -79,7 +91,7 @@ export default function FinanceCards({ salary, totalExpenses, totalIncome, forec
               <div className="min-w-0 flex-1">
                 <p className="text-[7px] md:text-xs font-black uppercase tracking-tighter md:tracking-[0.2em] text-slate-500 dark:text-slate-400 leading-none">Despesas</p>
                 <h3 className="text-[11px] xs:text-xs md:text-3xl font-black text-rose-600 dark:text-rose-500 mt-0.5 md:mt-1 truncate leading-tight">
-                  {formatCurrencyBRL(totalExpenses)}
+                  {formatCurrencyBRL(totalExpenses, hideValues)}
                 </h3>
               </div>
             </div>
@@ -158,10 +170,10 @@ export default function FinanceCards({ salary, totalExpenses, totalIncome, forec
                   </div>
                   <div className="text-right">
                     <p className={`text-sm font-black ${item.type === 'income' ? 'text-emerald-500' : 'text-rose-500'}`}>
-                      {item.type === 'income' ? '+' : '-'}{formatCurrencyBRL(item.amount)}
+                      {item.type === 'income' ? '+' : '-'}{formatCurrencyBRL(item.amount, hideValues)}
                     </p>
                     <p className="text-[10px] font-bold text-slate-500 uppercase tracking-tighter">
-                      Saldo: {formatCurrencyBRL(item.balance)}
+                      Saldo: {formatCurrencyBRL(item.balance, hideValues)}
                     </p>
                   </div>
                 </div>
@@ -172,7 +184,7 @@ export default function FinanceCards({ salary, totalExpenses, totalIncome, forec
           <div className="mt-6 pt-4 border-t border-slate-100 dark:border-slate-800 flex justify-between items-center">
             <div className="flex flex-col">
               <span className="text-[10px] font-black text-slate-500 uppercase tracking-widest">Total Recebido</span>
-              <span className="text-sm font-black text-emerald-500">{formatCurrencyBRL(totalIncome)}</span>
+              <span className="text-sm font-black text-emerald-500">{formatCurrencyBRL(totalIncome, hideValues)}</span>
             </div>
             <div className="text-right">
               <span className="text-[10px] font-black text-slate-500 uppercase tracking-widest">Variação do Período</span>
@@ -205,13 +217,13 @@ export default function FinanceCards({ salary, totalExpenses, totalIncome, forec
             <div className="text-right border-r border-slate-200 dark:border-slate-800 pr-8 hidden sm:block">
               <p className="text-[10px] font-bold uppercase tracking-widest text-slate-500 mb-1">Saldo Atual</p>
               <h4 className={`text-lg font-bold ${saldo >= 0 ? "text-emerald-600 dark:text-emerald-400/80" : "text-rose-600 dark:text-rose-400/80"}`}>
-                {formatCurrencyBRL(saldo)}
+                {formatCurrencyBRL(saldo, hideValues)}
               </h4>
             </div>
             <div className="text-right">
               <p className="text-[10px] font-bold uppercase tracking-widest text-slate-500 mb-1">Previsão no fim do mês</p>
               <h4 className={`text-2xl font-black ${forecastBalance >= 0 ? "text-violet-600 dark:text-violet-400" : "text-rose-600 dark:text-rose-500 animate-pulse"}`}>
-                {formatCurrencyBRL(forecastBalance)}
+                {formatCurrencyBRL(forecastBalance, hideValues)}
               </h4>
             </div>
           </div>

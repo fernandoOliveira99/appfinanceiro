@@ -44,12 +44,29 @@ export default function DashboardClient({ user, initialSalary, initialTransactio
  const [achievementQueue, setAchievementQueue] = useState([]);
   const [currentAchievement, setCurrentAchievement] = useState(null);
   const [showTips, setShowTips] = useState(false);
+  const [hideValues, setHideValues] = useState(false);
 
   useEffect(() => {
-    // Sempre desativado ao carregar/logar conforme solicitado
-    setShowTips(false);
-    localStorage.setItem('show_smart_tips', 'false');
+    // Carrega preferências de dicas e ocultação de valores
+    const savedTips = localStorage.getItem('show_smart_tips') === 'true';
+    const savedHide = localStorage.getItem('hide_dashboard_values') === 'true';
+    setShowTips(savedTips);
+    setHideValues(savedHide);
+
+    const handleToggleTips = (e) => {
+      setShowTips(e.detail);
+    };
+    window.addEventListener('toggle-smart-tips', handleToggleTips);
+    return () => window.removeEventListener('toggle-smart-tips', handleToggleTips);
   }, []);
+
+  const toggleHideValues = () => {
+    const newValue = !hideValues;
+    setHideValues(newValue);
+    localStorage.setItem('hide_dashboard_values', String(newValue));
+    // Dispara evento para outros componentes se necessário
+    window.dispatchEvent(new CustomEvent('toggle-values', { detail: newValue }));
+  };
 
   const [mascotId, setMascotId] = useState("goku");
 
@@ -295,21 +312,12 @@ export default function DashboardClient({ user, initialSalary, initialTransactio
         user={user} 
         onAddIncome={() => setModalMode("income")} 
         onAddExpense={() => setModalMode("expense")} 
+        hideValues={hideValues}
+        onToggleHideValues={toggleHideValues}
       />
 
-      {/* Economy Mode & Tips Toggle - Hidden in 'Goals' and 'Analysis' on Mobile */}
+      {/* Economy Mode Toggle - Hidden in 'Goals' and 'Analysis' on Mobile */}
       <div className={`${activeTab !== 'overview' ? 'hidden md:flex' : 'flex'} items-center justify-end gap-3 md:gap-4`}>
-        <button
-          onClick={() => setShowTips(!showTips)}
-          className={`flex items-center gap-2 px-4 py-3 rounded-2xl border transition-all ${showTips ? 'bg-indigo-600/10 border-indigo-500/30 text-indigo-600 dark:text-indigo-400' : 'bg-white dark:bg-slate-900/50 border-slate-200 dark:border-slate-800 text-slate-400'}`}
-          title={showTips ? "Ocultar Dicas" : "Mostrar Dicas"}
-        >
-          <Sparkles size={18} className={showTips ? 'fill-indigo-500/20' : ''} />
-          <span className="text-[10px] font-black uppercase tracking-widest hidden sm:inline">
-            {showTips ? 'Dicas Ativas' : 'Dicas Desativadas'}
-          </span>
-        </button>
-
         <button
           onClick={() => setEconomyMode(!economyMode)}
           className={`flex items-center gap-3 px-6 py-3 rounded-2xl border transition-all ${economyMode ? 'bg-emerald-600/20 border-emerald-500/50 text-emerald-600 dark:text-emerald-400 shadow-lg shadow-emerald-900/10' : 'bg-white dark:bg-slate-900/50 border-slate-200 dark:border-slate-800 text-slate-500 dark:text-slate-400 hover:bg-slate-50 dark:hover:bg-slate-800/80 shadow-sm hover:shadow-md'}`}
@@ -343,6 +351,7 @@ export default function DashboardClient({ user, initialSalary, initialTransactio
         onAddExpense={() => setModalMode("expense")}
         transactions={transactions}
         balanceHistory={recentBalanceHistory}
+        hideValues={hideValues}
       />
         </div>
         <div>
@@ -439,9 +448,9 @@ export default function DashboardClient({ user, initialSalary, initialTransactio
         onSave={handleSaveTransaction}
       />
 
-      {/* Segmented Control Tabs (App Style) - Moved to bottom for mobile */}
-      <div className="md:hidden fixed bottom-0 inset-x-0 z-50 px-2 pb-4 pt-2 bg-gradient-to-t from-white dark:from-slate-950 via-white/80 dark:via-slate-950/80 to-transparent">
-        <div className="flex bg-white/90 dark:bg-slate-900/90 backdrop-blur-xl p-1 rounded-2xl border border-slate-200 dark:border-slate-800 shadow-2xl">
+      {/* Segmented Control Tabs (App Style) - Fixed at bottom for mobile */}
+      <div className="md:hidden fixed bottom-0 inset-x-0 z-[100] px-2 pb-4 pt-2 bg-gradient-to-t from-white dark:from-slate-950 via-white/95 dark:via-slate-950/95 to-transparent backdrop-blur-sm">
+        <div className="flex bg-white/95 dark:bg-slate-900/95 backdrop-blur-xl p-1 rounded-2xl border border-slate-200 dark:border-slate-800 shadow-[0_-10px_40px_rgba(0,0,0,0.1)] dark:shadow-[0_-10px_40px_rgba(0,0,0,0.3)]">
           {[
             { id: 'overview', label: 'Resumo', icon: <Zap size={14} /> },
             { id: 'goals', label: 'Metas', icon: <Target size={14} /> },

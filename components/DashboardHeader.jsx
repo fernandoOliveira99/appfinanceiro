@@ -1,10 +1,10 @@
 "use client";
 
 import { theme } from "@config/design-system";
-import { Plus, Moon, Sun, Bell, Check, X as XIcon } from "lucide-react";
+import { Plus, Moon, Sun, Bell, Check, X as XIcon, Eye, EyeOff } from "lucide-react";
 import { useState, useEffect, useRef } from "react";
 
-export default function DashboardHeader({ user, onAddIncome, onAddExpense }) {
+export default function DashboardHeader({ user, onAddIncome, onAddExpense, hideValues, onToggleHideValues }) {
   const [mounted, setMounted] = useState(false);
   const [isDark, setIsDark] = useState(true);
   const [notifications, setNotifications] = useState([]);
@@ -161,6 +161,18 @@ export default function DashboardHeader({ user, onAddIncome, onAddExpense }) {
                   </div>
                 )}
               </div>
+
+              <button
+                onClick={onToggleHideValues}
+                className={`group p-1.5 md:p-2 rounded-xl md:rounded-2xl border transition-all shadow-sm ${
+                  hideValues 
+                    ? 'bg-rose-500/10 border-rose-500/20 text-rose-500' 
+                    : 'bg-slate-50 dark:bg-slate-800 border-slate-200 dark:border-slate-700 text-slate-500 dark:text-slate-400 hover:text-violet-600 dark:hover:text-violet-400'
+                }`}
+                title={hideValues ? "Mostrar valores" : "Ocultar valores"}
+              >
+                {hideValues ? <EyeOff size={14} className="md:w-4 md:h-4" /> : <Eye size={14} className="md:w-4 md:h-4" />}
+              </button>
 
               <button
                 onClick={toggleTheme}
