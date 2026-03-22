@@ -22,7 +22,7 @@ import RecurringTransactionsManager from "@components/RecurringTransactionsManag
 import WelcomeExperience from "@components/WelcomeExperience";
 import SmartTips from "@components/SmartTips";
 import { generateDashboardReport } from "@lib/report";
-import { Zap, Plus, ArrowUpCircle, ArrowDownCircle, Target, PieChart, Smile, Sparkles, CalendarClock } from "lucide-react";
+import { Zap, Plus, ArrowUpCircle, ArrowDownCircle, Target, PieChart, Smile, Sparkles, CalendarClock, Sliders } from "lucide-react";
 import { personalities } from "@lib/personalities";
 import { AnimatePresence } from "framer-motion";
 
@@ -37,7 +37,7 @@ export default function DashboardClient({ user, initialSalary, initialTransactio
   const [editingTransaction, setEditingTransaction] = useState(null);
   const [economyMode, setEconomyMode] = useState(false);
   const [fabOpen, setFabOpen] = useState(false);
-  const [activeTab, setActiveTab] = useState("overview"); // 'overview' | 'goals' | 'analysis'
+  const [activeTab, setActiveTab] = useState("overview"); // 'overview' | 'budgets' | 'goals' | 'analysis' | 'recurring'
   const [showWelcome, setShowWelcome] = useState(false);
   const [forceShowTutorial, setForceShowTutorial] = useState(false);
   const [showTips, setShowTips] = useState(false);
@@ -344,19 +344,19 @@ export default function DashboardClient({ user, initialSalary, initialTransactio
         )}
         <div className="lg:col-span-3">
           <FinanceCards 
-        salary={salary} 
-        totalExpenses={totalExpenses} 
-        totalIncome={totalIncome} 
-        currentBalance={currentBalance}
-        forecastBalance={estimatedEndBalance}
-        previousBalance={balanceBeforeLast}
-        lastMovementDate={lastMovementDate}
-        onAddIncome={() => setModalMode("income")}
-        onAddExpense={() => setModalMode("expense")}
-        transactions={transactions}
-        balanceHistory={recentBalanceHistory}
-        hideValues={hideValues}
-      />
+            salary={salary} 
+            totalExpenses={totalExpenses} 
+            totalIncome={totalIncome} 
+            currentBalance={currentBalance}
+            forecastBalance={estimatedEndBalance}
+            previousBalance={balanceBeforeLast}
+            lastMovementDate={lastMovementDate}
+            onAddIncome={() => setModalMode("income")}
+            onAddExpense={() => setModalMode("expense")}
+            transactions={transactions}
+            balanceHistory={recentBalanceHistory}
+            hideValues={hideValues}
+          />
         </div>
         <div>
           <FinancialHealthScore transactions={transactions} goals={goals} />
@@ -379,12 +379,12 @@ export default function DashboardClient({ user, initialSalary, initialTransactio
         <FinancialInsightsCard transactions={transactions} />
       </div>
 
-      {/* 4. CATEGORY RANKING & BUDGETS - Analysis and Goals Tabs */}
+      {/* 4. CATEGORY RANKING & BUDGETS - Analysis and Budgets Tabs */}
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
         <div className={`${activeTab !== 'analysis' ? 'hidden md:block' : 'block'}`}>
           <CategoryRanking transactions={transactions} />
         </div>
-        <div className={`${activeTab !== 'goals' ? 'hidden md:block' : 'block'}`}>
+        <div className={`${activeTab !== 'budgets' ? 'hidden md:block' : 'block'}`}>
           <CategoryBudgets transactions={transactions} />
         </div>
       </div>
@@ -453,10 +453,11 @@ export default function DashboardClient({ user, initialSalary, initialTransactio
       {/* Segmented Control Tabs (App Style) - Fixed at bottom for mobile */}
       <div className="md:hidden fixed bottom-0 left-0 right-0 z-[9999] pointer-events-none transform-gpu">
         <div className="px-2 pb-6 pt-10 bg-gradient-to-t from-white dark:from-slate-950 via-white/90 dark:via-slate-950/90 to-transparent">
-          <div className="flex bg-white/95 dark:bg-slate-900/95 backdrop-blur-xl p-1.5 rounded-2xl border border-slate-200 dark:border-slate-800 shadow-[0_-10px_40px_rgba(0,0,0,0.3)] pointer-events-auto max-w-[calc(100vw-1.5rem)] mx-auto">
+          <div className="flex bg-white/95 dark:bg-slate-900/95 backdrop-blur-xl p-1.5 rounded-2xl border border-slate-200 dark:border-slate-800 shadow-[0_-10px_40px_rgba(0,0,0,0.3)] pointer-events-auto max-w-[calc(100vw-1rem)] mx-auto">
             {[
-              { id: 'overview', label: 'Resumo', icon: <Zap size={14} /> },
-              { id: 'goals', label: 'Metas', icon: <Target size={14} /> },
+              { id: 'overview', label: 'Início', icon: <Zap size={14} /> },
+              { id: 'budgets', label: 'Controle', icon: <Sliders size={14} /> },
+              { id: 'goals', label: 'Objetivos', icon: <Target size={14} /> },
               { id: 'analysis', label: 'Análise', icon: <PieChart size={14} /> },
               { id: 'recurring', label: 'Contas Mensais', icon: <CalendarClock size={14} /> }
             ].map((tab) => (
