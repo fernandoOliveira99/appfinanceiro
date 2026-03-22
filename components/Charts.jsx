@@ -50,7 +50,6 @@ export default function Charts({ categoryData, income, expenses, lastMonthIncome
             <div className="flex bg-slate-100 dark:bg-slate-950 p-1 rounded-xl">
               {[
                 { label: 'Pizza', value: 'pie' },
-                { label: 'Barras', value: 'bar' },
                 { label: 'Pirâmide', value: 'pyramid' }
               ].map((t) => (
                 <button

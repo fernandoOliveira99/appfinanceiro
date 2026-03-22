@@ -24,7 +24,7 @@ import Achievements from "@components/Achievements";
 import AchievementUnlockPopup from "@components/AchievementUnlockPopup";
 import SmartTips from "@components/SmartTips";
 import { generateDashboardReport } from "@lib/report";
-import { Zap, Plus, ArrowUpCircle, ArrowDownCircle, Target, PieChart, Trophy, Smile, Sparkles } from "lucide-react";
+import { Zap, Plus, ArrowUpCircle, ArrowDownCircle, Target, PieChart, Trophy, Smile, Sparkles, CalendarClock } from "lucide-react";
 import { personalities } from "@lib/personalities";
 
 export default function DashboardClient({ user, initialSalary, initialTransactions }) {
@@ -43,18 +43,13 @@ export default function DashboardClient({ user, initialSalary, initialTransactio
   const [forceShowTutorial, setForceShowTutorial] = useState(false);
  const [achievementQueue, setAchievementQueue] = useState([]);
   const [currentAchievement, setCurrentAchievement] = useState(null);
-  const [showTips, setShowTips] = useState(true);
+  const [showTips, setShowTips] = useState(false);
 
   useEffect(() => {
-    const saved = localStorage.getItem('show_smart_tips');
-    if (saved !== null) {
-      setShowTips(JSON.parse(saved));
-    }
+    // Sempre desativado ao carregar/logar conforme solicitado
+    setShowTips(false);
+    localStorage.setItem('show_smart_tips', 'false');
   }, []);
-
-  useEffect(() => {
-    localStorage.setItem('show_smart_tips', JSON.stringify(showTips));
-  }, [showTips]);
 
   const [mascotId, setMascotId] = useState("goku");
 
@@ -302,8 +297,6 @@ export default function DashboardClient({ user, initialSalary, initialTransactio
         onAddExpense={() => setModalMode("expense")} 
       />
 
-
-
       {/* Economy Mode & Tips Toggle - Hidden in 'Goals' and 'Analysis' on Mobile */}
       <div className={`${activeTab !== 'overview' ? 'hidden md:flex' : 'flex'} items-center justify-end gap-3 md:gap-4`}>
         <button
@@ -329,34 +322,6 @@ export default function DashboardClient({ user, initialSalary, initialTransactio
             <div className={`absolute top-1 w-3 h-3 rounded-full bg-white shadow-sm transition-all ${economyMode ? 'left-6' : 'left-1'}`} />
           </div>
         </button>
-      </div>
-
-      {/* Segmented Control Tabs (App Style) - Now below Economy Toggle */}
-      <div className="md:hidden sticky top-2 z-30 px-0 py-2">
-        <div className="flex bg-white/90 dark:bg-slate-900/90 backdrop-blur-md p-1 rounded-2xl border border-slate-200 dark:border-slate-800 shadow-xl">
-          {[
-            { id: 'overview', label: 'Resumo', icon: <Zap size={14} /> },
-            { id: 'goals', label: 'Metas', icon: <Target size={14} /> },
-            { id: 'analysis', label: 'Análise', icon: <PieChart size={14} /> },
-            { id: 'achievements', label: 'Troféus', icon: <Trophy size={14} /> }
-          ].map((tab) => (
-            <button
-              key={tab.id}
-              onClick={() => {
-                setActiveTab(tab.id);
-                window.scrollTo({ top: 0, behavior: 'smooth' });
-              }}
-              className={`flex-1 flex items-center justify-center gap-2 py-2.5 rounded-xl text-[10px] font-black uppercase tracking-widest transition-all ${
-                activeTab === tab.id 
-                  ? 'bg-violet-600 text-white shadow-lg shadow-violet-600/20' 
-                  : 'text-slate-500 dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-800/50'
-              }`}
-            >
-              {tab.icon}
-              {tab.label}
-            </button>
-          ))}
-        </div>
       </div>
 
       {/* 1. TOP SECTION: Cards (Summary & Prediction) - Always shown in overview, hidden in other tabs on mobile */}
@@ -430,9 +395,9 @@ export default function DashboardClient({ user, initialSalary, initialTransactio
         </div>
       </div>
 
-      {/* Recurring Transactions Manager - Analysis Tab */}
-      <div className={`${activeTab !== 'analysis' ? 'hidden md:block' : 'block'}`}>
-        <RecurringTransactionsManager />
+      {/* Recurring Transactions Manager - Only on 'Recurring' Tab for mobile, visible on desktop */}
+      <div className={`${activeTab !== 'recurring' ? 'hidden md:block' : 'block'}`}>
+        <RecurringTransactionsManager transactions={transactions} />
       </div>
 
       {/* 6. ACHIEVEMENTS SECTION - Achievements Tab on Mobile */}
@@ -474,12 +439,37 @@ export default function DashboardClient({ user, initialSalary, initialTransactio
         onSave={handleSaveTransaction}
       />
 
-      {/* AI Financial Assistant - Fixed Side */}
-      <div className="fixed bottom-24 left-4 z-50 pointer-events-none">
-        <div className="pointer-events-auto">
-          <FinanceAI user={user} mascotId={mascotId} setMascotId={setMascotId} />
+      {/* Segmented Control Tabs (App Style) - Moved to bottom for mobile */}
+      <div className="md:hidden fixed bottom-0 inset-x-0 z-50 px-2 pb-4 pt-2 bg-gradient-to-t from-white dark:from-slate-950 via-white/80 dark:via-slate-950/80 to-transparent">
+        <div className="flex bg-white/90 dark:bg-slate-900/90 backdrop-blur-xl p-1 rounded-2xl border border-slate-200 dark:border-slate-800 shadow-2xl">
+          {[
+            { id: 'overview', label: 'Resumo', icon: <Zap size={14} /> },
+            { id: 'goals', label: 'Metas', icon: <Target size={14} /> },
+            { id: 'analysis', label: 'Análise', icon: <PieChart size={14} /> },
+            { id: 'recurring', label: 'Contas', icon: <CalendarClock size={14} /> },
+            { id: 'achievements', label: 'Troféus', icon: <Trophy size={14} /> }
+          ].map((tab) => (
+            <button
+              key={tab.id}
+              onClick={() => {
+                setActiveTab(tab.id);
+                window.scrollTo({ top: 0, behavior: 'smooth' });
+              }}
+              className={`flex-1 flex flex-col items-center justify-center gap-1 py-2 rounded-xl text-[8px] xs:text-[9px] font-black uppercase tracking-tighter transition-all ${
+                activeTab === tab.id 
+                  ? 'bg-violet-600 text-white shadow-lg shadow-violet-600/20 scale-105' 
+                  : 'text-slate-500 dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-800/50'
+              }`}
+            >
+              {tab.icon}
+              <span className="truncate w-full px-0.5">{tab.label}</span>
+            </button>
+          ))}
         </div>
       </div>
+
+      {/* AI Financial Assistant - Fixed Side */}
+      <FinanceAI user={user} mascotId={mascotId} setMascotId={setMascotId} />
 
       {/* Achievement Unlock Popup */}
        <AchievementUnlockPopup 

@@ -312,7 +312,7 @@ export default function FinanceAI({ user, mascotId, setMascotId }) {
       {showNotification && !isOpen && (
         <div 
           onClick={() => { setIsOpen(true); setShowNotification(false); }}
-          className="fixed bottom-32 right-6 md:bottom-28 md:right-8 z-50 max-w-[280px] animate-in slide-in-from-right-10 fade-in duration-500 cursor-pointer group"
+          className="fixed bottom-40 right-6 md:bottom-28 md:right-8 z-50 max-w-[280px] animate-in slide-in-from-right-10 fade-in duration-500 cursor-pointer group"
         >
           <div className="bg-slate-900/95 backdrop-blur-xl border border-indigo-500/30 rounded-2xl p-4 shadow-2xl shadow-indigo-500/20 relative transition-all duration-500 group-hover:max-w-[320px]">
             <div className="absolute -top-1 -right-1 h-3 w-3 bg-indigo-500 rounded-full animate-ping"></div>
@@ -342,7 +342,7 @@ export default function FinanceAI({ user, mascotId, setMascotId }) {
         </div>
       )}
 
-      <div className="fixed bottom-20 right-4 md:bottom-8 md:right-8 z-40">
+      <div className="fixed bottom-28 right-6 md:bottom-8 md:right-8 z-40">
         {!isOpen && (
           <button
             onClick={() => { setIsOpen(true); setShowNotification(false); }}

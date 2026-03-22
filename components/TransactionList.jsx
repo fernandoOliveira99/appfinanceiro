@@ -109,26 +109,29 @@ export default function TransactionList({ title, transactions, onDeleted, onEdit
                   </div>
                 </div>
                 
-                <div className="flex items-center gap-2">
-                  <span className={`text-sm font-black ${
-                    tx.type === 'income' ? 'text-emerald-600 dark:text-emerald-400' : 'text-rose-600 dark:text-rose-400'
-                  }`}>
-                    {tx.type === 'income' ? '+' : '-'} {formatCurrencyBRL(tx.amount)}
-                  </span>
-                  <div className="flex items-center gap-1 opacity-0 group-hover:opacity-100 transition-all">
+                <div className="flex flex-col items-end gap-2">
+                  <div className="flex items-center gap-2">
+                    <span className={`text-sm font-black ${
+                      tx.type === 'income' ? 'text-emerald-600 dark:text-emerald-400' : 'text-rose-600 dark:text-rose-400'
+                    }`}>
+                      {tx.type === 'income' ? '+' : '-'} {formatCurrencyBRL(tx.amount)}
+                    </span>
+                  </div>
+                  
+                  <div className="flex items-center gap-1.5 md:opacity-0 md:group-hover:opacity-100 transition-all">
                     <button
                       onClick={() => onEdit && onEdit(tx)}
-                      className="p-2 rounded-lg bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-400 hover:bg-violet-600 hover:text-white transition-all"
+                      className="p-1.5 rounded-lg bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-400 hover:bg-violet-600 hover:text-white transition-all shadow-sm"
                       title="Editar"
                     >
-                      <Edit2 size={14} />
+                      <Edit2 size={12} />
                     </button>
                     <button
                       onClick={() => deleteTransaction(tx.id)}
-                      className="p-2 rounded-lg bg-rose-50 dark:bg-rose-500/10 text-rose-600 dark:text-rose-500 hover:bg-rose-600 hover:text-white transition-all"
+                      className="p-1.5 rounded-lg bg-rose-50 dark:bg-rose-500/10 text-rose-600 dark:text-rose-500 hover:bg-rose-600 hover:text-white transition-all shadow-sm"
                       title="Excluir"
                     >
-                      <Trash2 size={14} />
+                      <Trash2 size={12} />
                     </button>
                   </div>
                 </div>

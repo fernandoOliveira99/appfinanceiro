@@ -5,7 +5,6 @@ import { theme } from "@config/design-system";
 import Header from "@components/Header";
 import Sidebar from "@components/Sidebar";
 import MobileTopBar from "@components/MobileTopBar";
-import MobileBottomNav from "@components/MobileBottomNav";
 import AuthProvider from "@components/AuthProvider";
 
 export const metadata = {
@@ -25,7 +24,7 @@ export const viewport = {
 
 export default function RootLayout({ children }) {
   return (
-    <html lang="pt-BR">
+    <html lang="pt-BR" className="dark" style={{ colorScheme: 'dark' }}>
       <head>
         <link rel="manifest" href="/manifest.json" />
         <link rel="apple-touch-icon" href="https://ui-avatars.com/api/?name=F&background=7c3aed&color=fff&size=192&rounded=true" />
@@ -63,9 +62,9 @@ export default function RootLayout({ children }) {
         className={`${theme.colors.background} min-h-screen text-slate-900 dark:text-slate-50 overflow-x-hidden max-w-full w-full select-none touch-pan-y`}
       >
         <AuthProvider>
-          {/* MOBILE LAYOUT: top bar e bottom nav controlam navegação em telas pequenas */}
+          {/* MOBILE LAYOUT: top bar controla navegação em telas pequenas */}
           <MobileTopBar />
-          <div className={`relative min-h-screen ${theme.colors.background} pb-24 md:pb-0 overflow-x-hidden w-full`}>
+          <div className={`relative min-h-screen ${theme.colors.background} pb-8 md:pb-0 overflow-x-hidden w-full`}>
             <div className="absolute inset-0 opacity-40 blur-3xl pointer-events-none bg-violet-500/10 dark:bg-violet-500/5" />
             <div className="relative flex min-h-screen w-full">
               {/* DESKTOP LAYOUT: sidebar fixa à esquerda */}
@@ -84,7 +83,6 @@ export default function RootLayout({ children }) {
               </main>
             </div>
           </div>
-          <MobileBottomNav />
         </AuthProvider>
       </body>
     </html>

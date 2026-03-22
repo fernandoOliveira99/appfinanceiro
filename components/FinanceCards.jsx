@@ -31,125 +31,159 @@ export default function FinanceCards({ salary, totalExpenses, totalIncome, forec
   };
 
   return (
-    <div className="w-full space-y-6">
-      <section id="balance-area" className="grid grid-cols-1 sm:grid-cols-2 gap-3 md:gap-6">
+    <div className="w-full space-y-4 md:space-y-6">
+      <section id="balance-area" className="grid grid-cols-2 md:grid-cols-2 gap-3 md:gap-6">
         {/* Card de Saldo Total */}
-        <div className={`${theme.cardStyles.base} rounded-3xl md:rounded-[2rem] p-3 md:p-8 shadow-2xl border border-slate-200 dark:border-slate-800/40 bg-white dark:bg-gradient-to-br dark:from-slate-900 dark:to-slate-950 hover:border-violet-500/30 transition-all duration-500 group relative overflow-hidden`}>
-          <div className="absolute top-0 right-0 p-4 opacity-[0.03] dark:opacity-[0.07] group-hover:scale-110 transition-transform duration-700">
+        <div className={`${theme.cardStyles.base} rounded-3xl md:rounded-[2rem] p-3 md:p-8 shadow-2xl border border-slate-200 dark:border-slate-800/40 bg-white dark:bg-gradient-to-br dark:from-slate-900 dark:to-slate-950 hover:border-violet-500/30 transition-all duration-500 group relative overflow-hidden flex flex-col justify-between min-h-[110px] md:min-h-0`}>
+          <div className="absolute top-0 right-0 p-4 opacity-[0.03] dark:opacity-[0.07] group-hover:scale-110 transition-transform duration-700 hidden md:block">
             <DollarSign size={80} className="text-slate-900 dark:text-white" />
           </div>
 
-          <div className="relative z-10 flex flex-col gap-2 md:gap-3">
-            <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+          <div className="relative z-10 flex flex-col gap-2 md:gap-3 h-full">
+            <div className="flex flex-col h-full justify-between gap-1">
               <div className="flex items-center gap-2 md:gap-3 min-w-0">
-                <div className="h-8 w-8 md:h-12 md:w-12 rounded-xl md:rounded-2xl bg-violet-500/10 flex items-center justify-center text-lg md:text-2xl shadow-inner border border-violet-500/20 group-hover:rotate-12 transition-transform duration-500 shrink-0">💰</div>
+                <div className="h-7 w-7 md:h-12 md:w-12 rounded-lg md:rounded-2xl bg-violet-500/10 flex items-center justify-center text-sm md:text-2xl shadow-inner border border-violet-500/20 shrink-0">💰</div>
                 <div className="min-w-0 flex-1">
-                  <p className="text-[8px] md:text-xs font-black uppercase tracking-tighter md:tracking-[0.2em] text-slate-500 dark:text-slate-400">Saldo</p>
-                  <h3 className={`text-[10px] xs:text-xs sm:text-sm md:text-4xl font-black ${saldo >= 0 ? "text-emerald-600 dark:text-emerald-400" : "text-rose-600 dark:text-rose-400"} tracking-tight mt-0.5 md:mt-1 break-words leading-tight`}>
+                  <p className="text-[7px] md:text-xs font-black uppercase tracking-tighter md:tracking-[0.2em] text-slate-500 dark:text-slate-400 leading-none">Saldo</p>
+                  <h3 className={`text-[11px] xs:text-xs md:text-4xl font-black ${saldo >= 0 ? "text-emerald-600 dark:text-emerald-400" : "text-rose-600 dark:text-rose-400"} tracking-tight mt-0.5 md:mt-1 truncate leading-tight`}>
                     {formatCurrencyBRL(saldo)}
                   </h3>
                 </div>
               </div>
               
-              <div className="flex items-center gap-1.5 md:gap-2 shrink-0 self-end sm:self-auto">
+              <div className="flex items-center gap-1.5 md:gap-2 shrink-0 mt-auto">
                 <button 
                   onClick={onAddIncome}
-                  className="p-2 md:p-3 rounded-xl md:rounded-2xl bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 hover:bg-emerald-500/20 transition-all active:scale-90 border border-emerald-500/20 shadow-sm"
-                  title="Adicionar dinheiro"
+                  className="flex-1 md:flex-none p-1.5 md:p-3 rounded-lg md:rounded-2xl bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 hover:bg-emerald-500/20 transition-all active:scale-95 border border-emerald-500/20 shadow-sm flex items-center justify-center"
+                  title="Adicionar"
                 >
-                  <Plus size={16} className="md:w-5 md:h-5" />
+                  <Plus size={14} className="md:w-5 md:h-5" />
                 </button>
                 <button 
                   onClick={() => setShowHistory(!showHistory)}
-                  className={`p-2 md:p-3 rounded-xl md:rounded-2xl transition-all ${showHistory ? 'bg-violet-600 text-white shadow-lg' : 'bg-slate-100 dark:bg-slate-800 text-slate-500 hover:text-violet-500 border border-slate-200 dark:border-slate-700'} active:scale-90`}
-                  title="Ver histórico"
+                  className={`flex-1 md:flex-none p-1.5 md:p-3 rounded-lg md:rounded-2xl transition-all ${showHistory ? 'bg-violet-600 text-white shadow-lg' : 'bg-slate-100 dark:bg-slate-800 text-slate-500 hover:text-violet-500 border border-slate-200 dark:border-slate-700'} active:scale-95 flex items-center justify-center`}
+                  title="Histórico"
                 >
-                  <History size={16} className="md:w-5 md:h-5" />
+                  <History size={14} className="md:w-5 md:h-5" />
                 </button>
               </div>
             </div>
-
-            {showHistory && (
-              <div className="mt-1 p-2 md:p-4 rounded-xl md:rounded-2xl bg-slate-50 dark:bg-slate-950/50 border border-slate-200 dark:border-slate-800/60 animate-in fade-in slide-in-from-top-2 duration-300 space-y-3">
-                <div className="flex items-center justify-between border-b border-slate-200 dark:border-slate-800 pb-2 gap-2">
-                  <div className="flex flex-col min-w-0">
-                    <span className="text-[8px] md:text-[10px] font-bold text-slate-500 uppercase">Total Recebido</span>
-                    <span className="text-[10px] md:text-xs font-black text-emerald-600 dark:text-emerald-400 break-words">{formatCurrencyBRL(totalIncome)}</span>
-                  </div>
-                  <div className="flex flex-col items-end shrink-0">
-                    <span className="text-[8px] md:text-[10px] font-bold text-slate-500 uppercase">Variação Geral</span>
-                    <div className={`flex items-center gap-0.5 md:gap-1 text-[10px] md:text-xs font-black ${isPositive ? 'text-emerald-500' : 'text-rose-500'}`}>
-                      {isPositive ? <TrendingUp size={10} /> : <TrendingDown size={10} />}
-                      {variation.toFixed(1)}%
-                    </div>
-                  </div>
-                </div>
-
-                <div className="space-y-2">
-                  <p className="text-[8px] md:text-[10px] font-black uppercase tracking-widest text-slate-400">Histórico do Saldo</p>
-                  {balanceHistory.length === 0 ? (
-                    <p className="text-[9px] md:text-xs text-slate-400 italic">Nenhuma movimentação</p>
-                  ) : (
-                    balanceHistory.map((item, idx) => (
-                      <div key={idx} className="flex flex-col sm:flex-row sm:items-center justify-between gap-1 sm:gap-4 border-b border-slate-200/50 dark:border-slate-800/30 pb-1.5 last:border-0">
-                        <div className="flex items-center justify-between sm:justify-start gap-2">
-                          <span className="text-[8px] md:text-[10px] text-slate-400 font-bold">{formatDateTime(item.date)}</span>
-                          <span className={`sm:hidden text-[9px] md:text-[10px] font-bold ${item.type === 'income' ? 'text-emerald-500' : 'text-rose-500'}`}>
-                            {item.type === 'income' ? '+' : '-'}{formatCurrencyBRL(item.amount)}
-                          </span>
-                        </div>
-                        <div className="flex items-center justify-between sm:justify-end gap-3">
-                          <span className={`hidden sm:inline text-[9px] md:text-[10px] font-bold ${item.type === 'income' ? 'text-emerald-500' : 'text-rose-500'}`}>
-                            {item.type === 'income' ? '+' : '-'}{formatCurrencyBRL(item.amount)}
-                          </span>
-                          <span className="text-[10px] md:text-xs font-black text-slate-700 dark:text-slate-200 break-words">
-                            {formatCurrencyBRL(item.balance)}
-                          </span>
-                        </div>
-                      </div>
-                    ))
-                  )}
-                </div>
-              </div>
-            )}
           </div>
         </div>
 
         {/* Card de Despesas */}
-        <div className={`${theme.cardStyles.base} rounded-3xl md:rounded-[2rem] p-3 md:p-8 shadow-xl border border-slate-200 dark:border-slate-800/40 bg-white dark:bg-gradient-to-br dark:from-slate-900 dark:to-slate-950 hover:border-rose-500/30 transition-all duration-500 group min-w-0 w-full relative overflow-hidden`}>
-          <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+        <div className={`${theme.cardStyles.base} rounded-3xl md:rounded-[2rem] p-3 md:p-8 shadow-xl border border-slate-200 dark:border-slate-800/40 bg-white dark:bg-gradient-to-br dark:from-slate-900 dark:to-slate-950 hover:border-rose-500/30 transition-all duration-500 group flex flex-col justify-between min-h-[110px] md:min-h-0 relative overflow-hidden`}>
+          <div className="flex flex-col h-full justify-between gap-1">
             <div className="flex items-center gap-2 md:gap-4 min-w-0">
-              <div className="h-8 w-8 md:h-12 md:w-12 rounded-xl md:rounded-2xl bg-rose-500/10 flex items-center justify-center text-lg md:text-2xl shadow-inner border border-rose-500/20 group-hover:scale-110 transition-transform duration-500 shrink-0">📉</div>
+              <div className="h-7 w-7 md:h-12 md:w-12 rounded-lg md:rounded-2xl bg-rose-500/10 flex items-center justify-center text-sm md:text-2xl shadow-inner border border-rose-500/20 shrink-0">📉</div>
               <div className="min-w-0 flex-1">
-                <p className="text-[8px] md:text-xs font-black uppercase tracking-tighter md:tracking-[0.2em] text-slate-500 dark:text-slate-400">Despesas</p>
-                <h3 className="text-[10px] xs:text-xs sm:text-sm md:text-3xl font-black text-rose-600 dark:text-rose-500 mt-0.5 md:mt-1 break-words leading-tight">
+                <p className="text-[7px] md:text-xs font-black uppercase tracking-tighter md:tracking-[0.2em] text-slate-500 dark:text-slate-400 leading-none">Despesas</p>
+                <h3 className="text-[11px] xs:text-xs md:text-3xl font-black text-rose-600 dark:text-rose-500 mt-0.5 md:mt-1 truncate leading-tight">
                   {formatCurrencyBRL(totalExpenses)}
                 </h3>
               </div>
             </div>
             
-            <button 
-              onClick={onAddExpense}
-              className="p-2 md:p-3 rounded-xl md:rounded-2xl bg-rose-500/10 text-rose-600 dark:text-rose-400 hover:bg-rose-500/20 transition-all active:scale-90 border border-rose-500/20 shadow-sm shrink-0 self-end sm:self-auto"
-              title="Adicionar despesa"
-            >
-              <Plus size={16} className="md:w-5 md:h-5" />
-            </button>
-          </div>
-          <div className="mt-3 md:mt-6 flex items-center gap-2 md:gap-3">
-            <div className="h-1 md:h-2 flex-1 bg-slate-100 dark:bg-slate-800 rounded-full overflow-hidden">
-              <motion.div 
-                initial={{ width: 0 }}
-                animate={{ width: `${Math.min(100, (totalExpenses / (totalIncome || 1)) * 100)}%` }}
-                className="h-full bg-rose-500 rounded-full transition-all duration-1000" 
-              ></motion.div>
+            <div className="flex flex-col gap-2">
+              <button 
+                onClick={onAddExpense}
+                className="w-full p-1.5 md:p-3 rounded-lg md:rounded-2xl bg-rose-500/10 text-rose-600 dark:text-rose-400 hover:bg-rose-500/20 transition-all active:scale-95 border border-rose-500/20 shadow-sm flex items-center justify-center"
+                title="Adicionar"
+              >
+                <Plus size={14} className="md:w-5 md:h-5" />
+              </button>
+              
+              <div className="flex items-center gap-1.5 md:gap-3">
+                <div className="h-1 md:h-2 flex-1 bg-slate-100 dark:bg-slate-800 rounded-full overflow-hidden">
+                  <motion.div 
+                    initial={{ width: 0 }}
+                    animate={{ width: `${Math.min(100, (totalExpenses / (totalIncome || 1)) * 100)}%` }}
+                    className="h-full bg-rose-500 rounded-full" 
+                  ></motion.div>
+                </div>
+                <span className="text-[6px] md:text-[10px] font-black text-rose-500 whitespace-nowrap">
+                  {((totalExpenses / (totalIncome || 1)) * 100).toFixed(0)}%
+                </span>
+              </div>
             </div>
-            <span className="text-[7px] md:text-[10px] font-black text-rose-500 whitespace-nowrap shrink-0">
-              {((totalExpenses / (totalIncome || 1)) * 100).toFixed(0)}%
-            </span>
           </div>
         </div>
       </section>
+
+      {/* Card de Extrato/Histórico - Aparece quando clicado no botão de histórico */}
+      {showHistory && (
+        <motion.section 
+          initial={{ opacity: 0, y: -20 }}
+          animate={{ opacity: 1, y: 0 }}
+          className={`${theme.cardStyles.base} rounded-[2rem] p-6 shadow-xl border border-violet-500/30 bg-white dark:bg-gradient-to-br dark:from-slate-900 dark:to-slate-950 overflow-hidden relative mt-4`}
+        >
+          <div className="flex items-center justify-between mb-6">
+            <div className="flex items-center gap-3">
+              <div className="h-10 w-10 rounded-2xl bg-violet-500/10 flex items-center justify-center text-violet-500 border border-violet-500/20">
+                <History size={20} />
+              </div>
+              <div>
+                <h3 className="text-lg font-bold text-slate-900 dark:text-white">Extrato de Movimentações</h3>
+                <p className="text-[10px] font-black text-slate-500 uppercase tracking-widest">Histórico detalhado do seu saldo</p>
+              </div>
+            </div>
+            <button 
+              onClick={() => setShowHistory(false)}
+              className="p-2 rounded-xl bg-slate-100 dark:bg-slate-800 text-slate-500 hover:text-rose-500 transition-all"
+            >
+              <Plus size={20} className="rotate-45" />
+            </button>
+          </div>
+
+          <div className="space-y-4 max-h-[400px] overflow-y-auto pr-2 custom-scrollbar">
+            {balanceHistory.length === 0 ? (
+              <div className="text-center py-10">
+                <p className="text-sm text-slate-500 italic">Nenhuma movimentação registrada.</p>
+              </div>
+            ) : (
+              balanceHistory.map((item, idx) => (
+                <div key={idx} className="flex items-center justify-between p-4 rounded-2xl bg-slate-50 dark:bg-slate-950/40 border border-slate-100 dark:border-slate-800/50 hover:border-violet-500/20 transition-all group">
+                  <div className="flex items-center gap-4">
+                    <div className={`h-10 w-10 rounded-xl flex items-center justify-center text-lg shadow-inner ${
+                      item.type === 'income' ? 'bg-emerald-500/10 text-emerald-500' : 'bg-rose-500/10 text-rose-500'
+                    }`}>
+                      {item.type === 'income' ? <TrendingUp size={18} /> : <TrendingDown size={18} />}
+                    </div>
+                    <div>
+                      <p className="text-xs font-black text-slate-400 uppercase tracking-widest">{formatDateTime(item.date)}</p>
+                      <h4 className={`text-sm font-bold ${item.type === 'income' ? 'text-emerald-500' : 'text-rose-500'}`}>
+                        {item.type === 'income' ? 'Entrada de Saldo' : 'Saída / Despesa'}
+                      </h4>
+                    </div>
+                  </div>
+                  <div className="text-right">
+                    <p className={`text-sm font-black ${item.type === 'income' ? 'text-emerald-500' : 'text-rose-500'}`}>
+                      {item.type === 'income' ? '+' : '-'}{formatCurrencyBRL(item.amount)}
+                    </p>
+                    <p className="text-[10px] font-bold text-slate-500 uppercase tracking-tighter">
+                      Saldo: {formatCurrencyBRL(item.balance)}
+                    </p>
+                  </div>
+                </div>
+              ))
+            )}
+          </div>
+          
+          <div className="mt-6 pt-4 border-t border-slate-100 dark:border-slate-800 flex justify-between items-center">
+            <div className="flex flex-col">
+              <span className="text-[10px] font-black text-slate-500 uppercase tracking-widest">Total Recebido</span>
+              <span className="text-sm font-black text-emerald-500">{formatCurrencyBRL(totalIncome)}</span>
+            </div>
+            <div className="text-right">
+              <span className="text-[10px] font-black text-slate-500 uppercase tracking-widest">Variação do Período</span>
+              <div className={`flex items-center justify-end gap-1 text-sm font-black ${isPositive ? 'text-emerald-500' : 'text-rose-500'}`}>
+                {isPositive ? <TrendingUp size={14} /> : <TrendingDown size={14} />}
+                {variation.toFixed(1)}%
+              </div>
+            </div>
+          </div>
+        </motion.section>
+      )}
 
       {/* Previsão de Saldo (Forecast) */}
       <section id="forecast-section" className={`${theme.cardStyles.base} rounded-[2rem] p-6 shadow-xl border border-slate-200 dark:border-slate-800/40 bg-white dark:bg-gradient-to-r dark:from-slate-900 dark:via-slate-900 dark:to-indigo-950/30 hover:shadow-2xl transition-all duration-500 group overflow-hidden relative`}>

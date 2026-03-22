@@ -5,7 +5,7 @@ import { theme } from "@config/design-system";
 import { formatCurrencyBRL } from "@lib/finance-utils";
 import { Repeat, Trash2, Plus, Calendar, DollarSign, Edit2, Info } from "lucide-react";
 
-export default function RecurringTransactionsManager() {
+export default function RecurringTransactionsManager({ transactions = [] }) {
   const [recurring, setRecurring] = useState([]);
   const [loading, setLoading] = useState(true);
   const [showAdd, setShowAdd] = useState(false);
@@ -23,6 +23,8 @@ export default function RecurringTransactionsManager() {
   useEffect(() => {
     fetchRecurring();
   }, []);
+
+  const expenses = transactions.filter(t => t.type === 'expense');
 
   function resetForm() {
     setName("");
@@ -132,15 +134,17 @@ export default function RecurringTransactionsManager() {
               <p className="text-[10px] font-bold text-slate-500 uppercase tracking-widest">Seus compromissos recorrentes</p>
             </div>
           </div>
-          <button
-            onClick={() => {
-              if (showAdd) resetForm();
-              setShowAdd(!showAdd);
-            }}
-            className="p-2 rounded-xl bg-slate-900 border border-slate-800 text-slate-400 hover:text-white transition-all"
-          >
-            {showAdd ? <Plus size={18} className="rotate-45" /> : <Plus size={18} />}
-          </button>
+          <div className="flex items-center gap-2">
+            <button
+              onClick={() => {
+                if (showAdd) resetForm();
+                setShowAdd(!showAdd);
+              }}
+              className="p-2 rounded-xl bg-slate-900 border border-slate-800 text-slate-400 hover:text-white transition-all"
+            >
+              {showAdd ? <Plus size={18} className="rotate-45" /> : <Plus size={18} />}
+            </button>
+          </div>
         </div>
 
         {showAdd && (
@@ -215,49 +219,93 @@ export default function RecurringTransactionsManager() {
           </form>
         )}
 
-        <div className="space-y-3">
-          {recurring.length === 0 ? (
-            <p className="text-center py-4 text-xs text-slate-500 italic">Nenhuma transação recorrente configurada.</p>
-          ) : (
-            recurring.map((item) => (
-              <div key={item.id} className="flex items-center justify-between p-4 rounded-2xl bg-slate-900/30 border border-slate-800/40 group hover:border-slate-700/60 transition-all">
-                <div className="flex items-center gap-4">
-                  <div className={`h-10 w-10 rounded-xl flex items-center justify-center text-lg ${
-                    item.type === 'income' ? 'bg-emerald-500/10 text-emerald-400' : 'bg-rose-500/10 text-rose-400'
-                  }`}>
-                    {item.type === 'income' ? <DollarSign size={18} /> : <Calendar size={18} />}
+        <div className="space-y-6">
+          {/* 1. SEÇÃO DE CONTAS FIXAS */}
+          <div className="space-y-3">
+            <h3 className="text-[10px] font-black uppercase tracking-widest text-amber-500/80 px-1 flex items-center gap-2">
+              <Repeat size={12} />
+              Contas Fixas Planejadas
+            </h3>
+            {recurring.length === 0 ? (
+              <p className="text-center py-4 text-xs text-slate-500 italic bg-slate-900/20 rounded-2xl border border-dashed border-slate-800">Nenhuma transação recorrente configurada.</p>
+            ) : (
+              recurring.map((item) => (
+                <div key={item.id} className="flex items-center justify-between p-4 rounded-2xl bg-slate-900/30 border border-slate-800/40 group hover:border-slate-700/60 transition-all">
+                  <div className="flex items-center gap-4">
+                    <div className={`h-10 w-10 rounded-xl flex items-center justify-center text-lg ${
+                      item.type === 'income' ? 'bg-emerald-500/10 text-emerald-400' : 'bg-rose-500/10 text-rose-400'
+                    }`}>
+                      {item.type === 'income' ? <DollarSign size={18} /> : <Calendar size={18} />}
+                    </div>
+                    <div>
+                      <h4 className="text-sm font-bold text-slate-200">{item.name}</h4>
+                      <p className="text-[10px] font-bold text-slate-500 uppercase tracking-widest">
+                        {item.frequency === 'monthly' ? 'Mensal' : 'Semanal'} • Próximo: {new Date(item.next_date).toLocaleDateString('pt-BR')}
+                      </p>
+                    </div>
                   </div>
-                  <div>
-                    <h4 className="text-sm font-bold text-slate-200">{item.name}</h4>
-                    <p className="text-[10px] font-bold text-slate-500 uppercase tracking-widest">
-                      {item.frequency === 'monthly' ? 'Mensal' : 'Semanal'} • Próximo: {new Date(item.next_date).toLocaleDateString('pt-BR')}
-                    </p>
+                  <div className="flex flex-col items-end gap-2">
+                    <div className="flex items-center gap-2">
+                      <span className={`text-sm font-black ${item.type === 'income' ? 'text-emerald-400' : 'text-rose-400'}`}>
+                        {item.type === 'income' ? '+' : '-'} {formatCurrencyBRL(item.amount)}
+                      </span>
+                    </div>
+                    <div className="flex items-center gap-1.5 md:opacity-0 md:group-hover:opacity-100 transition-all">
+                      <button 
+                        onClick={() => handleEdit(item)}
+                        className="p-1.5 rounded-lg text-slate-400 hover:text-white hover:bg-slate-800 transition-all shadow-sm"
+                        title="Editar"
+                      >
+                        <Edit2 size={12} />
+                      </button>
+                      <button 
+                        onClick={() => handleDelete(item.id)}
+                        className="p-1.5 rounded-lg text-slate-600 hover:text-rose-500 hover:bg-rose-500/10 transition-all shadow-sm"
+                        title="Excluir"
+                      >
+                        <Trash2 size={12} />
+                      </button>
+                    </div>
                   </div>
                 </div>
-                <div className="flex items-center gap-2">
-                  <span className={`text-sm font-black ${item.type === 'income' ? 'text-emerald-400' : 'text-rose-400'}`}>
-                    {item.type === 'income' ? '+' : '-'} {formatCurrencyBRL(item.amount)}
+              ))
+            )}
+          </div>
+
+          {/* 2. SEÇÃO DE DESPESAS REAIS (COMPARAÇÃO) */}
+          <div className="space-y-3 pt-4 border-t border-slate-800/50">
+            <h3 className="text-[10px] font-black uppercase tracking-widest text-rose-500/80 px-1 flex items-center gap-2">
+              <DollarSign size={12} />
+              Despesas Reais do Mês
+            </h3>
+            {expenses.length === 0 ? (
+              <p className="text-center py-4 text-xs text-slate-500 italic bg-slate-900/20 rounded-2xl border border-dashed border-slate-800">Nenhuma despesa registrada no dashboard.</p>
+            ) : (
+              expenses.slice(0, 5).map((tx) => (
+                <div key={tx.id} className="flex items-center justify-between p-4 rounded-2xl bg-slate-950/20 border border-slate-800/30">
+                  <div className="flex items-center gap-4">
+                    <div className="h-10 w-10 rounded-xl bg-rose-500/10 text-rose-400 flex items-center justify-center">
+                      <DollarSign size={18} />
+                    </div>
+                    <div>
+                      <h4 className="text-sm font-bold text-slate-300">{tx.name || tx.description}</h4>
+                      <p className="text-[10px] font-bold text-slate-500 uppercase tracking-widest">
+                        {tx.category} • {new Date(tx.date).toLocaleDateString('pt-BR')}
+                      </p>
+                    </div>
+                  </div>
+                  <span className="text-sm font-black text-rose-400">
+                    - {formatCurrencyBRL(tx.amount)}
                   </span>
-                  <div className="flex items-center gap-1 opacity-0 group-hover:opacity-100 transition-all">
-                    <button 
-                      onClick={() => handleEdit(item)}
-                      className="p-2 rounded-lg text-slate-400 hover:text-white hover:bg-slate-800 transition-all"
-                      title="Editar"
-                    >
-                      <Edit2 size={16} />
-                    </button>
-                    <button 
-                      onClick={() => handleDelete(item.id)}
-                      className="p-2 rounded-lg text-slate-600 hover:text-rose-500 hover:bg-rose-500/10 transition-all"
-                      title="Excluir"
-                    >
-                      <Trash2 size={16} />
-                    </button>
-                  </div>
                 </div>
-              </div>
-            ))
-          )}
+              ))
+            )}
+            {expenses.length > 5 && (
+              <p className="text-center text-[10px] text-slate-500 font-bold uppercase tracking-widest pt-2">
+                + {expenses.length - 5} outras despesas no painel
+              </p>
+            )}
+          </div>
         </div>
       </div>
     </section>

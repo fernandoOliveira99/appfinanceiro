@@ -64,9 +64,13 @@ export default function CategoryRanking({ transactions }) {
           </div>
 
           {/* Horizontal Chart */}
-          <div className="h-[200px] w-full">
+          <div className="h-[200px] w-full bg-slate-50/50 dark:bg-slate-950/20 rounded-2xl p-4 border border-slate-100 dark:border-slate-800/30">
             <ResponsiveContainer width="100%" height="100%">
-              <BarChart data={ranking} layout="vertical" margin={{ left: -20, right: 20 }}>
+              <BarChart 
+                data={ranking} 
+                layout="vertical" 
+                margin={{ left: 0, right: 30, top: 10, bottom: 10 }}
+              >
                 <XAxis type="number" hide />
                 <YAxis 
                   dataKey="name" 
@@ -74,7 +78,7 @@ export default function CategoryRanking({ transactions }) {
                   axisLine={false} 
                   tickLine={false} 
                   tick={{ fill: '#94a3b8', fontSize: 10, fontWeight: 700 }}
-                  width={80}
+                  width={100}
                 />
                 <Tooltip 
                   cursor={{ fill: 'rgba(255,255,255,0.05)' }}
@@ -82,12 +86,14 @@ export default function CategoryRanking({ transactions }) {
                     backgroundColor: '#0f172a', 
                     border: '1px solid #1e293b', 
                     borderRadius: '12px',
-                    fontSize: '12px',
-                    fontWeight: 'bold'
+                    fontSize: '11px',
+                    color: '#fff'
                   }}
-                  formatter={(value) => formatCurrencyBRL(value)}
+                  itemStyle={{ color: '#fff' }}
+                  formatter={(value) => [formatCurrencyBRL(value), "Valor"]}
+                  labelStyle={{ display: 'none' }}
                 />
-                <Bar dataKey="value" radius={[0, 8, 8, 0]} barSize={20}>
+                <Bar dataKey="value" radius={[0, 8, 8, 0]} barSize={16}>
                   {ranking.map((entry, index) => (
                     <Cell key={`cell-${index}`} fill={colors[index % colors.length]} />
                   ))}

@@ -6,11 +6,12 @@ CREATE EXTENSION IF NOT EXISTS "pgcrypto";
 
 -- Tabela: users
 CREATE TABLE IF NOT EXISTS users (
-    id TEXT PRIMARY KEY,
+    id TEXT PRIMARY KEY DEFAULT gen_random_uuid()::text,
     name TEXT,
     email TEXT UNIQUE,
     password_hash TEXT,
     avatar TEXT,
+    avatar_url TEXT,
     provider TEXT,
     email_verified BOOLEAN DEFAULT false,
     "emailVerified" TIMESTAMPTZ,
@@ -30,6 +31,15 @@ CREATE TABLE IF NOT EXISTS transactions (
     type TEXT, -- 'income' ou 'expense'
     date DATE,
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+);
+
+-- Tabela: categories
+CREATE TABLE IF NOT EXISTS categories (
+    id SERIAL PRIMARY KEY,
+    user_id TEXT REFERENCES users(id) ON DELETE CASCADE,
+    name TEXT NOT NULL,
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    UNIQUE(user_id, name)
 );
 
 -- Tabela: goals
@@ -98,6 +108,15 @@ CREATE TABLE IF NOT EXISTS email_verifications (
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 );
 
+-- Tabela: password_resets
+CREATE TABLE IF NOT EXISTS password_resets (
+    id SERIAL PRIMARY KEY,
+    user_id TEXT UNIQUE REFERENCES users(id) ON DELETE CASCADE,
+    token TEXT NOT NULL,
+    expires_at TIMESTAMPTZ NOT NULL,
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+);
+
 -- Tabela: notifications
 CREATE TABLE IF NOT EXISTS notifications (
     id SERIAL PRIMARY KEY,
@@ -116,6 +135,37 @@ CREATE TABLE IF NOT EXISTS user_settings (
     salary NUMERIC(15,2) DEFAULT 0,
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 );
+
+-- Tabela: achievements (Catálogo de Conquistas)
+CREATE TABLE IF NOT EXISTS achievements (
+    id SERIAL PRIMARY KEY,
+    name TEXT NOT NULL,
+    description TEXT,
+    icon TEXT,
+    condition_type TEXT NOT NULL,
+    target_value NUMERIC(15,2) DEFAULT 0,
+    category TEXT, -- 'saving', 'spending', 'consistency'
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+);
+
+-- Tabela: user_achievements (Conquistas Desbloqueadas pelos Usuários)
+CREATE TABLE IF NOT EXISTS user_achievements (
+    id SERIAL PRIMARY KEY,
+    user_id TEXT REFERENCES users(id) ON DELETE CASCADE,
+    achievement_id INTEGER REFERENCES achievements(id) ON DELETE CASCADE,
+    unlocked_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    UNIQUE(user_id, achievement_id)
+);
+
+-- Inserção de Conquistas Padrão
+INSERT INTO achievements (name, description, icon, condition_type, target_value, category) 
+VALUES 
+('Mestre do Jejum', 'Fique 7 dias sem gastos com Delivery/iFood.', '🍔', 'no_delivery_7d', 7, 'spending'),
+('Economista Iniciante', 'Atinja sua primeira meta de economia.', '🎯', 'goal_reached_100', 1, 'saving'),
+('Investidor Fiel', 'Faça seu primeiro registro na categoria Investimentos.', '📈', 'first_investment', 1, 'saving'),
+('Foco Total', 'Registre gastos por 7 dias seguidos (Consistência).', '🔥', '7_day_streak', 7, 'consistency'),
+('Gastador Inteligente', 'Reduza os gastos em qualquer categoria comparado ao mês passado.', '💡', 'reduced_spending_category', 1, 'spending')
+ON CONFLICT DO NOTHING;
 
 -- Índices para Performance
 CREATE INDEX IF NOT EXISTS idx_transactions_user_id ON transactions(user_id);
