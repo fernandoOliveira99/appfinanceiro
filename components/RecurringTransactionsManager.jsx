@@ -5,7 +5,7 @@ import { theme } from "@config/design-system";
 import { formatCurrencyBRL } from "@lib/finance-utils";
 import { Repeat, Trash2, Plus, Calendar, DollarSign, Edit2, Info } from "lucide-react";
 
-export default function RecurringTransactionsManager({ transactions = [] }) {
+export default function RecurringTransactionsManager({ transactions = [], hideValues = false }) {
   const [recurring, setRecurring] = useState([]);
   const [loading, setLoading] = useState(true);
   const [showAdd, setShowAdd] = useState(false);
@@ -247,7 +247,7 @@ export default function RecurringTransactionsManager({ transactions = [] }) {
                   <div className="flex flex-col items-end gap-2">
                     <div className="flex items-center gap-2">
                       <span className={`text-sm font-black ${item.type === 'income' ? 'text-emerald-400' : 'text-rose-400'}`}>
-                        {item.type === 'income' ? '+' : '-'} {formatCurrencyBRL(item.amount)}
+                        {item.type === 'income' ? '+' : '-'}{formatCurrencyBRL(item.amount, hideValues)}
                       </span>
                     </div>
                     <div className="flex items-center gap-1.5 md:opacity-0 md:group-hover:opacity-100 transition-all">
@@ -295,7 +295,7 @@ export default function RecurringTransactionsManager({ transactions = [] }) {
                     </div>
                   </div>
                   <span className="text-sm font-black text-rose-400">
-                    - {formatCurrencyBRL(tx.amount)}
+                    - {formatCurrencyBRL(tx.amount, hideValues)}
                   </span>
                 </div>
               ))

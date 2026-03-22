@@ -394,6 +394,7 @@ export default function DashboardClient({ user, initialSalary, initialTransactio
             expenses={totalExpenses} 
             lastMonthIncome={lastMonthIncome}
             lastMonthExpenses={lastMonthExpenses}
+            hideValues={hideValues}
           />
         </div>
         <div className={`${activeTab !== 'goals' ? 'hidden md:block' : 'block'} space-y-8`}>
@@ -406,7 +407,7 @@ export default function DashboardClient({ user, initialSalary, initialTransactio
 
       {/* Recurring Transactions Manager - Only on 'Recurring' Tab for mobile, visible on desktop */}
       <div className={`${activeTab !== 'recurring' ? 'hidden md:block' : 'block'}`}>
-        <RecurringTransactionsManager transactions={transactions} />
+        <RecurringTransactionsManager transactions={transactions} hideValues={hideValues} />
       </div>
 
       {/* 6. ACHIEVEMENTS SECTION - Achievements Tab on Mobile */}
@@ -424,6 +425,7 @@ export default function DashboardClient({ user, initialSalary, initialTransactio
             setEditingTransaction(tx);
             setModalMode(tx.type);
           }}
+          hideValues={hideValues}
         />
       </div>
 
@@ -449,7 +451,7 @@ export default function DashboardClient({ user, initialSalary, initialTransactio
       />
 
       {/* Segmented Control Tabs (App Style) - Fixed at bottom for mobile */}
-      <div className="md:hidden fixed bottom-0 inset-x-0 z-[100] px-2 pb-4 pt-2 bg-gradient-to-t from-white dark:from-slate-950 via-white/95 dark:via-slate-950/95 to-transparent backdrop-blur-sm">
+      <div className="md:hidden fixed bottom-0 inset-x-0 z-[100] px-2 pb-4 pt-2 bg-gradient-to-t from-white dark:from-slate-950 via-white dark:via-slate-950 to-transparent">
         <div className="flex bg-white/95 dark:bg-slate-900/95 backdrop-blur-xl p-1 rounded-2xl border border-slate-200 dark:border-slate-800 shadow-[0_-10px_40px_rgba(0,0,0,0.1)] dark:shadow-[0_-10px_40px_rgba(0,0,0,0.3)]">
           {[
             { id: 'overview', label: 'Resumo', icon: <Zap size={14} /> },

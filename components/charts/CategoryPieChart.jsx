@@ -17,7 +17,7 @@ const CATEGORY_COLORS = {
 
 const FALLBACK_COLORS = ["#a855f7", "#38bdf8", "#22c55e", "#f97316", "#e11d48", "#eab308", "#14b8a6"];
 
-export default function CategoryPieChart({ data }) {
+export default function CategoryPieChart({ data, hideValues = false }) {
   // Debug log para ver os dados que estão chegando
   console.log("Pie Chart Data:", data);
 
@@ -70,7 +70,7 @@ export default function CategoryPieChart({ data }) {
               color: "#fff"
             }}
             itemStyle={{ color: "#fff" }}
-            formatter={(value) => [`R$ ${Number(value).toFixed(2)}`, "Gasto"]}
+            formatter={(value) => [formatCurrencyBRL(value, hideValues), "Gasto"]}
           />
           <Legend
             verticalAlign="bottom"

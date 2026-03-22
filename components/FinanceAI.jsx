@@ -114,9 +114,13 @@ export default function FinanceAI({ user, mascotId, setMascotId }) {
     localStorage.setItem(`ai_provider_${user?.id || 'guest'}`, provider);
   }, [provider, user]);
 
-  // Random tips logic
+  // Dicas do Doguinho (Random tips logic)
   useEffect(() => {
-    if (isOpen) return; // Don't show balloon if chat is open
+    // Se o chat estiver aberto ou as dicas estiverem desativadas nas configurações, não mostra o balão
+    if (isOpen || !showTipsSetting) {
+      setShowNotification(false);
+      return;
+    }
 
     const showRandomTip = async () => {
       try {

@@ -2,7 +2,7 @@ import { useState } from "react";
 import { theme } from "@config/design-system";
 import { Trash2, Edit2 } from "lucide-react";
 
-export default function TransactionList({ title, transactions, onDeleted, onEdit }) {
+export default function TransactionList({ title, transactions, onDeleted, onEdit, hideValues = false }) {
   const [searchTerm, setSearchString] = useState("");
   const [filter, setFilter] = useState("all"); // 'all' | 'income' | 'expense'
 
@@ -15,11 +15,13 @@ export default function TransactionList({ title, transactions, onDeleted, onEdit
     return matchesSearch && matchesFilter;
   });
 
-  const formatCurrencyBRL = (value) =>
-    new Intl.NumberFormat("pt-BR", {
+  const formatCurrencyBRL = (value) => {
+    if (hideValues) return "R$ ••••••";
+    return new Intl.NumberFormat("pt-BR", {
       style: "currency",
       currency: "BRL",
     }).format(value);
+  };
   async function deleteTransaction(id) {
     const res = await fetch(`/api/transactions/${id}`, {
       method: "DELETE"

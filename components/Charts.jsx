@@ -5,13 +5,13 @@ import { theme } from "@config/design-system";
 import CategoryPieChart from "@components/charts/CategoryPieChart";
 import IncomeExpenseBarChart from "@components/charts/IncomeExpenseBarChart";
 
-export default function Charts({ categoryData, income, expenses, lastMonthIncome, lastMonthExpenses }) {
+export default function Charts({ categoryData, income, expenses, lastMonthIncome, lastMonthExpenses, hideValues = false }) {
   const [chartType, setChartType] = useState("pie"); // pie | bar | pyramid
 
   const renderChart = () => {
     switch (chartType) {
       case "pie":
-        return <div id="category-pie-chart"><CategoryPieChart data={categoryData} /></div>;
+        return <div id="category-pie-chart"><CategoryPieChart data={categoryData} hideValues={hideValues} /></div>;
       case "bar":
         return (
           <div id="income-expense-bar-chart">
