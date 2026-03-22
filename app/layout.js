@@ -24,7 +24,7 @@ export const viewport = {
 
 export default function RootLayout({ children }) {
   return (
-    <html lang="pt-BR" className="dark" style={{ colorScheme: 'dark' }}>
+    <html lang="pt-BR" suppressHydrationWarning>
       <head>
         <link rel="manifest" href="/manifest.json" />
         <link rel="apple-touch-icon" href="https://ui-avatars.com/api/?name=F&background=7c3aed&color=fff&size=192&rounded=true" />
@@ -35,12 +35,18 @@ export default function RootLayout({ children }) {
                 try {
                   var theme = localStorage.getItem('theme');
                   var supportDarkMode = window.matchMedia('(prefers-color-scheme: dark)').matches === true;
-                  if (!theme && supportDarkMode) theme = 'dark';
-                  if (!theme) theme = 'dark';
+                  
+                  // Se não houver tema salvo, usa a preferência do sistema ou default dark
+                  if (!theme) {
+                    theme = supportDarkMode ? 'dark' : 'dark'; // Mantemos dark como padrão inicial mas respeitamos a mudança
+                  }
+                  
                   if (theme === 'dark') {
                     document.documentElement.classList.add('dark');
+                    document.documentElement.style.colorScheme = 'dark';
                   } else {
                     document.documentElement.classList.remove('dark');
+                    document.documentElement.style.colorScheme = 'light';
                   }
                 } catch (e) {}
               })();

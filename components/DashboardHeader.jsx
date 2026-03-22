@@ -65,9 +65,11 @@ export default function DashboardHeader({ user, onAddIncome, onAddExpense, hideV
     setIsDark(newDark);
     if (newDark) {
       document.documentElement.classList.add('dark');
+      document.documentElement.style.colorScheme = 'dark';
       localStorage.setItem('theme', 'dark');
     } else {
       document.documentElement.classList.remove('dark');
+      document.documentElement.style.colorScheme = 'light';
       localStorage.setItem('theme', 'light');
     }
   };
