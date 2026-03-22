@@ -1,7 +1,6 @@
 import { NextResponse } from "next/server";
 import { getCurrentUser } from "@lib/auth";
 import { query } from "@lib/db";
-import { checkAchievements } from "@lib/achievements";
 
 export async function GET() {
   const user = await getCurrentUser();
@@ -32,8 +31,5 @@ export async function POST(request) {
     [user.id, type, Number(target_amount), Number(current_amount || 0), deadline]
   );
 
-  // Check achievements after a goal creation
-  const newlyUnlocked = await checkAchievements(user.id);
-
-  return NextResponse.json({ ...res.rows[0], newlyUnlocked }, { status: 201 });
+  return NextResponse.json(res.rows[0], { status: 201 });
 }

@@ -14,7 +14,7 @@ import {
 import { theme } from "@config/design-system";
 import { formatCurrencyBRL } from "@lib/finance-utils";
 
-export default function IncomeExpenseBarChart({ income, expenses, lastMonthIncome, lastMonthExpenses }) {
+export default function IncomeExpenseBarChart({ income, expenses, lastMonthIncome, lastMonthExpenses, hideValues = false }) {
   const data = [
     { 
       name: "Mês Anterior", 
@@ -39,7 +39,7 @@ export default function IncomeExpenseBarChart({ income, expenses, lastMonthIncom
                 {entry.name}:
               </span>
               <span className="text-xs font-black text-white">
-                {formatCurrencyBRL(entry.value)}
+                {formatCurrencyBRL(entry.value, hideValues)}
               </span>
             </div>
           ))}

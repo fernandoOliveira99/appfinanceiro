@@ -20,12 +20,11 @@ import CategoryBudgets from "@components/CategoryBudgets";
 import ReportExporter from "@components/ReportExporter";
 import RecurringTransactionsManager from "@components/RecurringTransactionsManager";
 import WelcomeExperience from "@components/WelcomeExperience";
-import Achievements from "@components/Achievements";
-import AchievementUnlockPopup from "@components/AchievementUnlockPopup";
 import SmartTips from "@components/SmartTips";
 import { generateDashboardReport } from "@lib/report";
-import { Zap, Plus, ArrowUpCircle, ArrowDownCircle, Target, PieChart, Trophy, Smile, Sparkles, CalendarClock } from "lucide-react";
+import { Zap, Plus, ArrowUpCircle, ArrowDownCircle, Target, PieChart, Smile, Sparkles, CalendarClock } from "lucide-react";
 import { personalities } from "@lib/personalities";
+import { AnimatePresence } from "framer-motion";
 
 export default function DashboardClient({ user, initialSalary, initialTransactions }) {
   const [salary, setSalary] = useState(initialSalary ?? 0);
@@ -38,11 +37,9 @@ export default function DashboardClient({ user, initialSalary, initialTransactio
   const [editingTransaction, setEditingTransaction] = useState(null);
   const [economyMode, setEconomyMode] = useState(false);
   const [fabOpen, setFabOpen] = useState(false);
-  const [activeTab, setActiveTab] = useState("overview"); // 'overview' | 'goals' | 'analysis' | 'achievements'
+  const [activeTab, setActiveTab] = useState("overview"); // 'overview' | 'goals' | 'analysis'
   const [showWelcome, setShowWelcome] = useState(false);
   const [forceShowTutorial, setForceShowTutorial] = useState(false);
- const [achievementQueue, setAchievementQueue] = useState([]);
-  const [currentAchievement, setCurrentAchievement] = useState(null);
   const [showTips, setShowTips] = useState(false);
   const [hideValues, setHideValues] = useState(false);
 
@@ -71,19 +68,23 @@ export default function DashboardClient({ user, initialSalary, initialTransactio
   const [mascotId, setMascotId] = useState("goku");
 
   useEffect(() => {
+    // Carrega mascote salvo
+    const savedMascot = localStorage.getItem(`user_mascot_${user?.id || 'guest'}`);
+    if (savedMascot) setMascotId(savedMascot);
+
+    const handleMascotChange = (e) => setMascotId(e.detail);
+    window.addEventListener('mascot-changed', handleMascotChange);
+    return () => window.removeEventListener('mascot-changed', handleMascotChange);
+  }, [user]);
+
+  useEffect(() => {
     // Escuta evento customizado para reiniciar tutorial
     const handleRestart = () => {
+      setShowWelcome(true);
       setForceShowTutorial(true);
       window.scrollTo({ top: 0, behavior: 'smooth' });
     };
     window.addEventListener('restart-tutorial', handleRestart);
-
-    const handleAchievement = (e) => {
-      if (e.detail?.length > 0) {
-        setAchievementQueue(prev => [...prev, ...e.detail]);
-      }
-    };
-    window.addEventListener('achievement-unlocked', handleAchievement);
     
     // Verifica se veio via URL parameter
     const params = new URLSearchParams(window.location.search);
@@ -95,19 +96,29 @@ export default function DashboardClient({ user, initialSalary, initialTransactio
 
     return () => {
       window.removeEventListener('restart-tutorial', handleRestart);
-      window.removeEventListener('achievement-unlocked', handleAchievement);
     };
   }, []);
 
   useEffect(() => {
+    const finishedWelcome = localStorage.getItem(`finished_welcome_${user?.id || 'guest'}`) === 'true';
     if (user?.first_login) {
       setShowWelcome(true);
+    } else if (!finishedWelcome) {
+      // Se não terminou as boas-vindas, mostra
+      setShowWelcome(true);
+    } else {
+      // Força a exibição para teste se o usuário acabou de registrar e caiu aqui
+      const params = new URLSearchParams(window.location.search);
+      if (params.get('welcome') === 'true') {
+        setShowWelcome(true);
+      }
     }
   }, [user]);
 
   const handleFinishWelcome = async (startTutorial = false) => {
     try {
       await fetch("/api/user/first-login", { method: "POST" });
+      localStorage.setItem(`finished_welcome_${user?.id || 'guest'}`, 'true');
       setShowWelcome(false);
       if (startTutorial) {
         setForceShowTutorial(true);
@@ -120,12 +131,11 @@ export default function DashboardClient({ user, initialSalary, initialTransactio
 
   useEffect(() => {
     async function refresh() {
-      const [txRes, salaryRes, catChartRes, goalsRes, achievementsRes] = await Promise.all([
+      const [txRes, salaryRes, catChartRes, goalsRes] = await Promise.all([
         fetch("/api/transactions"),
         fetch("/api/settings/salary"),
         fetch("/api/charts/categories"),
-        fetch("/api/goals"),
-        fetch("/api/achievements")
+        fetch("/api/goals")
       ]);
       if (txRes.ok) {
         setTransactions(await txRes.json());
@@ -141,23 +151,9 @@ export default function DashboardClient({ user, initialSalary, initialTransactio
       if (goalsRes.ok) {
         setGoals(await goalsRes.json());
       }
-      if (achievementsRes.ok) {
-        const data = await achievementsRes.json();
-        if (data.newlyUnlocked?.length > 0) {
-          window.dispatchEvent(new CustomEvent('achievement-unlocked', { detail: data.newlyUnlocked }));
-        }
-      }
     }
     refresh();
   }, []);
-
-  // Achievement queue manager
-  useEffect(() => {
-    if (achievementQueue.length > 0 && !currentAchievement) {
-      setCurrentAchievement(achievementQueue[0]);
-      setAchievementQueue(prev => prev.slice(1));
-    }
-  }, [achievementQueue, currentAchievement]);
 
   const expenses = transactions.filter((t) => t.type === "expense");
   const income = transactions.filter((t) => t.type === "income");
@@ -251,11 +247,6 @@ export default function DashboardClient({ user, initialSalary, initialTransactio
     if (res.ok) {
       const saved = await res.json();
       
-      // Handle newly unlocked achievements
-      if (saved.newlyUnlocked?.length > 0) {
-        window.dispatchEvent(new CustomEvent('achievement-unlocked', { detail: saved.newlyUnlocked }));
-      }
-
       if (isUpdate) {
         setTransactions((prev) => prev.map(t => t.id === saved.id ? saved : t));
       } else {
@@ -294,13 +285,16 @@ export default function DashboardClient({ user, initialSalary, initialTransactio
   }
 
   return (
-    <div className="w-full max-w-full overflow-x-hidden md:overflow-visible space-y-6 md:space-y-8 pb-32 md:pb-8">
-      {showWelcome && (
-        <WelcomeExperience 
-          onStartTutorial={() => handleFinishWelcome(true)} 
-          onSkip={() => handleFinishWelcome(false)} 
-        />
-      )}
+    <div className="w-full max-w-full overflow-x-hidden md:overflow-visible space-y-6 md:space-y-8 pb-32 md:pb-8 relative">
+      <AnimatePresence>
+        {showWelcome && (
+          <WelcomeExperience 
+            user={user}
+            onStartTutorial={() => handleFinishWelcome(true)} 
+            onSkip={() => handleFinishWelcome(false)} 
+          />
+        )}
+      </AnimatePresence>
 
       <GuidedTutorial 
         run={forceShowTutorial} 
@@ -401,6 +395,7 @@ export default function DashboardClient({ user, initialSalary, initialTransactio
           <FinanceGoals 
             currentBalance={currentBalance} 
             onTransactionAdded={handleSaveTransaction} 
+            hideValues={hideValues}
           />
         </div>
       </div>
@@ -408,11 +403,6 @@ export default function DashboardClient({ user, initialSalary, initialTransactio
       {/* Recurring Transactions Manager - Only on 'Recurring' Tab for mobile, visible on desktop */}
       <div className={`${activeTab !== 'recurring' ? 'hidden md:block' : 'block'}`}>
         <RecurringTransactionsManager transactions={transactions} hideValues={hideValues} />
-      </div>
-
-      {/* 6. ACHIEVEMENTS SECTION - Achievements Tab on Mobile */}
-      <div className={`${activeTab !== 'achievements' ? 'hidden md:block' : 'block'} mt-8`}>
-        <Achievements />
       </div>
 
       {/* 4. BOTTOM SECTION: Recent transactions list - Overview Tab on Mobile */}
@@ -451,43 +441,37 @@ export default function DashboardClient({ user, initialSalary, initialTransactio
       />
 
       {/* Segmented Control Tabs (App Style) - Fixed at bottom for mobile */}
-      <div className="md:hidden fixed bottom-0 inset-x-0 z-[100] px-2 pb-4 pt-2 bg-gradient-to-t from-white dark:from-slate-950 via-white dark:via-slate-950 to-transparent">
-        <div className="flex bg-white/95 dark:bg-slate-900/95 backdrop-blur-xl p-1 rounded-2xl border border-slate-200 dark:border-slate-800 shadow-[0_-10px_40px_rgba(0,0,0,0.1)] dark:shadow-[0_-10px_40px_rgba(0,0,0,0.3)]">
-          {[
-            { id: 'overview', label: 'Resumo', icon: <Zap size={14} /> },
-            { id: 'goals', label: 'Metas', icon: <Target size={14} /> },
-            { id: 'analysis', label: 'Análise', icon: <PieChart size={14} /> },
-            { id: 'recurring', label: 'Contas', icon: <CalendarClock size={14} /> },
-            { id: 'achievements', label: 'Troféus', icon: <Trophy size={14} /> }
-          ].map((tab) => (
-            <button
-              key={tab.id}
-              onClick={() => {
-                setActiveTab(tab.id);
-                window.scrollTo({ top: 0, behavior: 'smooth' });
-              }}
-              className={`flex-1 flex flex-col items-center justify-center gap-1 py-2 rounded-xl text-[8px] xs:text-[9px] font-black uppercase tracking-tighter transition-all ${
-                activeTab === tab.id 
-                  ? 'bg-violet-600 text-white shadow-lg shadow-violet-600/20 scale-105' 
-                  : 'text-slate-500 dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-800/50'
-              }`}
-            >
-              {tab.icon}
-              <span className="truncate w-full px-0.5">{tab.label}</span>
-            </button>
-          ))}
+      <div className="md:hidden fixed bottom-0 left-0 right-0 z-[9999] pointer-events-none transform-gpu">
+        <div className="px-2 pb-6 pt-10 bg-gradient-to-t from-white dark:from-slate-950 via-white/90 dark:via-slate-950/90 to-transparent">
+          <div className="flex bg-white/95 dark:bg-slate-900/95 backdrop-blur-xl p-1.5 rounded-2xl border border-slate-200 dark:border-slate-800 shadow-[0_-10px_40px_rgba(0,0,0,0.3)] pointer-events-auto max-w-[calc(100vw-1.5rem)] mx-auto">
+            {[
+              { id: 'overview', label: 'Resumo', icon: <Zap size={14} /> },
+              { id: 'goals', label: 'Metas', icon: <Target size={14} /> },
+              { id: 'analysis', label: 'Análise', icon: <PieChart size={14} /> },
+              { id: 'recurring', label: 'Contas', icon: <CalendarClock size={14} /> }
+            ].map((tab) => (
+              <button
+                key={tab.id}
+                onClick={() => {
+                  setActiveTab(tab.id);
+                  window.scrollTo({ top: 0, behavior: 'smooth' });
+                }}
+                className={`flex-1 flex flex-col items-center justify-center gap-1 py-2.5 rounded-xl text-[8px] xs:text-[9px] font-black uppercase tracking-tighter transition-all ${
+                  activeTab === tab.id 
+                    ? 'bg-violet-600 text-white shadow-lg shadow-violet-600/20 scale-105' 
+                    : 'text-slate-500 dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-800/50'
+                }`}
+              >
+                {tab.icon}
+                <span className="truncate w-full px-0.5">{tab.label}</span>
+              </button>
+            ))}
+          </div>
         </div>
       </div>
 
       {/* AI Financial Assistant - Fixed Side */}
       <FinanceAI user={user} mascotId={mascotId} setMascotId={setMascotId} />
-
-      {/* Achievement Unlock Popup */}
-       <AchievementUnlockPopup 
-         achievement={currentAchievement} 
-         onComplete={() => setCurrentAchievement(null)} 
-         mascotId={mascotId}
-       />
     </div>
   );
 }

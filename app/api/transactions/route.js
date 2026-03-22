@@ -4,7 +4,6 @@ import {
   listUserTransactions,
   createUserTransaction
 } from "@lib/transactions";
-import { checkAchievements } from "@lib/achievements";
 
 export async function GET() {
   const user = await getCurrentUser();
@@ -40,9 +39,6 @@ export async function POST(request) {
     date
   });
 
-  // Check achievements after a transaction
-  const newlyUnlocked = await checkAchievements(user.id);
-
-  return NextResponse.json({ ...created, newlyUnlocked }, { status: 201 });
+  return NextResponse.json(created, { status: 201 });
 }
 

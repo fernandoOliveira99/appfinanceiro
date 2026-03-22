@@ -1,7 +1,6 @@
 import { NextResponse } from "next/server";
 import { getCurrentUser } from "@lib/auth";
 import { query } from "@lib/db";
-import { checkAchievements } from "@lib/achievements";
 
 export async function PATCH(request, { params }) {
   const user = await getCurrentUser();
@@ -47,10 +46,7 @@ export async function PATCH(request, { params }) {
       return NextResponse.json({ error: "Meta não encontrada." }, { status: 404 });
     }
 
-    // Check achievements after a goal update
-    const newlyUnlocked = await checkAchievements(user.id);
-
-    return NextResponse.json({ ...res.rows[0], newlyUnlocked });
+    return NextResponse.json(res.rows[0]);
   } catch (error) {
     console.error("Failed to update goal:", error);
     return NextResponse.json({ error: "Erro interno do servidor." }, { status: 500 });

@@ -57,7 +57,7 @@ export default function FinanceCards({
                 <div className="h-7 w-7 md:h-12 md:w-12 rounded-lg md:rounded-2xl bg-violet-500/10 flex items-center justify-center text-sm md:text-2xl shadow-inner border border-violet-500/20 shrink-0">💰</div>
                 <div className="min-w-0 flex-1">
                   <p className="text-[7px] md:text-xs font-black uppercase tracking-tighter md:tracking-[0.2em] text-slate-500 dark:text-slate-400 leading-none">Saldo</p>
-                  <h3 className={`text-[11px] xs:text-xs md:text-4xl font-black ${saldo >= 0 ? "text-emerald-600 dark:text-emerald-400" : "text-rose-600 dark:text-rose-400"} tracking-tight mt-0.5 md:mt-1 truncate leading-tight`}>
+                  <h3 className={`text-sm xs:text-base md:text-5xl font-black ${saldo >= 0 ? "text-emerald-600 dark:text-emerald-400" : "text-rose-600 dark:text-rose-400"} tracking-tight mt-0.5 md:mt-1 truncate leading-tight`}>
                     {formatCurrencyBRL(saldo, hideValues)}
                   </h3>
                 </div>
@@ -66,17 +66,17 @@ export default function FinanceCards({
               <div className="flex items-center gap-1.5 md:gap-2 shrink-0 mt-auto">
                 <button 
                   onClick={onAddIncome}
-                  className="flex-1 md:flex-none p-1.5 md:p-3 rounded-lg md:rounded-2xl bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 hover:bg-emerald-500/20 transition-all active:scale-95 border border-emerald-500/20 shadow-sm flex items-center justify-center"
+                  className="p-2 md:p-2.5 rounded-lg md:rounded-xl bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 hover:bg-emerald-500/20 transition-all active:scale-95 border border-emerald-500/20 shadow-sm flex items-center justify-center aspect-square"
                   title="Adicionar"
                 >
-                  <Plus size={14} className="md:w-5 md:h-5" />
+                  <Plus size={18} className="md:w-5 md:h-5" />
                 </button>
                 <button 
                   onClick={() => setShowHistory(!showHistory)}
-                  className={`flex-1 md:flex-none p-1.5 md:p-3 rounded-lg md:rounded-2xl transition-all ${showHistory ? 'bg-violet-600 text-white shadow-lg' : 'bg-slate-100 dark:bg-slate-800 text-slate-500 hover:text-violet-500 border border-slate-200 dark:border-slate-700'} active:scale-95 flex items-center justify-center`}
+                  className={`p-2 md:p-2.5 rounded-lg md:rounded-xl transition-all ${showHistory ? 'bg-violet-600 text-white shadow-lg' : 'bg-slate-100 dark:bg-slate-800 text-slate-500 hover:text-violet-500 border border-slate-200 dark:border-slate-700'} active:scale-95 flex items-center justify-center aspect-square`}
                   title="Histórico"
                 >
-                  <History size={14} className="md:w-5 md:h-5" />
+                  <History size={18} className="md:w-5 md:h-5" />
                 </button>
               </div>
             </div>
@@ -90,20 +90,22 @@ export default function FinanceCards({
               <div className="h-7 w-7 md:h-12 md:w-12 rounded-lg md:rounded-2xl bg-rose-500/10 flex items-center justify-center text-sm md:text-2xl shadow-inner border border-rose-500/20 shrink-0">📉</div>
               <div className="min-w-0 flex-1">
                 <p className="text-[7px] md:text-xs font-black uppercase tracking-tighter md:tracking-[0.2em] text-slate-500 dark:text-slate-400 leading-none">Despesas</p>
-                <h3 className="text-[11px] xs:text-xs md:text-3xl font-black text-rose-600 dark:text-rose-500 mt-0.5 md:mt-1 truncate leading-tight">
+                <h3 className="text-sm xs:text-base md:text-4xl font-black text-rose-600 dark:text-rose-500 mt-0.5 md:mt-1 truncate leading-tight">
                   {formatCurrencyBRL(totalExpenses, hideValues)}
                 </h3>
               </div>
             </div>
             
             <div className="flex flex-col gap-2">
-              <button 
-                onClick={onAddExpense}
-                className="w-full p-1.5 md:p-3 rounded-lg md:rounded-2xl bg-rose-500/10 text-rose-600 dark:text-rose-400 hover:bg-rose-500/20 transition-all active:scale-95 border border-rose-500/20 shadow-sm flex items-center justify-center"
-                title="Adicionar"
-              >
-                <Plus size={14} className="md:w-5 md:h-5" />
-              </button>
+              <div className="flex justify-start">
+                <button 
+                  onClick={onAddExpense}
+                  className="p-2 md:p-2.5 rounded-lg md:rounded-xl bg-rose-500/10 text-rose-600 dark:text-rose-400 hover:bg-rose-500/20 transition-all active:scale-95 border border-rose-500/20 shadow-sm flex items-center justify-center aspect-square"
+                  title="Adicionar"
+                >
+                  <Plus size={18} className="md:w-5 md:h-5" />
+                </button>
+              </div>
               
               <div className="flex items-center gap-1.5 md:gap-3">
                 <div className="h-1 md:h-2 flex-1 bg-slate-100 dark:bg-slate-800 rounded-full overflow-hidden">

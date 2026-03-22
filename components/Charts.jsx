@@ -20,6 +20,7 @@ export default function Charts({ categoryData, income, expenses, lastMonthIncome
               expenses={expenses} 
               lastMonthIncome={lastMonthIncome}
               lastMonthExpenses={lastMonthExpenses}
+              hideValues={hideValues}
             />
           </div>
         );
@@ -31,6 +32,7 @@ export default function Charts({ categoryData, income, expenses, lastMonthIncome
               expenses={expenses} 
               lastMonthIncome={lastMonthIncome}
               lastMonthExpenses={lastMonthExpenses}
+              hideValues={hideValues}
             />
           </div>
         );

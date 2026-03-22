@@ -27,7 +27,13 @@ import {
   Moon,
   Shield,
   Smile,
-  Lock
+  Lock,
+  Bug,
+  Snowflake,
+  Swords,
+  Dumbbell,
+  Glasses,
+  Baby
 } from "lucide-react";
 import { getMascotMessage, personalities } from "@lib/personalities";
 
@@ -45,6 +51,15 @@ const MASCOTS = [
   { id: "ironman", name: "Iron Man", icon: HardHat, color: "text-red-600", bg: "bg-red-600/10", animation: "animate-pulse" },
   { id: "batman", name: "Batman", icon: Moon, color: "text-gray-400", bg: "bg-gray-700/20", animation: "animate-pulse" },
   { id: "vader", name: "Darth Vader", icon: Shield, color: "text-red-500", bg: "bg-red-900/20", animation: "animate-pulse" },
+  { id: "spiderman", name: "Homem-Aranha", icon: Bug, color: "text-red-500", bg: "bg-red-500/10", animation: "animate-bounce" },
+  { id: "elsa", name: "Elsa", icon: Snowflake, color: "text-cyan-400", bg: "bg-cyan-500/10", animation: "animate-pulse" },
+  { id: "vegeta", name: "Vegeta", icon: Zap, color: "text-blue-600", bg: "bg-blue-600/10", animation: "animate-pulse" },
+  { id: "deadpool", name: "Deadpool", icon: Swords, color: "text-red-700", bg: "bg-red-700/10", animation: "animate-bounce" },
+  { id: "stich", name: "Stitch", icon: Smile, color: "text-blue-500", bg: "bg-blue-500/10", animation: "animate-pulse" },
+  { id: "hulk", name: "Hulk", icon: Dumbbell, color: "text-emerald-600", bg: "bg-emerald-600/10", animation: "animate-pulse" },
+  { id: "wonderwoman", name: "Mulher-Maravilha", icon: Shield, color: "text-yellow-500", bg: "bg-yellow-500/10", animation: "animate-pulse" },
+  { id: "grogu", name: "Grogu", icon: Baby, color: "text-emerald-400", bg: "bg-emerald-400/10", animation: "animate-bounce" },
+  { id: "stark", name: "Tony Stark", icon: Glasses, color: "text-gray-200", bg: "bg-gray-800/50", animation: "animate-pulse" },
 ];
 
 export default function FinanceAI({ user, mascotId, setMascotId }) {
@@ -512,6 +527,33 @@ export default function FinanceAI({ user, mascotId, setMascotId }) {
                       </div>
                       <div className={`w-10 h-5 rounded-full relative transition-colors ${showTipsSetting ? 'bg-emerald-500' : 'bg-slate-700'}`}>
                         <div className={`absolute top-1 w-3 h-3 rounded-full bg-white shadow-sm transition-all ${showTipsSetting ? 'left-6' : 'left-1'}`} />
+                      </div>
+                    </button>
+                  </div>
+
+                  <div className="h-px bg-slate-800/50"></div>
+
+                  {/* Reiniciar Tutorial */}
+                  <div className="space-y-3">
+                    <div className="text-center space-y-1">
+                      <h3 className="text-sm font-black text-white uppercase tracking-wider">Sistema</h3>
+                      <p className="text-[10px] text-slate-500 font-bold">AJUDA E CONFIGURAÇÕES</p>
+                    </div>
+                    <button
+                      onClick={() => {
+                        localStorage.removeItem(`finished_welcome_${user?.id || 'guest'}`);
+                        window.dispatchEvent(new CustomEvent('restart-tutorial'));
+                        setIsSettingsOpen(false);
+                        setIsOpen(false);
+                      }}
+                      className="w-full flex items-center gap-3 p-4 rounded-2xl border border-slate-800 bg-slate-900/40 text-slate-400 hover:text-white hover:border-indigo-500/50 transition-all group"
+                    >
+                      <div className="h-10 w-10 rounded-xl bg-slate-800 flex items-center justify-center group-hover:bg-indigo-500/20 group-hover:text-indigo-400 transition-colors">
+                        <RefreshCw size={20} />
+                      </div>
+                      <div className="flex flex-col items-start">
+                        <span className="text-sm font-bold">Reiniciar Experiência</span>
+                        <span className="text-[10px] opacity-70 font-bold uppercase tracking-widest">Boas-vindas e Tutorial</span>
                       </div>
                     </button>
                   </div>

@@ -2,7 +2,7 @@ import { formatCurrencyBRL } from "@lib/finance-utils";
 import { theme } from "@config/design-system";
 import { getCategoryIcon } from "@lib/category-icons";
 
-export default function TransactionItem({ transaction, onDelete }) {
+export default function TransactionItem({ transaction, onDelete, hideValues = false }) {
   const isExpense = transaction.type === "expense";
   const Icon = getCategoryIcon(transaction.category);
 
@@ -33,7 +33,7 @@ export default function TransactionItem({ transaction, onDelete }) {
               isExpense ? "text-rose-400" : "text-emerald-400"
             }`}
           >
-            {isExpense ? "-" : "+"} {formatCurrencyBRL(transaction.amount || 0)}
+            {isExpense ? "-" : "+"} {formatCurrencyBRL(transaction.amount || 0, hideValues)}
           </span>
         </div>
 

@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
 import { theme } from "@config/design-system";
@@ -15,6 +15,49 @@ export default function RegisterPage() {
   const [code, setCode] = useState("");
   const [error, setError] = useState("");
   const [loading, setLoading] = useState(false);
+  const [resendTimer, setResendTimer] = useState(0);
+  const [resendLoading, setResendLoading] = useState(false);
+  const [resendSuccess, setResendSuccess] = useState(false);
+
+  useEffect(() => {
+    let interval;
+    if (resendTimer > 0) {
+      interval = setInterval(() => {
+        setResendTimer((prev) => prev - 1);
+      }, 1000);
+    }
+    return () => clearInterval(interval);
+  }, [resendTimer]);
+
+  async function handleResendCode() {
+    if (resendTimer > 0 || resendLoading) return;
+    
+    setResendLoading(true);
+    setError("");
+    setResendSuccess(false);
+
+    try {
+      const res = await fetch("/api/auth/resend-code", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ email })
+      });
+
+      const data = await res.json();
+      if (!res.ok) {
+        setError(data.error || "Erro ao reenviar código.");
+        return;
+      }
+
+      setResendSuccess(true);
+      setResendTimer(60); // 1 minuto de cooldown
+      setTimeout(() => setResendSuccess(false), 5000);
+    } catch {
+      setError("Erro ao conectar com o servidor.");
+    } finally {
+      setResendLoading(false);
+    }
+  }
 
   async function handleSubmit(e) {
     e.preventDefault();
@@ -183,13 +226,38 @@ export default function RegisterPage() {
                 {loading ? "Verificando..." : "Confirmar Código"}
               </button>
 
-              <button
-                type="button"
-                onClick={() => setStep("form")}
-                className="w-full text-xs text-slate-500 hover:text-slate-300 font-bold uppercase tracking-widest transition-colors"
-              >
-                Voltar para o cadastro
-              </button>
+              <div className="flex flex-col gap-3">
+                <button
+                  type="button"
+                  onClick={handleResendCode}
+                  disabled={resendTimer > 0 || resendLoading}
+                  className={`w-full py-3 rounded-xl border text-[10px] font-black uppercase tracking-widest transition-all ${
+                    resendTimer > 0 
+                      ? "bg-slate-900/20 border-slate-800 text-slate-500 cursor-not-allowed" 
+                      : "bg-slate-900/50 border-slate-800 text-slate-400 hover:text-white hover:border-violet-500/50"
+                  }`}
+                >
+                  {resendLoading 
+                    ? "Reenviando..." 
+                    : resendTimer > 0 
+                      ? `Reenviar código em ${resendTimer}s` 
+                      : "Não recebeu o código? Reenviar"}
+                </button>
+
+                {resendSuccess && (
+                  <p className="text-[10px] text-emerald-400 font-bold text-center animate-in fade-in slide-in-from-top-1">
+                    Novo código enviado para seu e-mail!
+                  </p>
+                )}
+
+                <button
+                  type="button"
+                  onClick={() => setStep("form")}
+                  className="w-full py-2 text-[9px] text-slate-500 hover:text-slate-300 font-bold uppercase tracking-[0.2em] transition-colors"
+                >
+                  Voltar para o cadastro
+                </button>
+              </div>
             </div>
           </form>
         )}

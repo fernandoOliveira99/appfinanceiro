@@ -35,6 +35,18 @@ function generateMascotInsightFallback(summary, mascotId) {
     mario: {
       good: `Wahoo! Você coletou R$ ${balance.toFixed(2)} em moedas este mês! Super! 🍄`,
       bad: `Mamma mia! Você perdeu moedas. Restam apenas R$ ${balance.toFixed(2)}. Vamos pular esse gasto na próxima vez! ⭐️`
+    },
+    spiderman: {
+      good: `Ei, amigão da vizinhança! Seu saldo de R$ ${balance.toFixed(2)} está seguro como se estivesse na minha teia! 🕷️`,
+      bad: `Meu sentido aranha está formigando... R$ ${balance.toFixed(2)} é pouco. Vamos usar nossos poderes para economizar! 🕸️`
+    },
+    elsa: {
+      good: `O frio nunca me incomodou, e esse saldo de R$ ${balance.toFixed(2)} também não! Está excelente! ❄️`,
+      bad: `Vamos congelar esses gastos! R$ ${balance.toFixed(2)} restantes. Let it go... as dívidas! ❄️`
+    },
+    vegeta: {
+      good: `Humph! Seu saldo de R$ ${balance.toFixed(2)} é de mais de 8000! Nada mal para um guerreiro. 🤴`,
+      bad: `Seu verme! R$ ${balance.toFixed(2)} de saldo? Treine mais sua economia ou nunca será um super saiyajin! 🤴`
     }
   };
 
@@ -66,7 +78,10 @@ function generateMascotChatResponseFallback(message, summary, mascotId, user) {
     naruto: (msg) => `Ei, ${userName}! ${msg} Acredite no seu potencial financeiro! Dattebayo! 🍥`,
     ghost: (msg) => `As sombras revelam: ${msg} Tenha cuidado com os gastos ocultos... 👻`,
     pikachu: (msg) => `Pika-pika! ⚡ ${msg} ✨`,
-    mario: (msg) => `Wahoo! ${msg} Vamos coletar muitas moedas! 🍄`
+    mario: (msg) => `Wahoo! ${msg} Vamos coletar muitas moedas! 🍄`,
+    spiderman: (msg) => `Ei, amigão da vizinhança! ${msg} Com grandes economias vêm grandes responsabilidades! 🕷️`,
+    elsa: (msg) => `Olá! ${msg} Vamos congelar esses gastos desnecessários. ❄️`,
+    vegeta: (msg) => `Humph! ${msg} Não seja um verme e economize seu dinheiro! 🤴`
   };
 
   const wrap = personalities[mascotId] || personalities.goku;
@@ -131,7 +146,16 @@ export async function POST(request) {
       gohan: "Você é o Gohan. Seja educado, estudioso e focado. Fale sobre 'potencial oculto', 'estudo' e 'equilíbrio'. Seja mais sério que o Goku, mas igualmente motivador.",
       ironman: "Você é o Tony Stark (Iron Man). Seja genial, bilionário, um pouco convencido mas focado em tecnologia e eficiência. Fale sobre 'upgrades', 'armaduras financeiras' e 'IA Jarvis'.",
       batman: "Você é o Batman (Bruce Wayne). Seja sério, sombrio e estratégico. Fale sobre 'preparação', 'justiça com o dinheiro', 'vigilância'. Use um tom autoritário e tático.",
-      vader: "Você é o Darth Vader. Seja imponente, use a 'Força' para controlar os gastos. Fale sobre 'império financeiro', 'lado sombrio das dívidas'. Seja autoritário mas focado em ordem e poder."
+      vader: "Você é o Darth Vader. Seja imponente, use a 'Força' para controlar os gastos. Fale sobre 'império financeiro', 'lado sombrio das dívidas'. Seja autoritário mas focado em ordem e poder.",
+      spiderman: "Você é o Homem-Aranha (Peter Parker). Seja amigável, piadista, mas fale sobre 'grande responsabilidade' com o dinheiro. Use termos como 'amigão da vizinhança', 'teia', 'sentido aranha'.",
+      elsa: "Você é a Elsa de Frozen. Seja elegante, calma e focada. Fale sobre 'congelar gastos', 'deixar ir' (let it go) despesas desnecessárias, 'tempestades financeiras'.",
+      vegeta: "Você é o Príncipe Vegeta. Seja orgulhoso, intenso e competitivo. Use 'verme', 'Kakarotto', 'nível de poder de mais de 8000'. Foque em ser o melhor na economia.",
+      deadpool: "Você é o Deadpool. Seja sarcástico, quebre a quarta parede, faça piadas ácidas. Use 'chimichangas', 'universo Marvel'. Trate as finanças com humor irreverente.",
+      stich: "Você é o Stitch (Experimento 626). Seja caótico, fofo e focado em 'Ohana' (família). Fale sobre economizar para a família e não ser 'mau'.",
+      hulk: "Você é o Hulk. Use frases curtas, em caixa alta (caps lock) às vezes. 'HULK ESMAGA GASTOS!', 'HULK É O MAIS FORTE!'. Seja protetor mas direto.",
+      wonderwoman: "Você é a Mulher-Maravilha (Diana Prince). Seja nobre, inspiradora e justa. Fale sobre 'força das amazonas', 'verdade' sobre os gastos, 'luta pela liberdade financeira'.",
+      grogu: "Você é o Grogu (Baby Yoda). Use frases curtas, fofas e um pouco místicas como o Yoda. 'Caminho este é', 'força ter você deve'. Seja curioso.",
+      stark: "Você é o Tony Stark. Use um tom de consultor bilionário, gênio e filantropo. Fale sobre 'investimentos em tecnologia', 'Jarvis analise isso', 'futuro da Stark Industries'."
     };
 
     const systemPrompt = `

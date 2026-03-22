@@ -1,139 +1,171 @@
 "use client";
 
 import { motion, AnimatePresence } from "framer-motion";
-import { theme } from "@config/design-system";
-import { Wallet, Sparkles, ArrowRight, X } from "lucide-react";
-import { useState } from "react";
+import { useState, useEffect } from "react";
+import { Sparkles, Rocket, Target, Shield, ArrowRight, ArrowLeft, CheckCircle2, UserCircle, X as XIcon } from "lucide-react";
+import { personalities } from "@lib/personalities";
 
-export default function WelcomeExperience({ onStartTutorial, onSkip }) {
-  const [isClosing, setIsClosing] = useState(false);
+const MASCOTS = Object.entries(personalities).map(([id, data]) => ({
+  id,
+  name: data.name,
+  mascot: data.mascot,
+  gif: data.gif
+}));
 
-  const containerVariants = {
-    hidden: { opacity: 0 },
-    visible: { 
-      opacity: 1,
-      transition: { 
-        staggerChildren: 0.3,
-        delayChildren: 0.2
-      }
+export default function WelcomeExperience({ user, onStartTutorial, onSkip }) {
+  const [step, setStep] = useState(1);
+  const [selectedMascot, setSelectedMascot] = useState("goku");
+
+  const steps = [
+    {
+      title: "Boas-vindas ao App Finanças!",
+      description: (
+        <div className="space-y-4">
+          <p>Sua jornada para a liberdade financeira começa agora. Vamos transformar sua relação com o dinheiro?</p>
+          <div className="pt-4 border-t border-slate-100 dark:border-slate-800/50">
+            <p className="text-[10px] uppercase tracking-widest font-bold text-slate-400 mb-1">Sobre o Projeto</p>
+            <p className="text-xs leading-relaxed text-slate-500 dark:text-slate-400">
+              Este sistema foi criado para ajudar pessoas a organizar suas finanças, acompanhar despesas e alcançar metas de forma simples e intuitiva.
+            </p>
+            <p className="mt-3 text-xs font-medium text-slate-600 dark:text-slate-300">
+              Desenvolvido com ❤️ por <span className="text-violet-600 dark:text-violet-400 font-black underline decoration-violet-500/30 underline-offset-4">Fernando José de Oliveira</span>
+            </p>
+          </div>
+        </div>
+      ),
+      icon: <Sparkles className="text-violet-500" size={48} />,
+      color: "from-violet-500 to-indigo-500"
     },
-    exit: { 
-      opacity: 0,
-      scale: 0.95,
-      filter: "blur(10px)",
-      transition: { duration: 0.5 }
+    {
+      title: "Escolha seu Mentor",
+      description: "Quem vai te guiar nessa jornada? Cada mentor tem um estilo único de te motivar!",
+      icon: <UserCircle className="text-emerald-500" size={48} />,
+      color: "from-emerald-500 to-teal-500",
+      isMascotStep: true
+    },
+    {
+      title: "Tudo Pronto!",
+      description: "Você está um passo à frente. Vamos explorar seu novo painel financeiro?",
+      icon: <CheckCircle2 className="text-amber-500" size={48} />,
+      color: "from-amber-500 to-orange-500"
     }
-  };
+  ];
 
-  const itemVariants = {
-    hidden: { y: 20, opacity: 0 },
-    visible: { 
-      y: 0, 
-      opacity: 1,
-      transition: { duration: 0.8, ease: "easeOut" }
-    }
-  };
+  const current = steps[step - 1];
 
-  const logoVariants = {
-    hidden: { scale: 0.8, opacity: 0, rotate: -10 },
-    visible: { 
-      scale: 1, 
-      opacity: 1, 
-      rotate: 0,
-      transition: { 
-        type: "spring",
-        stiffness: 100,
-        damping: 15,
-        duration: 1
+  const handleNext = () => {
+    if (step < steps.length) {
+      setStep(step + 1);
+    } else {
+      // Salva o mascote escolhido antes de finalizar
+      localStorage.setItem(`user_mascot_${user?.id || 'guest'}`, selectedMascot);
+      // Dispara evento para atualizar o mascote globalmente se necessário
+      window.dispatchEvent(new CustomEvent('mascot-changed', { detail: selectedMascot }));
+      
+      if (onStartTutorial) {
+        onStartTutorial();
       }
     }
-  };
-
-  const handleAction = async (callback) => {
-    setIsClosing(true);
-    // Pequeno delay para a animação de saída começar antes de chamar o callback que desmonta o componente
-    setTimeout(() => {
-      callback();
-    }, 500);
   };
 
   return (
-    <AnimatePresence>
-      {!isClosing && (
-        <motion.div 
-          className="fixed inset-0 z-[150] flex items-center justify-center p-4 bg-slate-950 backdrop-blur-xl"
-          initial="hidden"
-          animate="visible"
-          exit="exit"
-          variants={containerVariants}
+    <div className="fixed inset-0 z-[10000] flex items-center justify-center p-4 bg-slate-950/80 backdrop-blur-md">
+      <AnimatePresence mode="wait">
+        <motion.div
+          key={step}
+          initial={{ opacity: 0, scale: 0.9, y: 20 }}
+          animate={{ opacity: 1, scale: 1, y: 0 }}
+          exit={{ opacity: 0, scale: 1.1, y: -20 }}
+          className="bg-white dark:bg-slate-900 w-full max-w-lg rounded-[2.5rem] overflow-hidden shadow-2xl border border-slate-200 dark:border-slate-800"
         >
-          {/* Background effects */}
-          <div className="absolute inset-0 overflow-hidden pointer-events-none">
-            <div className="absolute -top-24 -left-24 w-96 h-96 bg-violet-600/20 rounded-full blur-[120px]" />
-            <div className="absolute -bottom-24 -right-24 w-96 h-96 bg-emerald-600/20 rounded-full blur-[120px]" />
+          <div className={`h-32 bg-gradient-to-br ${current.color} flex items-center justify-center relative overflow-hidden`}>
+            {onSkip && (
+              <button 
+                onClick={onSkip}
+                className="absolute top-4 right-4 z-20 p-2 rounded-full bg-black/20 text-white/80 hover:bg-black/40 hover:text-white transition-all"
+                title="Pular"
+              >
+                <XIcon size={20} />
+              </button>
+            )}
+            <div className="absolute inset-0 opacity-20 bg-[url('https://www.transparenttextures.com/patterns/cubes.png')]" />
+            <motion.div
+              initial={{ rotate: -10, scale: 0.8 }}
+              animate={{ rotate: 0, scale: 1 }}
+              transition={{ type: "spring", stiffness: 200 }}
+              className="bg-white dark:bg-slate-900 p-4 rounded-3xl shadow-xl relative z-10"
+            >
+              {current.icon}
+            </motion.div>
           </div>
 
-          <div className="max-w-2xl w-full text-center space-y-10 relative z-10">
-            {/* Logo Section */}
-            <motion.div variants={logoVariants} className="flex justify-center">
-              <div className="h-24 w-24 rounded-[2.5rem] bg-gradient-to-br from-violet-600 to-indigo-700 flex items-center justify-center text-white shadow-2xl shadow-violet-900/40 relative">
-                <Wallet size={48} />
-                <motion.div 
-                  className="absolute -top-2 -right-2 text-amber-400"
-                  animate={{ scale: [1, 1.2, 1], opacity: [1, 0.8, 1] }}
-                  transition={{ duration: 2, repeat: Infinity }}
-                >
-                  <Sparkles size={24} />
-                </motion.div>
-              </div>
-            </motion.div>
-
-            {/* Content Section */}
-            <div className="space-y-6">
-              <motion.h1 
-                variants={itemVariants}
-                className="text-4xl md:text-6xl font-black text-white tracking-tight"
-              >
-                Bem-vindo ao <span className="text-transparent bg-clip-text bg-gradient-to-r from-violet-400 to-emerald-400">Sistema de Controle Financeiro</span>
-              </motion.h1>
-
-              <motion.div variants={itemVariants} className="space-y-4 text-slate-400 text-base md:text-lg leading-relaxed max-w-xl mx-auto font-medium">
-                <p>
-                  Este sistema foi criado para ajudar as pessoas a organizar suas finanças, acompanhar despesas, analisar hábitos de consumo e alcançar metas financeiras.
-                </p>
-                <p>
-                  O projeto foi desenvolvido por <span className="text-white font-bold">Fernando José de Oliveira</span> como um projeto pessoal focado em ajudar usuários a gerenciarem seu dinheiro de forma simples e intuitiva.
-                </p>
-                <p className="text-violet-400 font-semibold">
-                  Preparamos um curto tutorial para te ajudar a entender como o sistema funciona.
-                </p>
-              </motion.div>
+          <div className="p-8 space-y-6">
+            <div className="text-center space-y-2">
+              <h2 className="text-2xl font-black text-slate-900 dark:text-white uppercase tracking-tight leading-tight">
+                {current.title}
+              </h2>
+              <p className="text-slate-500 dark:text-slate-400 text-sm font-medium leading-relaxed px-4">
+                {current.description}
+              </p>
             </div>
 
-            {/* Buttons Section */}
-            <motion.div 
-              variants={itemVariants}
-              className="flex flex-col sm:flex-row items-center justify-center gap-4 pt-4"
-            >
-              <button
-                onClick={() => handleAction(onStartTutorial)}
-                className="w-full sm:w-auto px-10 py-5 rounded-[2rem] bg-white text-slate-900 font-black text-lg transition-all hover:bg-slate-100 active:scale-95 shadow-2xl shadow-white/10 flex items-center justify-center gap-3 group"
-              >
-                Começar Tutorial
-                <ArrowRight size={20} className="group-hover:translate-x-1 transition-transform" />
-              </button>
+            {current.isMascotStep && (
+              <div className="grid grid-cols-3 gap-3 max-h-[240px] overflow-y-auto p-2 custom-scrollbar">
+                {MASCOTS.map((m) => (
+                  <button
+                    key={m.id}
+                    onClick={() => setSelectedMascot(m.id)}
+                    className={`flex flex-col items-center gap-2 p-3 rounded-2xl border transition-all ${
+                      selectedMascot === m.id 
+                        ? 'bg-violet-600/10 border-violet-500 shadow-lg scale-105' 
+                        : 'bg-slate-50 dark:bg-slate-800/50 border-slate-200 dark:border-slate-800 hover:border-slate-400'
+                    }`}
+                  >
+                    <span className="text-2xl">{m.mascot}</span>
+                    <span className={`text-[10px] font-black uppercase tracking-tighter text-center leading-none ${
+                      selectedMascot === m.id ? 'text-violet-500' : 'text-slate-500'
+                    }`}>
+                      {m.name.split(' ')[0]}
+                    </span>
+                  </button>
+                ))}
+              </div>
+            )}
+
+            <div className="flex flex-col gap-3">
+              <div className="flex gap-3">
+                {step > 1 && (
+                  <button
+                    onClick={() => setStep(step - 1)}
+                    className="flex-1 py-4 rounded-2xl bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-300 font-black uppercase tracking-widest text-xs shadow-md hover:bg-slate-200 dark:hover:bg-slate-700 transition-all flex items-center justify-center gap-2"
+                  >
+                    <ArrowLeft size={16} />
+                    Voltar
+                  </button>
+                )}
+                <button
+                  onClick={handleNext}
+                  className={`${step > 1 ? 'flex-[2]' : 'w-full'} py-4 rounded-2xl bg-gradient-to-r ${current.color} text-white font-black uppercase tracking-widest text-sm shadow-xl hover:opacity-90 active:scale-[0.98] transition-all flex items-center justify-center gap-2`}
+                >
+                  {step === steps.length ? "Começar Agora" : "Próximo Passo"}
+                  <ArrowRight size={18} />
+                </button>
+              </div>
               
-              <button
-                onClick={() => handleAction(onSkip)}
-                className="w-full sm:w-auto px-10 py-5 rounded-[2rem] bg-slate-900 text-slate-400 font-bold text-lg transition-all hover:text-white hover:bg-slate-800 active:scale-95 border border-slate-800 flex items-center justify-center gap-3"
-              >
-                Pular
-                <X size={20} />
-              </button>
-            </motion.div>
+              <div className="flex justify-center gap-1.5">
+                {steps.map((_, i) => (
+                  <div 
+                    key={i} 
+                    className={`h-1.5 rounded-full transition-all duration-500 ${
+                      step === i + 1 ? 'w-8 bg-violet-500' : 'w-1.5 bg-slate-200 dark:bg-slate-800'
+                    }`}
+                  />
+                ))}
+              </div>
+            </div>
           </div>
         </motion.div>
-      )}
-    </AnimatePresence>
+      </AnimatePresence>
+    </div>
   );
 }

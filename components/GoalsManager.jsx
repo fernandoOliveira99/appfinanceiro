@@ -9,6 +9,7 @@ export default function GoalsManager() {
   const [goals, setGoals] = useState([]);
   const [loading, setLoading] = useState(true);
   const [showAdd, setShowAdd] = useState(false);
+  const [hideValues, setHideValues] = useState(false);
   
   // Form state
   const [type, setType] = useState("");
@@ -18,6 +19,14 @@ export default function GoalsManager() {
 
   useEffect(() => {
     fetchGoals();
+    
+    // Carrega preferência de ocultação de valores
+    const savedHide = localStorage.getItem('hide_dashboard_values') === 'true';
+    setHideValues(savedHide);
+
+    const handleToggle = (e) => setHideValues(e.detail);
+    window.addEventListener('toggle-values', handleToggle);
+    return () => window.removeEventListener('toggle-values', handleToggle);
   }, []);
 
   async function fetchGoals() {
@@ -159,7 +168,7 @@ export default function GoalsManager() {
                           {Math.round(progress)}%
                         </span>
                         <p className="text-[10px] font-bold text-slate-500">
-                          {formatCurrencyBRL(goal.current_amount)} / {formatCurrencyBRL(goal.target_amount)}
+                          {formatCurrencyBRL(goal.current_amount, hideValues)} / {formatCurrencyBRL(goal.target_amount, hideValues)}
                         </p>
                       </div>
                       <button 

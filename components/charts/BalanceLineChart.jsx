@@ -14,7 +14,7 @@ import {
 import { theme } from "@config/design-system";
 import { formatCurrencyBRL } from "@lib/finance-utils";
 
-export default function BalanceLineChart({ transactions }) {
+export default function BalanceLineChart({ transactions, hideValues = false }) {
   // Processa dados para saldo acumulado ao longo do tempo
   const sortedTransactions = [...transactions].sort((a, b) => new Date(a.date) - new Date(b.date));
   
@@ -60,7 +60,7 @@ export default function BalanceLineChart({ transactions }) {
                 fontSize={10}
                 tickLine={false}
                 axisLine={false}
-                tickFormatter={(value) => `R$ ${value}`}
+                tickFormatter={(value) => hideValues ? "R$ •••" : `R$ ${value}`}
               />
               <Tooltip
                 contentStyle={{
@@ -69,7 +69,7 @@ export default function BalanceLineChart({ transactions }) {
                   borderRadius: 12,
                   fontSize: 12
                 }}
-                formatter={(value) => [formatCurrencyBRL(value), "Saldo"]}
+                formatter={(value) => [formatCurrencyBRL(value, hideValues), "Saldo"]}
               />
               <Area 
                 type="monotone" 

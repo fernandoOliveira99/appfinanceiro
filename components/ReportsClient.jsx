@@ -28,6 +28,16 @@ export default function ReportsClient({ initialTransactions }) {
   const [transactions, setTransactions] = useState(initialTransactions || []);
   const [selectedMonth, setSelectedMonth] = useState("all");
   const [selectedCategory, setSelectedCategory] = useState("all");
+  const [hideValues, setHideValues] = useState(false);
+
+  useEffect(() => {
+    const savedHide = localStorage.getItem('hide_dashboard_values') === 'true';
+    setHideValues(savedHide);
+
+    const handleToggle = (e) => setHideValues(e.detail);
+    window.addEventListener('toggle-values', handleToggle);
+    return () => window.removeEventListener('toggle-values', handleToggle);
+  }, []);
 
   useEffect(() => {
     async function refresh() {
@@ -102,11 +112,15 @@ export default function ReportsClient({ initialTransactions }) {
       </section>
 
       <div className="grid grid-cols-1 xl:grid-cols-2 gap-4">
-        <CategoryPieChart data={byCategory} />
-        <IncomeExpenseBarChart income={totalIncome} expenses={onlyExpenses.reduce((acc, t) => acc + (Number(t.amount) || 0), 0)} />
+        <CategoryPieChart data={byCategory} hideValues={hideValues} />
+        <IncomeExpenseBarChart 
+          income={totalIncome} 
+          expenses={onlyExpenses.reduce((acc, t) => acc + (Number(t.amount) || 0), 0)} 
+          hideValues={hideValues}
+        />
       </div>
 
-      <BalanceLineChart transactions={filteredTransactions} />
+      <BalanceLineChart transactions={filteredTransactions} hideValues={hideValues} />
     </div>
   );
 }

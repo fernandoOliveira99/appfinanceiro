@@ -5,7 +5,7 @@ import { theme } from "@config/design-system";
 import TransactionList from "@components/TransactionList";
 import CategoryList from "@components/CategoryList";
 import TransactionModal from "@components/TransactionModal";
-import { calculateTotals } from "@lib/finance-utils";
+import { calculateTotals, formatCurrencyBRL } from "@lib/finance-utils";
 
 export default function TransactionsClient({ initialTransactions, initialCategories }) {
   const [transactions, setTransactions] = useState(initialTransactions || []);
@@ -14,6 +14,16 @@ export default function TransactionsClient({ initialTransactions, initialCategor
   const [textFilter, setTextFilter] = useState("");
   const [editingTransaction, setEditingTransaction] = useState(null);
   const [modalMode, setModalMode] = useState(null);
+  const [hideValues, setHideValues] = useState(false);
+
+  useEffect(() => {
+    const savedHide = localStorage.getItem('hide_dashboard_values') === 'true';
+    setHideValues(savedHide);
+
+    const handleToggle = (e) => setHideValues(e.detail);
+    window.addEventListener('toggle-values', handleToggle);
+    return () => window.removeEventListener('toggle-values', handleToggle);
+  }, []);
 
   useEffect(() => {
     async function refresh() {
@@ -87,7 +97,7 @@ export default function TransactionsClient({ initialTransactions, initialCategor
             <div className="hidden md:flex text-sm text-slate-300">
               <span>Total gasto neste filtro:&nbsp;</span>
               <span className="text-rose-400">
-                R$ {Number(totalExpenses).toFixed(2).replace(".", ",")}
+                {formatCurrencyBRL(totalExpenses, hideValues)}
               </span>
             </div>
           </div>
@@ -101,7 +111,7 @@ export default function TransactionsClient({ initialTransactions, initialCategor
             <div className="md:hidden text-xs text-slate-300">
               Total filtrado:{" "}
               <span className="text-rose-400">
-                R$ {Number(totalExpenses).toFixed(2).replace(".", ",")}
+                {formatCurrencyBRL(totalExpenses, hideValues)}
               </span>
             </div>
           </div>
@@ -117,6 +127,7 @@ export default function TransactionsClient({ initialTransactions, initialCategor
             setEditingTransaction(tx);
             setModalMode(tx.type);
           }}
+          hideValues={hideValues}
         />
         <CategoryList
           categories={categoryNames}

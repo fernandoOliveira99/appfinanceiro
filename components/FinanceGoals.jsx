@@ -25,7 +25,7 @@ import {
 import { motion, AnimatePresence } from "framer-motion";
 import CreateGoalModal from "./CreateGoalModal";
 
-export default function FinanceGoals({ currentBalance = 0, onTransactionAdded }) {
+export default function FinanceGoals({ currentBalance = 0, onTransactionAdded, hideValues = false }) {
   const [goals, setGoals] = useState([]);
   const [loading, setLoading] = useState(true);
   const [modalOpen, setModalOpen] = useState(false);
@@ -415,18 +415,18 @@ export default function FinanceGoals({ currentBalance = 0, onTransactionAdded })
                   <div className="flex items-center justify-between gap-4">
                     <div className="min-w-0">
                       <p className="text-[10px] font-bold uppercase tracking-widest text-slate-400 dark:text-slate-500 truncate">Progresso</p>
-                      <p className="text-lg font-black text-slate-900 dark:text-white truncate">{formatCurrencyBRL(goal.current_amount)}</p>
+                      <p className="text-lg font-black text-slate-900 dark:text-white truncate">{formatCurrencyBRL(goal.current_amount, hideValues)}</p>
                     </div>
                     <div className="text-right min-w-0">
                       <p className="text-[10px] font-bold uppercase tracking-widest text-slate-400 dark:text-slate-500 truncate">Meta</p>
-                      <p className="text-sm font-bold text-slate-500 dark:text-slate-400 truncate">{formatCurrencyBRL(goal.target_amount)}</p>
+                      <p className="text-sm font-bold text-slate-500 dark:text-slate-400 truncate">{formatCurrencyBRL(goal.target_amount, hideValues)}</p>
                     </div>
                   </div>
 
                   <div className="space-y-2">
                     <div className="flex justify-between items-center text-[11px] font-black uppercase tracking-tighter">
                       <span className="text-violet-600 dark:text-violet-400">
-                        {formatCurrencyBRL(remaining)} faltam
+                        {formatCurrencyBRL(remaining, hideValues)} faltam
                       </span>
                       <span className="text-slate-500">
                         {progress.toFixed(0)}%
@@ -446,11 +446,11 @@ export default function FinanceGoals({ currentBalance = 0, onTransactionAdded })
                     <div className="pt-4 border-t border-slate-100 dark:border-slate-800/50 space-y-3">
                       <div className="flex justify-between items-center">
                         <p className="text-[11px] font-medium text-slate-500 dark:text-slate-400">
-                          Faltam <span className="text-violet-600 dark:text-violet-400 font-bold">{formatCurrencyBRL(remaining)}</span>
+                          Faltam <span className="text-violet-600 dark:text-violet-400 font-bold">{formatCurrencyBRL(remaining, hideValues)}</span>
                         </p>
                         {monthlyNeeded && (
                           <p className="text-[10px] font-bold text-slate-400 uppercase tracking-tighter">
-                            Sugestão: <span className="text-slate-900 dark:text-slate-200">{formatCurrencyBRL(monthlyNeeded)}/mês</span>
+                            Sugestão: <span className="text-slate-900 dark:text-slate-200">{formatCurrencyBRL(monthlyNeeded, hideValues)}/mês</span>
                           </p>
                         )}
                       </div>
@@ -464,7 +464,7 @@ export default function FinanceGoals({ currentBalance = 0, onTransactionAdded })
                                 Sugestão Inteligente
                               </p>
                               <p className="text-[11px] text-slate-600 dark:text-slate-400 font-medium leading-snug">
-                                Você terminou o mês com <span className="font-bold text-slate-900 dark:text-white">{formatCurrencyBRL(currentBalance)}</span> sobrando. Deseja acelerar esta meta?
+                                Você terminou o mês com <span className="font-bold text-slate-900 dark:text-white">{formatCurrencyBRL(currentBalance, hideValues)}</span> sobrando. Deseja acelerar esta meta?
                               </p>
                             </div>
                           </div>
@@ -473,7 +473,7 @@ export default function FinanceGoals({ currentBalance = 0, onTransactionAdded })
                             disabled={isUpdating}
                             className="w-full py-2.5 rounded-xl bg-violet-600 hover:bg-violet-500 text-white text-[10px] font-black uppercase tracking-widest transition-all shadow-md shadow-violet-900/20 flex items-center justify-center gap-2"
                           >
-                            Adicionar {formatCurrencyBRL(suggestedAutoAmount)} agora
+                            Adicionar {formatCurrencyBRL(suggestedAutoAmount, hideValues)} agora
                           </button>
                         </div>
                       )}
