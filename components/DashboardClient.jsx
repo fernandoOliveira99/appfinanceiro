@@ -448,7 +448,7 @@ export default function DashboardClient({ user, initialSalary, initialTransactio
               { id: 'overview', label: 'Resumo', icon: <Zap size={14} /> },
               { id: 'goals', label: 'Metas', icon: <Target size={14} /> },
               { id: 'analysis', label: 'Análise', icon: <PieChart size={14} /> },
-              { id: 'recurring', label: 'Contas', icon: <CalendarClock size={14} /> }
+              { id: 'recurring', label: 'Contas Mensais', icon: <CalendarClock size={14} /> }
             ].map((tab) => (
               <button
                 key={tab.id}

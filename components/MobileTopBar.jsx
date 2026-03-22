@@ -126,8 +126,8 @@ export default function MobileTopBar() {
   }
 
   return (
-    <div className="md:hidden sticky top-0 z-40 bg-white/90 dark:bg-slate-950/90 backdrop-blur-xl border-b border-slate-200 dark:border-slate-800/70">
-      <div className="px-4 py-3 flex items-center justify-between">
+    <div className="md:hidden sticky top-0 z-40 bg-white/90 dark:bg-slate-950/90 backdrop-blur-xl border-b border-slate-200 dark:border-slate-800/70 h-[65px]">
+      <div className="px-4 py-3 flex items-center justify-between h-full">
         <div className="flex items-center gap-3">
           <div className="relative" ref={menuRef}>
             <button

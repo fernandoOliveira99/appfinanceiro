@@ -15,6 +15,11 @@ const MASCOTS = Object.entries(personalities).map(([id, data]) => ({
 export default function WelcomeExperience({ user, onStartTutorial, onSkip }) {
   const [step, setStep] = useState(1);
   const [selectedMascot, setSelectedMascot] = useState("goku");
+  const [mounted, setMounted] = useState(false);
+
+  useEffect(() => {
+    setMounted(true);
+  }, []);
 
   const steps = [
     {
@@ -68,6 +73,8 @@ export default function WelcomeExperience({ user, onStartTutorial, onSkip }) {
     }
   };
 
+  if (!mounted) return null;
+
   return (
     <div className="fixed inset-0 z-[10000] flex items-center justify-center p-4 bg-slate-950/80 backdrop-blur-md">
       <AnimatePresence mode="wait">
@@ -76,6 +83,7 @@ export default function WelcomeExperience({ user, onStartTutorial, onSkip }) {
           initial={{ opacity: 0, scale: 0.9, y: 20 }}
           animate={{ opacity: 1, scale: 1, y: 0 }}
           exit={{ opacity: 0, scale: 1.1, y: -20 }}
+          transition={{ type: "spring", damping: 25, stiffness: 200 }}
           className="bg-white dark:bg-slate-900 w-full max-w-lg rounded-[2.5rem] overflow-hidden shadow-2xl border border-slate-200 dark:border-slate-800"
         >
           <div className={`h-32 bg-gradient-to-br ${current.color} flex items-center justify-center relative overflow-hidden`}>
@@ -104,9 +112,9 @@ export default function WelcomeExperience({ user, onStartTutorial, onSkip }) {
               <h2 className="text-2xl font-black text-slate-900 dark:text-white uppercase tracking-tight leading-tight">
                 {current.title}
               </h2>
-              <p className="text-slate-500 dark:text-slate-400 text-sm font-medium leading-relaxed px-4">
+              <div className="text-slate-500 dark:text-slate-400 text-sm font-medium leading-relaxed px-4">
                 {current.description}
-              </p>
+              </div>
             </div>
 
             {current.isMascotStep && (
