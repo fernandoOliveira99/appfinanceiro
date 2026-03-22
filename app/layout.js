@@ -33,21 +33,30 @@ export default function RootLayout({ children }) {
             __html: `
               (function() {
                 try {
-                  var theme = localStorage.getItem('theme');
-                  var supportDarkMode = window.matchMedia('(prefers-color-scheme: dark)').matches === true;
-                  
-                  // Se não houver tema salvo, usa a preferência do sistema ou default dark
-                  if (!theme) {
-                    theme = supportDarkMode ? 'dark' : 'dark'; // Mantemos dark como padrão inicial mas respeitamos a mudança
+                  function applyTheme(theme) {
+                    if (theme === 'dark') {
+                      document.documentElement.classList.add('dark');
+                      document.documentElement.style.colorScheme = 'dark';
+                    } else {
+                      document.documentElement.classList.remove('dark');
+                      document.documentElement.style.colorScheme = 'light';
+                    }
                   }
+
+                  var savedTheme = localStorage.getItem('theme');
+                  var mediaQuery = window.matchMedia('(prefers-color-scheme: dark)');
                   
-                  if (theme === 'dark') {
-                    document.documentElement.classList.add('dark');
-                    document.documentElement.style.colorScheme = 'dark';
-                  } else {
-                    document.documentElement.classList.remove('dark');
-                    document.documentElement.style.colorScheme = 'light';
-                  }
+                  // Aplica tema inicial
+                  var initialTheme = savedTheme || (mediaQuery.matches ? 'dark' : 'light');
+                  applyTheme(initialTheme);
+
+                  // Listener para mudanças no sistema em tempo real
+                  mediaQuery.addEventListener('change', function(e) {
+                    // Quando o sistema muda, seguimos o sistema e limpamos a escolha manual
+                    // Isso garante que o site sempre se adapte ao celular do usuário
+                    localStorage.removeItem('theme');
+                    applyTheme(e.matches ? 'dark' : 'light');
+                  });
                 } catch (e) {}
               })();
 

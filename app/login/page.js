@@ -5,12 +5,14 @@ import { useRouter, useSearchParams } from "next/navigation";
 import Link from "next/link";
 import { theme } from "@config/design-system";
 import { signIn } from "next-auth/react";
+import { Eye, EyeOff } from "lucide-react";
 
 function LoginForm() {
   const router = useRouter();
   const searchParams = useSearchParams();
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
+  const [showPassword, setShowPassword] = useState(false);
   const [rememberMe, setRememberMe] = useState(false);
   const [error, setError] = useState("");
   const [success, setSuccess] = useState("");
@@ -89,8 +91,8 @@ function LoginForm() {
       <div className={`${theme.cardStyles.base} max-w-md w-full overflow-hidden`}>
         <div className={`${theme.spacing.cardPadding} space-y-8`}>
           <div className="space-y-2 text-center">
-            <h1 className="text-3xl font-black text-white tracking-tight">Bem-vindo!</h1>
-            <p className="text-sm text-slate-400 font-medium">
+            <h1 className="text-3xl font-black text-slate-900 dark:text-white tracking-tight italic">Bem-vindo!</h1>
+            <p className="text-sm text-slate-500 dark:text-slate-400 font-medium">
               Escolha como deseja acessar sua conta.
             </p>
           </div>
@@ -111,7 +113,7 @@ function LoginForm() {
             <button
               onClick={handleGoogleLogin}
               disabled={loading}
-              className="w-full flex items-center justify-center gap-3 px-4 py-3.5 bg-white text-slate-900 rounded-xl font-bold text-sm hover:bg-slate-100 transition-all active:scale-95 disabled:opacity-50"
+              className="w-full flex items-center justify-center gap-3 px-4 py-3.5 bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 text-slate-900 dark:text-white rounded-xl font-bold text-sm hover:bg-slate-50 dark:hover:bg-slate-800/50 transition-all active:scale-95 disabled:opacity-50 shadow-sm"
             >
               <svg className="w-5 h-5" viewBox="0 0 24 24">
                 <path
@@ -135,39 +137,48 @@ function LoginForm() {
             </button>
 
             <div className="relative flex items-center py-2">
-              <div className="flex-grow border-t border-slate-800"></div>
+              <div className="flex-grow border-t border-slate-200 dark:border-slate-800"></div>
               <span className="flex-shrink mx-4 text-xs font-bold text-slate-500 uppercase tracking-widest">Ou</span>
-              <div className="flex-grow border-t border-slate-800"></div>
+              <div className="flex-grow border-t border-slate-200 dark:border-slate-800"></div>
             </div>
 
             <form onSubmit={handleSubmit} className="space-y-4">
               <div className="space-y-2">
-                <label className="text-xs font-bold text-slate-400 uppercase tracking-wider ml-1">E-mail</label>
+                <label className="text-xs font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wider ml-1">E-mail</label>
                 <input
                   type="email"
                   value={email}
                   onChange={(e) => setEmail(e.target.value)}
                   placeholder="seu@email.com"
                   required
-                  className="w-full px-4 py-3.5 bg-slate-900 border border-slate-800 rounded-xl text-white placeholder:text-slate-600 focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 outline-none transition-all font-medium"
+                  className="w-full px-4 py-3.5 bg-slate-100 dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-xl text-slate-900 dark:text-white placeholder:text-slate-400 dark:placeholder:text-slate-600 focus:ring-2 focus:ring-violet-500/20 focus:border-violet-500 outline-none transition-all font-medium"
                 />
               </div>
 
               <div className="space-y-2">
                 <div className="flex justify-between items-center ml-1">
-                  <label className="text-xs font-bold text-slate-400 uppercase tracking-wider">Senha</label>
-                  <Link href="/forgot-password" size="sm" className="text-xs font-bold text-blue-400 hover:text-blue-300 transition-colors">
+                  <label className="text-xs font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wider">Senha</label>
+                  <Link href="/forgot-password" size="sm" className="text-xs font-bold text-violet-600 dark:text-violet-400 hover:text-violet-500 transition-colors">
                     Esqueceu?
                   </Link>
                 </div>
-                <input
-                  type="password"
-                  value={password}
-                  onChange={(e) => setPassword(e.target.value)}
-                  placeholder="••••••••"
-                  required
-                  className="w-full px-4 py-3.5 bg-slate-900 border border-slate-800 rounded-xl text-white placeholder:text-slate-600 focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 outline-none transition-all font-medium"
-                />
+                <div className="relative group">
+                  <input
+                    type={showPassword ? "text" : "password"}
+                    value={password}
+                    onChange={(e) => setPassword(e.target.value)}
+                    placeholder="••••••••"
+                    required
+                    className="w-full px-4 py-3.5 bg-slate-100 dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-xl text-slate-900 dark:text-white placeholder:text-slate-400 dark:placeholder:text-slate-600 focus:ring-2 focus:ring-violet-500/20 focus:border-violet-500 outline-none transition-all font-medium pr-12"
+                  />
+                  <button
+                    type="button"
+                    onClick={() => setShowPassword(!showPassword)}
+                    className="absolute right-3 top-1/2 -translate-y-1/2 p-1.5 text-slate-400 hover:text-violet-500 transition-colors rounded-lg"
+                  >
+                    {showPassword ? <EyeOff size={18} /> : <Eye size={18} />}
+                  </button>
+                </div>
               </div>
 
               <div className="flex items-center gap-2 px-1">
@@ -176,9 +187,9 @@ function LoginForm() {
                   id="rememberMe"
                   checked={rememberMe}
                   onChange={(e) => setRememberMe(e.target.checked)}
-                  className="w-4 h-4 rounded border-slate-800 bg-slate-900 text-blue-600 focus:ring-blue-500/20"
+                  className="w-4 h-4 rounded border-slate-300 dark:border-slate-800 bg-slate-100 dark:bg-slate-900 text-violet-600 focus:ring-violet-500/20"
                 />
-                <label htmlFor="rememberMe" className="text-xs font-bold text-slate-400 cursor-pointer select-none">
+                <label htmlFor="rememberMe" className="text-xs font-bold text-slate-500 dark:text-slate-400 cursor-pointer select-none">
                   Permanecer conectado
                 </label>
               </div>
@@ -186,16 +197,16 @@ function LoginForm() {
               <button
                 type="submit"
                 disabled={loading}
-                className="w-full py-3.5 bg-blue-600 text-white rounded-xl font-bold text-sm hover:bg-blue-500 transition-all active:scale-95 disabled:opacity-50 shadow-lg shadow-blue-500/20"
+                className="w-full py-3.5 bg-violet-600 text-white rounded-xl font-bold text-sm hover:bg-violet-500 transition-all active:scale-95 disabled:opacity-50 shadow-lg shadow-violet-500/20"
               >
                 {loading ? "Entrando..." : "Entrar na Conta"}
               </button>
             </form>
           </div>
 
-          <p className="text-center text-sm font-medium text-slate-400">
+          <p className="text-center text-sm font-medium text-slate-500 dark:text-slate-400">
             Ainda não tem conta?{" "}
-            <Link href="/register" className="text-blue-400 hover:text-blue-300 font-bold underline-offset-4 hover:underline transition-all">
+            <Link href="/register" className="text-violet-600 dark:text-violet-400 hover:text-violet-500 font-bold underline-offset-4 hover:underline transition-all">
               Criar agora
             </Link>
           </p>

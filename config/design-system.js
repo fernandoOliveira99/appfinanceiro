@@ -1,17 +1,17 @@
 export const theme = {
   colors: {
-    background: "bg-white dark:bg-slate-950",
-    backgroundMuted: "bg-slate-50 dark:bg-slate-950/80",
-    card: "bg-white/80 dark:bg-slate-900/70",
-    cardSoft: "bg-slate-100/50 dark:bg-slate-900/60",
+    background: "bg-slate-50 dark:bg-slate-950",
+    backgroundMuted: "bg-white dark:bg-slate-950/80",
+    card: "bg-white dark:bg-slate-900/70",
+    cardSoft: "bg-slate-50 dark:bg-slate-900/60",
     borderSubtle: "border-slate-200 dark:border-slate-700/60",
-    primary: "from-violet-500 to-indigo-500",
-    primarySolid: "bg-violet-500",
+    primary: "from-violet-600 to-indigo-600",
+    primarySolid: "bg-violet-600",
     accent: "bg-sky-500",
     accentSoft: "bg-sky-500/10",
-    success: "text-emerald-500 dark:text-emerald-400",
-    warning: "text-amber-500 dark:text-amber-400",
-    danger: "text-rose-500 dark:text-rose-400",
+    success: "text-emerald-600 dark:text-emerald-400",
+    warning: "text-amber-600 dark:text-amber-400",
+    danger: "text-rose-600 dark:text-rose-400",
     textMuted: "text-slate-500 dark:text-slate-400"
   },
   spacing: {

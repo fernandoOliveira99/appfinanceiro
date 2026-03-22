@@ -3,6 +3,60 @@
 import { useEffect, useState } from "react";
 import Joyride, { STATUS } from "react-joyride";
 import { theme } from "@config/design-system";
+import { X } from "lucide-react";
+
+const Tooltip = ({
+  continuous,
+  index,
+  step,
+  backProps,
+  closeProps,
+  primaryProps,
+  skipProps,
+  tooltipProps,
+  isLastStep
+}) => (
+  <div {...tooltipProps} className="bg-slate-900 border border-white/10 rounded-[2rem] p-5 shadow-2xl w-[280px] xs:w-[320px] sm:w-[380px] text-left">
+    <div className="flex justify-between items-center mb-4">
+      <span className="text-[10px] font-black uppercase tracking-[0.2em] text-violet-400">
+        Tutorial • Passo {index + 1}
+      </span>
+      <button {...closeProps} className="text-slate-500 hover:text-white transition-colors">
+        <X size={18} />
+      </button>
+    </div>
+    
+    {step.title && (
+      <h3 className="text-white font-black text-lg mb-2 italic tracking-tight leading-tight">
+        {step.title}
+      </h3>
+    )}
+    
+    <div className="text-slate-300 text-sm font-medium leading-relaxed mb-6">
+      {step.content}
+    </div>
+
+    <div className="flex items-center justify-between gap-4">
+      <button {...skipProps} className="text-[10px] font-black text-slate-500 hover:text-slate-400 transition-colors uppercase tracking-widest">
+        Pular
+      </button>
+      
+      <div className="flex items-center gap-2">
+        {index > 0 && (
+          <button {...backProps} className="text-[10px] font-black text-slate-400 hover:text-white transition-colors uppercase tracking-widest px-3 py-2">
+            Voltar
+          </button>
+        )}
+        <button 
+          {...primaryProps} 
+          className="bg-violet-600 hover:bg-violet-500 text-white text-[10px] font-black uppercase tracking-widest px-5 py-3 rounded-xl shadow-lg shadow-violet-900/20 transition-all active:scale-95"
+        >
+          {isLastStep ? "Finalizar" : "Próximo"}
+        </button>
+      </div>
+    </div>
+  </div>
+);
 
 export default function GuidedTutorial({ run, onFinish, setActiveTab }) {
   const [mounted, setMounted] = useState(false);
@@ -53,43 +107,50 @@ export default function GuidedTutorial({ run, onFinish, setActiveTab }) {
 
     const mobileSteps = [
       {
-        target: "#balance-area",
-        content: "Este é o seu resumo financeiro. Aqui você vê seu saldo atual, receitas e despesas totais do mês.",
-        disableBeacon: true,
-      },
-      {
-        target: "#forecast-section",
-        content: "Baseado nos seus gastos, calculamos quanto você terá no final do mês. Planejamento é tudo!",
-      },
-      {
-        target: "#transaction-list",
-        content: "Acompanhe cada centavo aqui. Você pode buscar, filtrar e gerenciar todas as suas movimentações.",
-      },
-      {
-        target: "#fab-button",
-        content: "Precisa registrar algo rápido? Use este botão flutuante para adicionar receitas ou despesas de qualquer lugar.",
-        placement: "left"
-      },
-      {
         target: "#mobile-tabs",
-        content: "Navegue entre o Resumo, suas Metas, Análises detalhadas e suas Contas Mensais fixas.",
+        content: "Este é o seu novo centro de comando! Navegue entre as 5 funções principais do app por aqui.",
+        disableBeacon: true,
+        placement: "top",
       },
       {
-        target: "#goals-section",
-        content: "Defina seus sonhos aqui! Acompanhe o progresso e receba sugestões de quanto poupar para conquistar seus objetivos.",
+        target: "#tab-overview",
+        title: "Início",
+        content: "Seu resumo financeiro completo, com saldo e previsões inteligentes.",
+        placement: "top",
+        offset: 15,
       },
       {
-        target: "#insights-section",
-        content: "Nossa IA analisa seu comportamento e te avisa sobre gastos suspeitos ou como economizar mais.",
+        target: "#tab-budgets",
+        title: "Controle",
+        content: "Gerencie seus orçamentos e veja o ranking de gastos por categoria.",
+        placement: "top",
+        offset: 15,
       },
       {
-        target: "#report-export-section",
-        content: "Gere relatórios profissionais em PDF ou Excel para ter um controle ainda mais rigoroso fora do app.",
+        target: "#tab-goals",
+        title: "Objetivos",
+        content: "O lugar para criar suas metas e acompanhar suas economias.",
+        placement: "top",
+        offset: 15,
+      },
+      {
+        target: "#tab-analysis",
+        title: "Análise",
+        content: "Gráficos interativos e insights da nossa IA sobre sua saúde financeira.",
+        placement: "top",
+        offset: 15,
+      },
+      {
+        target: "#tab-recurring",
+        title: "Contas Mensais",
+        content: "Organize seus compromissos fixos e mantenha tudo sob controle.",
+        placement: "top",
+        offset: 15,
       },
       {
         target: "body",
         placement: "center",
-        content: "Você agora conhece todas as ferramentas! Vamos transformar sua vida financeira hoje?",
+        content: "Pronto! Agora você sabe o que cada botão faz. Vamos começar?",
       },
     ];
 
@@ -111,11 +172,10 @@ export default function GuidedTutorial({ run, onFinish, setActiveTab }) {
 
     // Lógica para trocar de abas no mobile durante o tutorial
     if (type === "step:after" && window.innerWidth < 768) {
-      if (index === 4) { // Depois do mobile-tabs, vai para Metas
-        setActiveTab("goals");
-      } else if (index === 5) { // Depois do goals-section, vai para Análise
-        setActiveTab("analysis");
-      }
+      if (index === 1) setActiveTab("budgets");
+      if (index === 2) setActiveTab("goals");
+      if (index === 3) setActiveTab("analysis");
+      if (index === 4) setActiveTab("recurring");
     }
   };
 
@@ -125,63 +185,24 @@ export default function GuidedTutorial({ run, onFinish, setActiveTab }) {
     <Joyride
       callback={handleJoyrideCallback}
       continuous
-      hideExtraButton
+      hideCloseButton={true}
       run={run}
       scrollToFirstStep
-      showProgress
+      showProgress={false}
       showSkipButton
       steps={steps}
-      locale={{
-        back: "Voltar",
-        close: "Fechar",
-        last: "Finalizar Tutorial",
-        next: "Próximo",
-        skip: "Pular Tutorial",
+      tooltipComponent={Tooltip}
+      disableOverlayClose
+      spotlightClicks
+      floaterProps={{
+        disableAnimation: true,
       }}
       styles={{
         options: {
-          arrowColor: theme.colors?.slate?.[800] || "#1e293b",
-          backgroundColor: theme.colors?.slate?.[800] || "#1e293b",
-          overlayColor: "rgba(0, 0, 0, 0.85)",
-          primaryColor: theme.colors?.violet?.[500] || "#8b5cf6",
-          textColor: "#fff",
-          zIndex: 100000,
-          width: window.innerWidth < 768 ? (window.innerWidth - 30) : 450,
-        },
-        tooltip: {
-          padding: "1.5rem",
-          borderRadius: "1.75rem",
-          boxShadow: "0 25px 50px -12px rgba(0, 0, 0, 0.5)",
-          border: "1px solid rgba(255, 255, 255, 0.1)",
-        },
-        tooltipContent: {
-          fontSize: "1rem",
-          fontWeight: "500",
-          lineHeight: "1.5",
-          color: "#f8fafc",
-        },
-        buttonNext: {
-          backgroundColor: theme.colors?.violet?.[600] || "#7c3aed",
-          borderRadius: "1rem",
-          fontSize: "0.85rem",
-          fontWeight: "900",
-          textTransform: "uppercase",
-          letterSpacing: "0.05em",
-          padding: "0.85rem 1.5rem",
-          marginLeft: "0.75rem",
-          boxShadow: "0 10px 15px -3px rgba(124, 58, 237, 0.3)",
-        },
-        buttonBack: {
-          color: "#94a3b8",
-          marginRight: "auto",
-          fontSize: "0.85rem",
-          fontWeight: "900",
-          textTransform: "uppercase",
-        },
-        buttonSkip: {
-          color: "#64748b",
-          fontSize: "0.85rem",
-          fontWeight: "700",
+          zIndex: 10000000,
+          overlayColor: "rgba(0, 0, 0, 0.8)",
+          spotlightPadding: 0,
+          arrowColor: "#0f172a",
         },
       }}
     />

@@ -453,7 +453,7 @@ export default function DashboardClient({ user, initialSalary, initialTransactio
       {/* Segmented Control Tabs (App Style) - Fixed at bottom for mobile */}
       <div className="md:hidden fixed bottom-0 left-0 right-0 z-[9999] pointer-events-none transform-gpu">
         <div className="px-2 pb-6 pt-10 bg-gradient-to-t from-white dark:from-slate-950 via-white/90 dark:via-slate-950/90 to-transparent">
-          <div className="flex bg-white/95 dark:bg-slate-900/95 backdrop-blur-xl p-1.5 rounded-2xl border border-slate-200 dark:border-slate-800 shadow-[0_-10px_40px_rgba(0,0,0,0.3)] pointer-events-auto max-w-[calc(100vw-1rem)] mx-auto">
+          <div id="mobile-tabs" className="flex bg-white/95 dark:bg-slate-900/95 backdrop-blur-xl p-1.5 rounded-2xl border border-slate-200 dark:border-slate-800 shadow-[0_-10px_40px_rgba(0,0,0,0.3)] pointer-events-auto max-w-[calc(100vw-1rem)] mx-auto">
             {[
               { id: 'overview', label: 'Início', icon: <Zap size={14} /> },
               { id: 'budgets', label: 'Controle', icon: <Sliders size={14} /> },
@@ -463,6 +463,7 @@ export default function DashboardClient({ user, initialSalary, initialTransactio
             ].map((tab) => (
               <button
                 key={tab.id}
+                id={`tab-${tab.id}`}
                 onClick={() => {
                   setActiveTab(tab.id);
                   window.scrollTo({ top: 0, behavior: 'smooth' });

@@ -13,8 +13,32 @@ export default function DashboardHeader({ user, onAddIncome, onAddExpense, hideV
 
   useEffect(() => {
     setMounted(true);
-    const isDarkMode = document.documentElement.classList.contains('dark');
-    setIsDark(isDarkMode);
+    
+    // Verifica preferência salva ou tema do sistema
+    const savedTheme = localStorage.getItem('theme');
+    const systemPrefersDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
+    
+    const shouldBeDark = savedTheme ? savedTheme === 'dark' : systemPrefersDark;
+    
+    setIsDark(shouldBeDark);
+    if (shouldBeDark) {
+      document.documentElement.classList.add('dark');
+      document.documentElement.style.colorScheme = 'dark';
+    } else {
+      document.documentElement.classList.remove('dark');
+      document.documentElement.style.colorScheme = 'light';
+    }
+    
+    // Listener para mudanças no tema do sistema em tempo real
+    const mediaQuery = window.matchMedia('(prefers-color-scheme: dark)');
+    const handleChange = (e) => {
+      // Quando o sistema muda, seguimos o sistema
+      const newDark = e.matches;
+      setIsDark(newDark);
+      // O layout.js já cuida de aplicar as classes no documentElement e limpar o localStorage
+    };
+    
+    mediaQuery.addEventListener('change', handleChange);
     
     // Carrega notificações iniciais
     fetchNotifications();
@@ -26,7 +50,10 @@ export default function DashboardHeader({ user, onAddIncome, onAddExpense, hideV
       }
     };
     document.addEventListener("mousedown", handleClickOutside);
-    return () => document.removeEventListener("mousedown", handleClickOutside);
+    return () => {
+      document.removeEventListener("mousedown", handleClickOutside);
+      mediaQuery.removeEventListener('change', handleChange);
+    };
   }, []);
 
   const fetchNotifications = async () => {

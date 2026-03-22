@@ -6,16 +6,16 @@ import Image from "next/image";
 import { usePathname, useRouter } from "next/navigation";
 import { theme } from "@config/design-system";
 import { useSession, signOut } from "next-auth/react";
-import {
-  LayoutDashboard,
-  User as UserIcon,
-  Settings,
+import { 
+  LayoutDashboard, 
+  CreditCard, 
+  PieChart, 
   Info,
   LogOut,
   ChevronDown,
-  CreditCard,
-  PieChart,
-  Zap
+  User,
+  Zap,
+  Settings
 } from "lucide-react";
 
 const links = [
@@ -161,7 +161,7 @@ export default function Sidebar() {
                 onClick={() => setDropdownOpen(false)}
                 className="flex items-center gap-3 px-4 py-2.5 rounded-xl text-xs font-bold text-slate-600 dark:text-slate-300 hover:bg-slate-50 dark:hover:bg-slate-800 hover:text-slate-900 dark:hover:text-white transition-all"
               >
-                <UserIcon size={16} className="text-emerald-500" />
+                <User size={16} className="text-emerald-500" />
                 Perfil
               </Link>
               <Link 
@@ -172,14 +172,6 @@ export default function Sidebar() {
                 <Settings size={16} className="text-amber-500" />
                 Configurações
               </Link>
-              <div className="h-px bg-slate-100 dark:bg-slate-800 mx-2 my-1" />
-              <button
-                onClick={handleRestartTutorial}
-                className="w-full flex items-center gap-3 px-4 py-2.5 rounded-xl text-xs font-bold text-slate-600 dark:text-slate-300 hover:bg-slate-50 dark:hover:bg-slate-800 hover:text-slate-900 dark:hover:text-white transition-all"
-              >
-                <Zap size={16} className="text-violet-500" />
-                Ver Tutorial
-              </button>
               <div className="h-px bg-slate-100 dark:bg-slate-800 mx-2 my-1" />
               <button
                 onClick={() => {
@@ -205,8 +197,8 @@ export default function Sidebar() {
               key={link.href}
               href={link.href}
               className={`flex items-center gap-3 px-4 py-3 rounded-2xl transition-all group relative ${
-                active
-                  ? "bg-violet-600 text-white shadow-lg shadow-violet-600/20"
+                active 
+                  ? "bg-violet-600 text-white shadow-lg shadow-violet-600/20" 
                   : "text-slate-500 dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-900/50 hover:text-slate-900 dark:hover:text-white"
               }`}
             >
@@ -224,16 +216,6 @@ export default function Sidebar() {
           );
         })}
       </nav>
-
-      <div className="px-4 pb-8">
-        <div className="p-4 rounded-2xl bg-gradient-to-br from-slate-50 to-slate-100 dark:from-slate-900/50 dark:to-slate-900/20 border border-slate-200 dark:border-slate-800/50">
-          <div className="flex items-center gap-2 mb-2">
-            <div className="h-2 w-2 rounded-full bg-emerald-500 animate-pulse" />
-            <span className="text-[10px] font-black text-slate-400 dark:text-slate-500 uppercase tracking-widest">Status</span>
-          </div>
-          <p className="text-[11px] font-bold text-slate-700 dark:text-slate-300">Sistema Online</p>
-        </div>
-      </div>
     </aside>
   );
 }
