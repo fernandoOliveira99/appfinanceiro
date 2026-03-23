@@ -81,10 +81,10 @@ export default function CategoryRanking({ transactions }) {
                   width={100}
                 />
                 <Tooltip 
-                  cursor={{ fill: 'rgba(255,255,255,0.05)' }}
+                  cursor={{ fill: 'rgba(148,163,184,0.05)' }}
                   contentStyle={{ 
-                    backgroundColor: '#0f172a', 
-                    border: '1px solid #1e293b', 
+                    backgroundColor: 'rgba(15, 23, 42, 0.95)', 
+                    border: '1px solid rgba(148, 163, 184, 0.2)', 
                     borderRadius: '12px',
                     fontSize: '11px',
                     color: '#fff'

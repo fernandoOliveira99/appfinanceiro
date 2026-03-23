@@ -148,17 +148,17 @@ export default function RecurringTransactionsManager({ transactions = [], hideVa
         </div>
 
         {showAdd && (
-          <form onSubmit={handleSubmit} className="bg-slate-900/40 p-5 rounded-2xl border border-slate-800/60 space-y-4 animate-in slide-in-from-top-2 duration-300">
+          <form onSubmit={handleSubmit} className="bg-slate-100 dark:bg-slate-900/40 p-5 rounded-2xl border border-slate-200 dark:border-slate-800/60 space-y-4 animate-in slide-in-from-top-2 duration-300">
             <div className="flex items-center justify-between mb-2">
-              <h3 className="text-xs font-bold text-slate-300 uppercase tracking-wider">
+              <h3 className="text-xs font-black text-slate-500 dark:text-slate-300 uppercase tracking-widest">
                 {editingId ? "Editar Transação" : "Nova Transação"}
               </h3>
             </div>
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
               <div className="flex flex-col gap-1.5">
-                <label className="text-[10px] font-bold uppercase tracking-widest text-slate-500 ml-1">Nome</label>
+                <label className="text-[10px] font-bold uppercase tracking-widest text-slate-500 dark:text-slate-500 ml-1">Nome</label>
                 <input
-                  className="bg-slate-950/50 border border-slate-800 rounded-xl px-3 py-2 text-xs text-white outline-none focus:border-violet-500/50"
+                  className="bg-white dark:bg-slate-950/50 border border-slate-200 dark:border-slate-800 rounded-xl px-4 py-2.5 text-xs text-slate-900 dark:text-white outline-none focus:ring-2 focus:ring-violet-500/20 focus:border-violet-500/50 transition-all placeholder:text-slate-400"
                   value={name}
                   onChange={(e) => setName(e.target.value)}
                   placeholder="Ex: Aluguel, Netflix..."
@@ -166,10 +166,10 @@ export default function RecurringTransactionsManager({ transactions = [], hideVa
                 />
               </div>
               <div className="flex flex-col gap-1.5">
-                <label className="text-[10px] font-bold uppercase tracking-widest text-slate-500 ml-1">Valor</label>
+                <label className="text-[10px] font-bold uppercase tracking-widest text-slate-500 dark:text-slate-500 ml-1">Valor</label>
                 <input
                   type="text"
-                  className="bg-slate-950/50 border border-slate-800 rounded-xl px-3 py-2 text-xs text-white outline-none focus:border-violet-500/50"
+                  className="bg-white dark:bg-slate-950/50 border border-slate-200 dark:border-slate-800 rounded-xl px-4 py-2.5 text-xs text-slate-900 dark:text-white outline-none focus:ring-2 focus:ring-violet-500/20 focus:border-violet-500/50 transition-all placeholder:text-slate-400"
                   value={amountDisplay}
                   onChange={handleAmountChange}
                   placeholder="R$ 0,00"
@@ -180,9 +180,9 @@ export default function RecurringTransactionsManager({ transactions = [], hideVa
             
             <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
               <div className="flex flex-col gap-1.5">
-                <label className="text-[10px] font-bold uppercase tracking-widest text-slate-500 ml-1">Frequência</label>
+                <label className="text-[10px] font-bold uppercase tracking-widest text-slate-500 dark:text-slate-500 ml-1">Frequência</label>
                 <select
-                  className="bg-slate-950/50 border border-slate-800 rounded-xl px-3 py-2 text-xs text-white outline-none focus:border-violet-500/50"
+                  className="bg-white dark:bg-slate-950/50 border border-slate-200 dark:border-slate-800 rounded-xl px-4 py-2.5 text-xs text-slate-900 dark:text-white outline-none focus:ring-2 focus:ring-violet-500/20 focus:border-violet-500/50 transition-all"
                   value={frequency}
                   onChange={(e) => setFrequency(e.target.value)}
                 >
@@ -191,9 +191,9 @@ export default function RecurringTransactionsManager({ transactions = [], hideVa
                 </select>
               </div>
               <div className="flex flex-col gap-1.5">
-                <label className="text-[10px] font-bold uppercase tracking-widest text-slate-500 ml-1">Tipo</label>
+                <label className="text-[10px] font-bold uppercase tracking-widest text-slate-500 dark:text-slate-500 ml-1">Tipo</label>
                 <select
-                  className="bg-slate-950/50 border border-slate-800 rounded-xl px-3 py-2 text-xs text-white outline-none focus:border-violet-500/50"
+                  className="bg-white dark:bg-slate-950/50 border border-slate-200 dark:border-slate-800 rounded-xl px-4 py-2.5 text-xs text-slate-900 dark:text-white outline-none focus:ring-2 focus:ring-violet-500/20 focus:border-violet-500/50 transition-all"
                   value={type}
                   onChange={(e) => setType(e.target.value)}
                 >
@@ -202,10 +202,10 @@ export default function RecurringTransactionsManager({ transactions = [], hideVa
                 </select>
               </div>
               <div className="flex flex-col gap-1.5">
-                <label className="text-[10px] font-bold uppercase tracking-widest text-slate-500 ml-1">Próxima Data</label>
+                <label className="text-[10px] font-bold uppercase tracking-widest text-slate-500 dark:text-slate-500 ml-1">Próxima Data</label>
                 <input
                   type="date"
-                  className="bg-slate-950/50 border border-slate-800 rounded-xl px-3 py-2 text-xs text-white outline-none focus:border-violet-500/50"
+                  className="bg-white dark:bg-slate-950/50 border border-slate-200 dark:border-slate-800 rounded-xl px-4 py-2.5 text-xs text-slate-900 dark:text-white outline-none focus:ring-2 focus:ring-violet-500/20 focus:border-violet-500/50 transition-all"
                   value={nextDate}
                   onChange={(e) => setNextDate(e.target.value)}
                   required
@@ -213,7 +213,7 @@ export default function RecurringTransactionsManager({ transactions = [], hideVa
               </div>
             </div>
 
-            <button type="submit" className="w-full py-3 rounded-xl bg-violet-600 hover:bg-violet-500 text-white text-xs font-bold transition-all shadow-lg shadow-violet-900/20">
+            <button type="submit" className="w-full py-3.5 rounded-xl bg-violet-600 hover:bg-violet-500 text-white text-xs font-black uppercase tracking-widest transition-all shadow-lg shadow-violet-600/20 active:scale-[0.98]">
               {editingId ? "Salvar Alterações" : "Criar Transação Recorrente"}
             </button>
           </form>
@@ -222,23 +222,23 @@ export default function RecurringTransactionsManager({ transactions = [], hideVa
         <div className="space-y-6">
           {/* 1. SEÇÃO DE CONTAS FIXAS */}
           <div className="space-y-3">
-            <h3 className="text-[10px] font-black uppercase tracking-widest text-amber-500/80 px-1 flex items-center gap-2">
+            <h3 className="text-[10px] font-black uppercase tracking-widest text-amber-600 dark:text-amber-500/80 px-1 flex items-center gap-2">
               <Repeat size={12} />
               Contas Fixas Planejadas
             </h3>
             {recurring.length === 0 ? (
-              <p className="text-center py-4 text-xs text-slate-500 italic bg-slate-900/20 rounded-2xl border border-dashed border-slate-800">Nenhuma transação recorrente configurada.</p>
+              <p className="text-center py-4 text-xs text-slate-500 italic bg-slate-100 dark:bg-slate-900/20 rounded-2xl border border-dashed border-slate-200 dark:border-slate-800">Nenhuma transação recorrente configurada.</p>
             ) : (
               recurring.map((item) => (
-                <div key={item.id} className="flex items-center justify-between p-4 rounded-2xl bg-slate-900/30 border border-slate-800/40 group hover:border-slate-700/60 transition-all">
+                <div key={item.id} className="flex items-center justify-between p-4 rounded-2xl bg-slate-50 dark:bg-slate-900/30 border border-slate-100 dark:border-slate-800/40 group hover:border-violet-200 dark:hover:border-slate-700/60 transition-all">
                   <div className="flex items-center gap-4">
                     <div className={`h-10 w-10 rounded-xl flex items-center justify-center text-lg ${
-                      item.type === 'income' ? 'bg-emerald-500/10 text-emerald-400' : 'bg-rose-500/10 text-rose-400'
+                      item.type === 'income' ? 'bg-emerald-100 dark:bg-emerald-500/10 text-emerald-600 dark:text-emerald-400' : 'bg-rose-100 dark:bg-rose-500/10 text-rose-600 dark:text-rose-400'
                     }`}>
                       {item.type === 'income' ? <DollarSign size={18} /> : <Calendar size={18} />}
                     </div>
                     <div>
-                      <h4 className="text-sm font-bold text-slate-200">{item.name}</h4>
+                      <h4 className="text-sm font-bold text-slate-900 dark:text-slate-200">{item.name}</h4>
                       <p className="text-[10px] font-bold text-slate-500 uppercase tracking-widest">
                         {item.frequency === 'monthly' ? 'Mensal' : 'Semanal'} • Próximo: {new Date(item.next_date).toLocaleDateString('pt-BR')}
                       </p>
@@ -246,21 +246,21 @@ export default function RecurringTransactionsManager({ transactions = [], hideVa
                   </div>
                   <div className="flex flex-col items-end gap-2">
                     <div className="flex items-center gap-2">
-                      <span className={`text-sm font-black ${item.type === 'income' ? 'text-emerald-400' : 'text-rose-400'}`}>
+                      <span className={`text-sm font-black ${item.type === 'income' ? 'text-emerald-600 dark:text-emerald-400' : 'text-rose-600 dark:text-rose-400'}`}>
                         {item.type === 'income' ? '+' : '-'}{formatCurrencyBRL(item.amount, hideValues)}
                       </span>
                     </div>
                     <div className="flex items-center gap-1.5 md:opacity-0 md:group-hover:opacity-100 transition-all">
                       <button 
                         onClick={() => handleEdit(item)}
-                        className="p-1.5 rounded-lg text-slate-400 hover:text-white hover:bg-slate-800 transition-all shadow-sm"
+                        className="p-1.5 rounded-lg text-slate-400 hover:text-violet-600 dark:hover:text-white hover:bg-violet-50 dark:hover:bg-slate-800 transition-all shadow-sm"
                         title="Editar"
                       >
                         <Edit2 size={12} />
                       </button>
                       <button 
                         onClick={() => handleDelete(item.id)}
-                        className="p-1.5 rounded-lg text-slate-600 hover:text-rose-500 hover:bg-rose-500/10 transition-all shadow-sm"
+                        className="p-1.5 rounded-lg text-slate-400 hover:text-rose-600 hover:bg-rose-50 dark:hover:bg-rose-500/10 transition-all shadow-sm"
                         title="Excluir"
                       >
                         <Trash2 size={12} />
@@ -273,28 +273,28 @@ export default function RecurringTransactionsManager({ transactions = [], hideVa
           </div>
 
           {/* 2. SEÇÃO DE DESPESAS REAIS (COMPARAÇÃO) */}
-          <div className="space-y-3 pt-4 border-t border-slate-800/50">
-            <h3 className="text-[10px] font-black uppercase tracking-widest text-rose-500/80 px-1 flex items-center gap-2">
+          <div className="space-y-3 pt-4 border-t border-slate-200 dark:border-slate-800/50">
+            <h3 className="text-[10px] font-black uppercase tracking-widest text-rose-600 dark:text-rose-500/80 px-1 flex items-center gap-2">
               <DollarSign size={12} />
               Despesas Reais do Mês
             </h3>
             {expenses.length === 0 ? (
-              <p className="text-center py-4 text-xs text-slate-500 italic bg-slate-900/20 rounded-2xl border border-dashed border-slate-800">Nenhuma despesa registrada no dashboard.</p>
+              <p className="text-center py-4 text-xs text-slate-500 italic bg-slate-100 dark:bg-slate-900/20 rounded-2xl border border-dashed border-slate-200 dark:border-slate-800">Nenhuma despesa registrada no dashboard.</p>
             ) : (
               expenses.slice(0, 5).map((tx) => (
-                <div key={tx.id} className="flex items-center justify-between p-4 rounded-2xl bg-slate-950/20 border border-slate-800/30">
+                <div key={tx.id} className="flex items-center justify-between p-4 rounded-2xl bg-slate-50 dark:bg-slate-950/20 border border-slate-100 dark:border-slate-800/30">
                   <div className="flex items-center gap-4">
-                    <div className="h-10 w-10 rounded-xl bg-rose-500/10 text-rose-400 flex items-center justify-center">
+                    <div className="h-10 w-10 rounded-xl bg-rose-100 dark:bg-rose-500/10 text-rose-600 dark:text-rose-400 flex items-center justify-center">
                       <DollarSign size={18} />
                     </div>
                     <div>
-                      <h4 className="text-sm font-bold text-slate-300">{tx.name || tx.description}</h4>
+                      <h4 className="text-sm font-bold text-slate-900 dark:text-slate-300">{tx.name || tx.description}</h4>
                       <p className="text-[10px] font-bold text-slate-500 uppercase tracking-widest">
                         {tx.category} • {new Date(tx.date).toLocaleDateString('pt-BR')}
                       </p>
                     </div>
                   </div>
-                  <span className="text-sm font-black text-rose-400">
+                  <span className="text-sm font-black text-rose-600 dark:text-rose-400">
                     - {formatCurrencyBRL(tx.amount, hideValues)}
                   </span>
                 </div>

@@ -96,7 +96,7 @@ export default function IntelligentInsights({ transactions, economyMode }) {
             </h2>
             <div className="flex flex-col gap-3">
               {suspicious.slice(0, 2).map((s) => (
-                <div key={s.id} className={`p-4 rounded-2xl border ${s.type === 'danger' ? 'bg-rose-50 dark:bg-rose-500/10 border-rose-100 dark:border-rose-500/20 text-rose-600 dark:text-rose-400' : 'bg-amber-50 dark:bg-amber-500/10 border-amber-100 dark:border-amber-500/20 text-amber-700 dark:text-amber-400'} w-full`}>
+                <div key={s.id} className={`p-4 rounded-2xl border ${s.type === 'danger' ? 'bg-rose-50 dark:bg-rose-500/10 border-rose-200 dark:border-rose-500/20 text-rose-700 dark:text-rose-400' : 'bg-amber-50 dark:bg-amber-500/10 border-amber-200 dark:border-amber-500/20 text-amber-800 dark:text-amber-400'} w-full`}>
                   <p className="text-xs font-bold leading-relaxed break-words">{s.message}</p>
                 </div>
               ))}
@@ -110,19 +110,18 @@ export default function IntelligentInsights({ transactions, economyMode }) {
         <section className={`${theme.cardStyles.base} rounded-2xl sm:rounded-[2rem] overflow-hidden border border-emerald-200 dark:border-emerald-500/20 shadow-xl bg-emerald-50/50 dark:bg-emerald-500/5 w-full max-w-full`}>
           <div className="p-4 sm:p-8 space-y-4">
             <h2 className="text-[10px] font-black text-emerald-600 dark:text-emerald-500 uppercase tracking-[0.2em] flex items-center gap-2">
-              <Zap size={18} className="fill-emerald-600 dark:fill-emerald-500" />
-              Modo Economia: Dicas
+              <Zap size={18} className="fill-emerald-500 dark:fill-emerald-400" />
+              Economia ativa
             </h2>
             <div className="flex flex-col gap-3">
-              {economyTips.map((tip) => {
-                const Icon = tip.icon;
-                return (
-                  <div key={tip.id} className="flex items-start gap-3 p-4 rounded-2xl bg-emerald-50 dark:bg-emerald-500/10 border border-emerald-100 dark:border-emerald-500/20 text-emerald-700 dark:text-emerald-400 w-full">
-                    <Icon size={16} className="shrink-0 mt-0.5" />
-                    <p className="text-xs font-bold leading-relaxed break-words">{tip.message}</p>
+              {economyTips.slice(0, 2).map((tip) => (
+                <div key={tip.id} className="p-4 rounded-2xl bg-emerald-50 dark:bg-emerald-500/10 border border-emerald-200 dark:border-emerald-500/20 text-emerald-700 dark:text-emerald-400 flex items-center gap-4 w-full">
+                  <div className="h-10 w-10 rounded-xl bg-emerald-100 dark:bg-emerald-500/20 flex items-center justify-center shrink-0">
+                    <tip.icon size={18} />
                   </div>
-                );
-              })}
+                  <p className="text-xs font-bold leading-relaxed break-words">{tip.message}</p>
+                </div>
+              ))}
             </div>
           </div>
         </section>

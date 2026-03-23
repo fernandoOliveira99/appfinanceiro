@@ -12,7 +12,9 @@ const CATEGORY_COLORS = {
   Saúde: "#a855f7", // purple
   Educação: "#f97316", // orange
   Investimentos: "#14b8a6",
-  Outros: "#64748b"
+  Outros: "#64748b",
+  Pizza: "#ff4d4d",
+  "Cartão de Crédito": "#4d79ff"
 };
 
 const FALLBACK_COLORS = ["#a855f7", "#38bdf8", "#22c55e", "#f97316", "#e11d48", "#eab308", "#14b8a6"];
