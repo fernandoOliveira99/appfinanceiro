@@ -85,9 +85,9 @@ export default function ReportsClient({ initialTransactions }) {
 
           <div className="flex flex-wrap gap-4 pt-2">
             <div className="flex flex-col gap-1.5">
-              <label className="text-[10px] font-bold uppercase tracking-widest text-slate-500 ml-1">Filtrar por Mês</label>
+              <label className="text-[10px] font-bold uppercase tracking-widest text-slate-500 dark:text-slate-500 ml-1">Filtrar por Mês</label>
               <select 
-                className="bg-slate-900 border border-slate-800 rounded-xl px-4 py-2 text-xs text-white outline-none focus:border-violet-500/50 min-w-[150px]"
+                className="bg-slate-100 dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-xl px-4 py-2 text-xs text-slate-900 dark:text-white outline-none focus:ring-2 focus:ring-violet-500/20 focus:border-violet-500/50 min-w-[150px] transition-all"
                 value={selectedMonth}
                 onChange={(e) => setSelectedMonth(e.target.value)}
               >
@@ -97,9 +97,9 @@ export default function ReportsClient({ initialTransactions }) {
             </div>
 
             <div className="flex flex-col gap-1.5">
-              <label className="text-[10px] font-bold uppercase tracking-widest text-slate-500 ml-1">Filtrar por Categoria</label>
+              <label className="text-[10px] font-bold uppercase tracking-widest text-slate-500 dark:text-slate-500 ml-1">Filtrar por Categoria</label>
               <select 
-                className="bg-slate-900 border border-slate-800 rounded-xl px-4 py-2 text-xs text-white outline-none focus:border-violet-500/50 min-w-[150px]"
+                className="bg-slate-100 dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-xl px-4 py-2 text-xs text-slate-900 dark:text-white outline-none focus:ring-2 focus:ring-violet-500/20 focus:border-violet-500/50 min-w-[150px] transition-all"
                 value={selectedCategory}
                 onChange={(e) => setSelectedCategory(e.target.value)}
               >

@@ -63,8 +63,8 @@ export default function CategoryPieChart({ data, hideValues = false }) {
           </Pie>
           <Tooltip
             contentStyle={{
-              backgroundColor: "#0f172a",
-              border: "1px solid #1e293b",
+              backgroundColor: "rgba(15, 23, 42, 0.95)",
+              border: "1px solid rgba(148, 163, 184, 0.2)",
               borderRadius: 12,
               fontSize: 11,
               color: "#fff"
@@ -77,7 +77,7 @@ export default function CategoryPieChart({ data, hideValues = false }) {
             height={36}
             iconType="circle"
             formatter={(value) => (
-              <span className="text-slate-300 text-[10px] font-bold uppercase tracking-tighter">{value}</span>
+              <span className="text-slate-600 dark:text-slate-300 text-[10px] font-bold uppercase tracking-tighter">{value}</span>
             )}
           />
         </PieChart>

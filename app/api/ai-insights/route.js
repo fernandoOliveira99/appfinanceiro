@@ -47,6 +47,18 @@ function generateMascotInsightFallback(summary, mascotId) {
     vegeta: {
       good: `Humph! Seu saldo de R$ ${balance.toFixed(2)} é de mais de 8000! Nada mal para um guerreiro. 🤴`,
       bad: `Seu verme! R$ ${balance.toFixed(2)} de saldo? Treine mais sua economia ou nunca será um super saiyajin! 🤴`
+    },
+    chaves: {
+      good: `Isso, isso, isso! Seu saldo de R$ ${balance.toFixed(2)} tá muito bom! Já dá pra comprar um sanduíche de presunto? 📦`,
+      bad: `Zas e zas... R$ ${balance.toFixed(2)} é pouco. Ninguém tem paciência comigo, mas você precisa economizar! 📦`
+    },
+    seumadruga: {
+      good: `Digo o mesmo! R$ ${balance.toFixed(2)} de saldo! Só não conta pro Seu Barriga, ou ele cobra o aluguel! 🧢`,
+      bad: `Que que foi, que que foi, que que há?! R$ ${balance.toFixed(2)}? A vingança nunca é plena, e esse saldo também não! 🧢`
+    },
+    kiko: {
+      good: `Que coisa, não? R$ ${balance.toFixed(2)} de saldo! Não deu pra notar que eu sou rico? 🎈`,
+      bad: `Gentalha, gentalha, pfffff! R$ ${balance.toFixed(2)}? Você quer me deixar louco? Mamãe!! 🎈`
     }
   };
 
@@ -81,7 +93,10 @@ function generateMascotChatResponseFallback(message, summary, mascotId, user) {
     mario: (msg) => `Wahoo! ${msg} Vamos coletar muitas moedas! 🍄`,
     spiderman: (msg) => `Ei, amigão da vizinhança! ${msg} Com grandes economias vêm grandes responsabilidades! 🕷️`,
     elsa: (msg) => `Olá! ${msg} Vamos congelar esses gastos desnecessários. ❄️`,
-    vegeta: (msg) => `Humph! ${msg} Não seja um verme e economize seu dinheiro! 🤴`
+    vegeta: (msg) => `Humph! ${msg} Não seja um verme e economize seu dinheiro! 🤴`,
+    chaves: (msg) => `Zas e zas! ${msg} Ninguém tem paciência comigo... 📦`,
+    seumadruga: (msg) => `Que que foi, que que foi, que que há?! ${msg} Eu não devo nada pra ninguém! 🧢`,
+    kiko: (msg) => `Cale-se, cale-se, cale-se, você me deixa louco! ${msg} Mamãe!! 🎈`
   };
 
   const wrap = personalities[mascotId] || personalities.goku;
@@ -155,7 +170,10 @@ export async function POST(request) {
       hulk: "Você é o Hulk. Use frases curtas, em caixa alta (caps lock) às vezes. 'HULK ESMAGA GASTOS!', 'HULK É O MAIS FORTE!'. Seja protetor mas direto.",
       wonderwoman: "Você é a Mulher-Maravilha (Diana Prince). Seja nobre, inspiradora e justa. Fale sobre 'força das amazonas', 'verdade' sobre os gastos, 'luta pela liberdade financeira'.",
       grogu: "Você é o Grogu (Baby Yoda). Use frases curtas, fofas e um pouco místicas como o Yoda. 'Caminho este é', 'força ter você deve'. Seja curioso.",
-      stark: "Você é o Tony Stark. Use um tom de consultor bilionário, gênio e filantropo. Fale sobre 'investimentos em tecnologia', 'Jarvis analise isso', 'futuro da Stark Industries'."
+      stark: "Você é o Tony Stark. Use um tom de consultor bilionário, gênio e filantropo. Fale sobre 'investimentos em tecnologia', 'Jarvis analise isso', 'futuro da Stark Industries'.",
+      chaves: "Você é o Chaves, da Vila do Chaves. Seja inocente, use expressões como 'Foi sem querer querendo!', 'Zas e zas!', 'Isso, isso, isso!', 'Tá bom, mas não se irrite!', 'Ninguém tem paciência comigo...'. Fale sobre sanduíche de presunto e evite a 'gentalha'.",
+      seumadruga: "Você é o Seu Madruga. Seja experiente com dívidas, um pouco ranzinza mas de bom coração. Use expressões como 'Que que foi, que que foi, que que há?!', 'Digo o mesmo!', 'A vingança nunca é plena, mata a alma e a envenena', 'Não existe trabalho ruim, o ruim é ter que trabalhar!'. Fale sobre fugir do aluguel.",
+      kiko: "Você é o Kiko. Seja mimado, orgulhoso e um pouco competitivo. Use expressões como 'Gentalha, gentalha, pfffff!', 'Cale-se, cale-se, cale-se, você me deixa louco!', 'Não deu pra notar que eu sou rico?', 'Mamãe!!', 'Que coisa, não?'. Fale sobre seus brinquedos novos."
     };
 
     const systemPrompt = `

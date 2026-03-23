@@ -47,16 +47,18 @@ export default function BalanceLineChart({ transactions, hideValues = false }) {
                   <stop offset="95%" stopColor="#8b5cf6" stopOpacity={0}/>
                 </linearGradient>
               </defs>
-              <CartesianGrid strokeDasharray="3 3" stroke="#1f2937" vertical={false} />
+              <CartesianGrid strokeDasharray="3 3" stroke="currentColor" className="text-slate-200 dark:text-slate-800" vertical={false} />
               <XAxis 
                 dataKey="date" 
-                stroke="#64748b" 
+                stroke="currentColor"
+                className="text-slate-400 dark:text-slate-600" 
                 fontSize={10}
                 tickLine={false}
                 axisLine={false}
               />
               <YAxis 
-                stroke="#64748b" 
+                stroke="currentColor"
+                className="text-slate-400 dark:text-slate-600" 
                 fontSize={10}
                 tickLine={false}
                 axisLine={false}
@@ -64,11 +66,13 @@ export default function BalanceLineChart({ transactions, hideValues = false }) {
               />
               <Tooltip
                 contentStyle={{
-                  backgroundColor: "rgba(15,23,42,0.95)",
-                  border: "1px solid rgba(148,163,184,0.6)",
+                  backgroundColor: "rgba(15, 23, 42, 0.95)",
+                  border: "1px solid rgba(148, 163, 184, 0.2)",
                   borderRadius: 12,
-                  fontSize: 12
+                  fontSize: 12,
+                  color: "#fff"
                 }}
+                itemStyle={{ color: "#fff" }}
                 formatter={(value) => [formatCurrencyBRL(value, hideValues), "Saldo"]}
               />
               <Area 

@@ -94,23 +94,23 @@ export default function TransactionsClient({ initialTransactions, initialCategor
                 Visualize, filtre e gerencie todas as movimentações do período.
               </p>
             </div>
-            <div className="hidden md:flex text-sm text-slate-300">
+            <div className="hidden md:flex text-sm text-slate-500 dark:text-slate-400">
               <span>Total gasto neste filtro:&nbsp;</span>
-              <span className="text-rose-400">
+              <span className="text-rose-600 dark:text-rose-400 font-semibold">
                 {formatCurrencyBRL(totalExpenses, hideValues)}
               </span>
             </div>
           </div>
           <div className="grid grid-cols-1 md:grid-cols-3 gap-3">
             <input
-              className="bg-slate-900/80 border border-slate-700/70 rounded-xl px-3 py-2 text-sm outline-none focus:border-violet-500/70 md:col-span-2"
+              className="bg-slate-100 dark:bg-slate-900/80 border border-slate-200 dark:border-slate-700/70 rounded-xl px-4 py-2.5 text-sm text-slate-900 dark:text-slate-100 outline-none focus:ring-2 focus:ring-violet-500/20 focus:border-violet-500/50 transition-all md:col-span-2 placeholder:text-slate-400 dark:placeholder:text-slate-500"
               placeholder="Buscar por nome da transação..."
               value={textFilter}
               onChange={(e) => setTextFilter(e.target.value)}
             />
-            <div className="md:hidden text-xs text-slate-300">
+            <div className="md:hidden text-xs text-slate-500 dark:text-slate-400">
               Total filtrado:{" "}
-              <span className="text-rose-400">
+              <span className="text-rose-600 dark:text-rose-400 font-semibold">
                 {formatCurrencyBRL(totalExpenses, hideValues)}
               </span>
             </div>

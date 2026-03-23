@@ -96,17 +96,17 @@ export default function TransactionList({ title, transactions, onDeleted, onEdit
                 <div className="flex items-center gap-4">
                   <div className={`h-10 w-10 rounded-xl flex items-center justify-center text-lg shadow-inner ${
                     tx.type === 'income' 
-                    ? 'bg-emerald-50 dark:bg-emerald-500/10 text-emerald-600 dark:text-emerald-400' 
-                    : 'bg-rose-50 dark:bg-rose-500/10 text-rose-600 dark:text-rose-400'
+                    ? 'bg-emerald-100 dark:bg-emerald-500/10 text-emerald-700 dark:text-emerald-400' 
+                    : 'bg-rose-100 dark:bg-rose-500/10 text-rose-700 dark:text-rose-400'
                   }`}>
                     {tx.type === 'income' ? '💰' : '💸'}
                   </div>
                   <div>
                     <p className="text-sm font-bold text-slate-900 dark:text-slate-100 line-clamp-1">{tx.name || tx.description}</p>
                     <div className="flex items-center gap-2 mt-0.5">
-                      <span className="text-[10px] font-black uppercase tracking-widest text-slate-400 dark:text-slate-500">{tx.category}</span>
+                      <span className="text-[10px] font-black uppercase tracking-widest text-slate-500 dark:text-slate-400">{tx.category}</span>
                       <span className="text-[10px] font-bold text-slate-300 dark:text-slate-700">•</span>
-                      <span className="text-[10px] font-bold text-slate-400 dark:text-slate-500">{new Date(tx.date).toLocaleDateString('pt-BR')}</span>
+                      <span className="text-[10px] font-bold text-slate-500 dark:text-slate-400">{new Date(tx.date).toLocaleDateString('pt-BR')}</span>
                     </div>
                   </div>
                 </div>

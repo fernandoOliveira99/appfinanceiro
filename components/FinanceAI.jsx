@@ -34,7 +34,15 @@ import {
   Swords,
   Dumbbell,
   Glasses,
-  Baby
+  Baby,
+  Home,
+  UserCheck,
+  Package,
+  Circle,
+  Coffee,
+  Glasses as TeacherIcon,
+  Briefcase,
+  Skull
 } from "lucide-react";
 import { getMascotMessage, personalities } from "@lib/personalities";
 
@@ -61,6 +69,9 @@ const MASCOTS = [
   { id: "wonderwoman", name: "Mulher-Maravilha", icon: Shield, color: "text-yellow-500", bg: "bg-yellow-500/10", animation: "animate-pulse" },
   { id: "grogu", name: "Grogu", icon: Baby, color: "text-emerald-400", bg: "bg-emerald-400/10", animation: "animate-bounce" },
   { id: "stark", name: "Tony Stark", icon: Glasses, color: "text-gray-200", bg: "bg-gray-800/50", animation: "animate-pulse" },
+  { id: "chaves", name: "Chaves", icon: Package, color: "text-orange-400", bg: "bg-orange-500/10", animation: "animate-bounce" },
+  { id: "seumadruga", name: "Seu Madruga", icon: UserCheck, color: "text-blue-400", bg: "bg-blue-500/10", animation: "animate-pulse" },
+  { id: "kiko", name: "Kiko", icon: Zap, color: "text-yellow-400", bg: "bg-yellow-500/10", animation: "animate-bounce" },
 ];
 
 export default function FinanceAI({ user, mascotId, setMascotId }) {
@@ -214,7 +225,7 @@ export default function FinanceAI({ user, mascotId, setMascotId }) {
             method: "POST",
             headers: { "Content-Type": "application/json" },
             body: JSON.stringify({ 
-              messages: [{ role: "user", content: `Olá! Me dê uma saudação de boa ${timeContext}, fale brevemente quem é você como personagem e diga que está pronto para ajudar com minhas finanças hoje.` }], 
+              messages: [{ role: "user", content: `Olá! Me dê uma saudação de boa ${timeContext}, fale brevemente quem é você como personagem do universo de onde você veio (ex: Vila do Chaves, Dragon Ball, etc) e diga que está pronto para ajudar com minhas finanças hoje.` }], 
               mascotId, 
               provider 
             })
@@ -336,7 +347,7 @@ export default function FinanceAI({ user, mascotId, setMascotId }) {
     const parts = content.split(/(\*\*.*?\*\*)/g);
     return parts.map((part, i) => {
       if (part.startsWith('**') && part.endsWith('**')) {
-        return <strong key={i} className="font-black text-white">{part.slice(2, -2)}</strong>;
+        return <strong key={i} className="font-black text-slate-900 dark:text-white">{part.slice(2, -2)}</strong>;
       }
       return part;
     });
@@ -344,7 +355,7 @@ export default function FinanceAI({ user, mascotId, setMascotId }) {
 
   return (
     <>
-      <div className="fixed bottom-28 md:bottom-6 right-6 z-[9999] pointer-events-auto">
+      <div className="fixed bottom-28 md:bottom-6 right-6 z-[9999] pointer-events-auto flex justify-end">
         <button
           onClick={() => setIsOpen(true)}
           className={`h-12 w-12 md:h-14 md:w-14 rounded-2xl flex items-center justify-center shadow-2xl transition-all active:scale-90 group relative ${selectedMascot.bg} border border-white/10`}
@@ -352,50 +363,50 @@ export default function FinanceAI({ user, mascotId, setMascotId }) {
           <div className="absolute inset-0 bg-gradient-to-tr from-white/10 to-transparent opacity-0 group-hover:opacity-100 transition-opacity rounded-2xl" />
           <MascotIcon size={24} className={`${selectedMascot.color} ${selectedMascot.animation} md:hidden`} />
           <MascotIcon size={28} className={`${selectedMascot.color} ${selectedMascot.animation} hidden md:block`} />
-          <div className="absolute -top-1 -right-1 h-3.5 w-3.5 md:h-4 md:w-4 bg-emerald-500 rounded-full border-2 md:border-4 border-slate-950 animate-pulse z-10" />
+          <div className="absolute -top-1 -right-1 h-3.5 w-3.5 md:h-4 md:w-4 bg-emerald-500 rounded-full border-2 md:border-4 border-slate-950 dark:border-slate-900 animate-pulse z-10" />
         </button>
       </div>
 
       <AnimatePresence>
         {isOpen && (
-          <div className="fixed inset-0 z-[100000] flex items-end sm:items-center justify-center p-4 bg-slate-950/40 backdrop-blur-sm pointer-events-auto">
+          <div className="fixed inset-0 z-[100000] flex items-end md:items-end md:justify-end p-4 sm:p-6 bg-slate-950/20 dark:bg-slate-950/40 backdrop-blur-sm pointer-events-auto">
             <motion.div
-              initial={{ opacity: 0, y: 20, scale: 0.95 }}
-              animate={{ opacity: 1, y: 0, scale: 1 }}
-              exit={{ opacity: 0, y: 20, scale: 0.95 }}
-              className="w-full max-w-lg sm:w-96 h-[80vh] sm:h-[600px] bg-white dark:bg-slate-900 rounded-[2.5rem] shadow-2xl border border-slate-200 dark:border-slate-800 overflow-hidden flex flex-col"
+              initial={{ opacity: 0, y: 20, scale: 0.95, x: 20 }}
+              animate={{ opacity: 1, y: 0, scale: 1, x: 0 }}
+              exit={{ opacity: 0, y: 20, scale: 0.95, x: 20 }}
+              className="w-full max-w-lg sm:w-[400px] h-[85vh] sm:h-[650px] bg-white dark:bg-slate-900 rounded-[2.5rem] shadow-2xl border border-slate-200 dark:border-slate-800 overflow-hidden flex flex-col md:mb-20 md:mr-4"
             >
-            <div className="p-6 flex items-center justify-between border-b border-slate-800/50 bg-slate-900/20">
+            <div className="p-6 flex items-center justify-between border-b border-slate-100 dark:border-slate-800/50 bg-slate-50/50 dark:bg-slate-900/20">
               <div className="flex items-center gap-3">
-                <div className={`h-12 w-12 rounded-2xl ${selectedMascot.bg} flex items-center justify-center ${selectedMascot.color} shadow-inner border border-white/5 relative group`}>
+                <div className={`h-12 w-12 rounded-2xl ${selectedMascot.bg} flex items-center justify-center ${selectedMascot.color} shadow-inner border border-slate-200/50 dark:border-white/5 relative group`}>
                   <MascotIcon size={24} className={selectedMascot.animation} />
                 </div>
                 <div className="flex flex-col">
                   <div className="flex items-center gap-2">
-                    <h2 className="text-base font-black text-white leading-tight">{selectedMascot.name} Assistente</h2>
+                    <h2 className="text-base font-black text-slate-900 dark:text-white leading-tight">{selectedMascot.name}</h2>
                     <div className="h-2 w-2 rounded-full bg-emerald-500 animate-pulse"></div>
                   </div>
-                  <span className="text-[10px] text-indigo-400 font-bold uppercase tracking-widest">Sempre online para ajudar</span>
+                  <span className="text-[10px] text-violet-600 dark:text-indigo-400 font-black uppercase tracking-widest">Assistente Online</span>
                 </div>
               </div>
               <div className="flex items-center gap-2">
                 <button 
                   onClick={handleDeleteHistory}
-                  className="p-2 rounded-xl bg-slate-900/50 text-slate-400 hover:text-rose-400 hover:bg-rose-500/10 transition-all border border-slate-800"
+                  className="p-2 rounded-xl bg-white dark:bg-slate-900/50 text-slate-400 hover:text-rose-500 hover:bg-rose-500/10 transition-all border border-slate-200 dark:border-slate-800 shadow-sm"
                   title="Limpar histórico"
                 >
                   <RefreshCw size={18} className={loading ? "animate-spin" : ""} />
                 </button>
                 <button
                   onClick={() => setIsSettingsOpen(!isSettingsOpen)}
-                  className={`p-2 rounded-xl transition-all border ${isSettingsOpen ? 'bg-indigo-600 border-indigo-500 text-white' : 'bg-slate-900/50 text-slate-400 hover:text-slate-200 border-slate-800'}`}
-                  title="Trocar Mascote"
+                  className={`p-2 rounded-xl transition-all border shadow-sm ${isSettingsOpen ? 'bg-violet-600 border-violet-500 text-white' : 'bg-white dark:bg-slate-900/50 text-slate-400 hover:text-slate-600 dark:hover:text-slate-200 border-slate-200 dark:border-slate-800'}`}
+                  title="Configurações"
                 >
                   <Settings2 size={18} />
                 </button>
                 <button
                   onClick={() => { setIsOpen(false); setIsSettingsOpen(false); }}
-                  className="p-2 rounded-xl bg-slate-900/50 text-slate-400 hover:text-slate-200 transition-colors border border-slate-800"
+                  className="p-2 rounded-xl bg-white dark:bg-slate-900/50 text-slate-400 hover:text-rose-500 transition-colors border border-slate-200 dark:border-slate-800 shadow-sm"
                 >
                   <X size={18} />
                 </button>
@@ -404,23 +415,23 @@ export default function FinanceAI({ user, mascotId, setMascotId }) {
 
             {/* Confirmation Overlay */}
             {showConfirmDelete && (
-              <div className="absolute inset-0 z-[60] bg-slate-950/80 backdrop-blur-sm flex items-center justify-center p-6">
-                <div className="bg-slate-900 border border-slate-800 rounded-3xl p-6 shadow-2xl w-full max-w-[300px] animate-in zoom-in-95 duration-200">
+              <div className="absolute inset-0 z-[60] bg-white/80 dark:bg-slate-950/80 backdrop-blur-sm flex items-center justify-center p-6">
+                <div className="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-[2rem] p-6 shadow-2xl w-full max-w-[300px] animate-in zoom-in-95 duration-200">
                   <div className="h-12 w-12 rounded-2xl bg-rose-500/10 flex items-center justify-center text-rose-500 mb-4 mx-auto">
                     <RefreshCw size={24} />
                   </div>
-                  <h3 className="text-sm font-black text-white text-center mb-2">Limpar conversa?</h3>
-                  <p className="text-[11px] text-slate-400 text-center mb-6">Isso apagará todo o histórico atual com o {selectedMascot.name}.</p>
+                  <h3 className="text-sm font-black text-slate-900 dark:text-white text-center mb-2 italic">Limpar conversa?</h3>
+                  <p className="text-[11px] text-slate-500 dark:text-slate-400 text-center mb-6 font-medium">Isso apagará todo o histórico atual com o {selectedMascot.name}.</p>
                   <div className="flex gap-3">
                     <button 
                       onClick={() => setShowConfirmDelete(false)}
-                      className="flex-1 py-2.5 rounded-xl bg-slate-800 text-xs font-bold text-slate-300 hover:bg-slate-700 transition-all"
+                      className="flex-1 py-3 rounded-xl bg-slate-100 dark:bg-slate-800 text-[10px] font-black text-slate-600 dark:text-slate-300 hover:bg-slate-200 dark:hover:bg-slate-700 transition-all uppercase tracking-widest"
                     >
                       Cancelar
                     </button>
                     <button 
                       onClick={confirmDelete}
-                      className="flex-1 py-2.5 rounded-xl bg-rose-600 text-xs font-bold text-white hover:bg-rose-500 transition-all shadow-lg shadow-rose-600/20"
+                      className="flex-1 py-3 rounded-xl bg-rose-600 text-[10px] font-black text-white hover:bg-rose-500 transition-all shadow-lg shadow-rose-600/20 uppercase tracking-widest"
                     >
                       Limpar
                     </button>
@@ -430,13 +441,13 @@ export default function FinanceAI({ user, mascotId, setMascotId }) {
             )}
 
             {isSettingsOpen ? (
-              <div className="flex-1 p-6 space-y-6 animate-in fade-in slide-in-from-top-2 duration-300 overflow-y-auto custom-scrollbar">
+              <div className="flex-1 p-6 space-y-6 animate-in fade-in slide-in-from-top-2 duration-300 overflow-y-auto custom-scrollbar bg-slate-50/30 dark:bg-transparent">
                 <div className="space-y-6">
                   {/* Provedor de IA */}
                   <div className="space-y-3">
                     <div className="text-center space-y-1">
-                      <h3 className="text-sm font-black text-white uppercase tracking-wider">Cérebro da IA</h3>
-                      <p className="text-[10px] text-slate-500 font-bold">QUAL MODELO VOCÊ QUER USAR?</p>
+                      <h3 className="text-sm font-black text-slate-900 dark:text-white uppercase tracking-wider italic">Cérebro da IA</h3>
+                      <p className="text-[10px] text-slate-400 dark:text-slate-500 font-black uppercase tracking-widest">QUAL MODELO VOCÊ QUER USAR?</p>
                     </div>
                     <div className="grid grid-cols-2 gap-3">
                       {AI_PROVIDERS.map((p) => {
@@ -451,92 +462,65 @@ export default function FinanceAI({ user, mascotId, setMascotId }) {
                                 setIsSettingsOpen(false);
                               }
                             }}
-                            className={`flex flex-col items-center justify-center gap-2 p-3 rounded-2xl border transition-all relative overflow-hidden ${
+                            className={`flex flex-col items-center justify-center gap-2 p-4 rounded-2xl border transition-all relative overflow-hidden ${
                               p.disabled 
-                                ? 'bg-slate-900/20 border-slate-800/50 opacity-60 cursor-not-allowed grayscale' 
+                                ? 'bg-slate-100 dark:bg-slate-900/20 border-slate-200 dark:border-slate-800/50 opacity-60 cursor-not-allowed grayscale' 
                                 : provider === p.id 
-                                  ? 'bg-indigo-600/20 border-indigo-500/50' 
-                                  : 'bg-slate-900/40 border-slate-800 hover:border-slate-700'
+                                  ? 'bg-violet-600/10 border-violet-500/50 ring-2 ring-violet-500/20' 
+                                  : 'bg-white dark:bg-slate-900/40 border-slate-200 dark:border-slate-800 hover:border-violet-500/50 shadow-sm'
                             }`}
                           >
                             {p.disabled && (
-                              <div className="absolute inset-0 flex items-center justify-center bg-slate-950/40 z-10">
+                              <div className="absolute inset-0 flex items-center justify-center bg-white/40 dark:bg-slate-950/40 z-10">
                                 <Lock size={16} className="text-slate-400" />
                               </div>
                             )}
                             <Icon size={20} className={p.color} />
-                            <span className="text-[10px] font-black uppercase tracking-widest text-white">{p.name}</span>
+                            <span className="text-[10px] font-black uppercase tracking-widest text-slate-900 dark:text-white">{p.name}</span>
                           </button>
                         );
                       })}
                     </div>
                   </div>
 
-                  <div className="h-px bg-slate-800/50"></div>
+                  <div className="h-px bg-slate-200 dark:bg-slate-800/50"></div>
 
                   {/* Configurações de Dicas */}
                   <div className="space-y-3">
                     <div className="text-center space-y-1">
-                      <h3 className="text-sm font-black text-white uppercase tracking-wider">Interações</h3>
-                      <p className="text-[10px] text-slate-500 font-bold">DICAS DOS PERSONAGENS</p>
+                      <h3 className="text-sm font-black text-slate-900 dark:text-white uppercase tracking-wider italic">Interações</h3>
+                      <p className="text-[10px] text-slate-400 dark:text-slate-500 font-black uppercase tracking-widest">DICAS DOS PERSONAGENS</p>
                     </div>
                     <button
                       onClick={toggleTips}
-                      className={`w-full flex items-center justify-between p-4 rounded-2xl border transition-all ${
+                      className={`w-full flex items-center justify-between p-4 rounded-2xl border transition-all shadow-sm ${
                         showTipsSetting 
-                          ? 'bg-emerald-600/10 border-emerald-500/50 text-emerald-500' 
-                          : 'bg-slate-900/40 border-slate-800 text-slate-400 hover:border-slate-700'
+                          ? 'bg-emerald-50 dark:bg-emerald-600/10 border-emerald-200 dark:border-emerald-500/50 text-emerald-600 dark:text-emerald-500' 
+                          : 'bg-white dark:bg-slate-900/40 border-slate-200 dark:border-slate-800 text-slate-400 hover:border-slate-300 dark:hover:border-slate-700'
                       }`}
                     >
                       <div className="flex items-center gap-3">
-                        <div className={`h-10 w-10 rounded-xl flex items-center justify-center ${showTipsSetting ? 'bg-emerald-500/20' : 'bg-slate-800'}`}>
+                        <div className={`h-10 w-10 rounded-xl flex items-center justify-center ${showTipsSetting ? 'bg-emerald-500/20' : 'bg-slate-100 dark:bg-slate-800'}`}>
                           <Sparkles size={20} />
                         </div>
-                        <div className="flex flex-col items-start">
-                          <span className="text-sm font-bold text-white">Dicas da Galera</span>
-                          <span className="text-[10px] opacity-70 font-bold uppercase tracking-widest">Balões de dicas aleatórias</span>
+                        <div className="flex flex-col items-start text-left">
+                          <span className="text-sm font-bold text-slate-900 dark:text-white">Dicas da Galera</span>
+                          <span className="text-[10px] opacity-70 font-black uppercase tracking-widest">Dicas aleatórias na tela</span>
                         </div>
                       </div>
-                      <div className={`w-10 h-5 rounded-full relative transition-colors ${showTipsSetting ? 'bg-emerald-500' : 'bg-slate-700'}`}>
+                      <div className={`w-10 h-5 rounded-full relative transition-colors ${showTipsSetting ? 'bg-emerald-500' : 'bg-slate-200 dark:bg-slate-700'}`}>
                         <div className={`absolute top-1 w-3 h-3 rounded-full bg-white shadow-sm transition-all ${showTipsSetting ? 'left-6' : 'left-1'}`} />
                       </div>
                     </button>
                   </div>
 
-                  <div className="h-px bg-slate-800/50"></div>
-
-                  {/* Reiniciar Tutorial */}
-                  <div className="space-y-3">
-                    <div className="text-center space-y-1">
-                      <h3 className="text-sm font-black text-white uppercase tracking-wider">Sistema</h3>
-                      <p className="text-[10px] text-slate-500 font-bold">AJUDA E CONFIGURAÇÕES</p>
-                    </div>
-                    <button
-                      onClick={() => {
-                        localStorage.removeItem(`finished_welcome_${user?.id || 'guest'}`);
-                        window.dispatchEvent(new CustomEvent('restart-tutorial'));
-                        setIsSettingsOpen(false);
-                        setIsOpen(false);
-                      }}
-                      className="w-full flex items-center gap-3 p-4 rounded-2xl border border-slate-800 bg-slate-900/40 text-slate-400 hover:text-white hover:border-indigo-500/50 transition-all group"
-                    >
-                      <div className="h-10 w-10 rounded-xl bg-slate-800 flex items-center justify-center group-hover:bg-indigo-500/20 group-hover:text-indigo-400 transition-colors">
-                        <RefreshCw size={20} />
-                      </div>
-                      <div className="flex flex-col items-start">
-                        <span className="text-sm font-bold">Reiniciar Experiência</span>
-                        <span className="text-[10px] opacity-70 font-bold uppercase tracking-widest">Boas-vindas e Tutorial</span>
-                      </div>
-                    </button>
-                  </div>
-
-                  <div className="h-px bg-slate-800/50"></div>
+                  <div className="h-px bg-slate-200 dark:bg-slate-800/50"></div>
 
                   {/* Mascote */}
                   <div className="space-y-3">
                     <div className="text-center space-y-1">
-                      <h3 className="text-sm font-black text-white uppercase tracking-wider">Mascote e Voz</h3>
-                      <p className="text-[10px] text-slate-500 font-bold">ESCOLHA QUEM VAI TE AJUDAR</p>
+                      <h3 className="text-sm font-black text-slate-900 dark:text-white uppercase tracking-wider italic">Mascote e Personalidade</h3>
+                      <p className="text-[10px] text-slate-400 dark:text-slate-500 font-black uppercase tracking-widest">ESCOLHA QUEM VAI TE AJUDAR</p>
                     </div>
                     <div className="grid grid-cols-1 gap-2">
                       {MASCOTS.map((m) => {
@@ -545,15 +529,18 @@ export default function FinanceAI({ user, mascotId, setMascotId }) {
                           <button
                             key={m.id}
                             onClick={() => handleSelectMascot(m)}
-                            className={`flex items-center gap-4 p-3 rounded-2xl border transition-all group ${selectedMascot.id === m.id ? 'bg-indigo-600/20 border-indigo-500/50' : 'bg-slate-900/40 border-slate-800 hover:border-slate-700'}`}
+                            className={`flex items-center gap-4 p-4 rounded-2xl border transition-all group shadow-sm ${selectedMascot.id === m.id ? 'bg-violet-600/10 border-violet-500/50 ring-2 ring-violet-500/20' : 'bg-white dark:bg-slate-900/40 border-slate-200 dark:border-slate-800 hover:border-violet-500/30'}`}
                           >
-                            <div className={`h-10 w-10 rounded-xl ${m.bg} flex items-center justify-center ${m.color}`}>
-                              <Icon size={20} className={m.animation} />
+                            <div className={`h-12 w-12 rounded-xl ${m.bg} flex items-center justify-center ${m.color} shadow-inner`}>
+                              <Icon size={24} className={m.animation} />
                             </div>
                             <div className="flex flex-col items-start">
-                              <span className="text-sm font-bold text-white">{m.name}</span>
-                              <span className="text-[10px] text-slate-500 font-bold uppercase tracking-widest">Personalidade Ativa</span>
+                              <span className="text-sm font-black text-slate-900 dark:text-white">{m.name}</span>
+                              <span className="text-[10px] text-slate-400 dark:text-slate-500 font-black uppercase tracking-widest">Personalidade Ativa</span>
                             </div>
+                            {selectedMascot.id === m.id && (
+                              <div className="ml-auto h-2 w-2 rounded-full bg-violet-500 shadow-[0_0_10px_rgba(139,92,246,0.5)]"></div>
+                            )}
                           </button>
                         );
                       })}
@@ -565,14 +552,14 @@ export default function FinanceAI({ user, mascotId, setMascotId }) {
               <>
                 <div 
                   ref={scrollRef}
-                  className="flex-1 overflow-y-auto p-4 sm:p-6 space-y-6 custom-scrollbar"
+                  className="flex-1 overflow-y-auto p-4 sm:p-6 space-y-6 custom-scrollbar bg-slate-50/20 dark:bg-transparent"
                 >
                   {messages.length === 0 && !loading && (
                     <div className="flex flex-col items-center justify-center h-full text-center space-y-4 opacity-50">
-                      <div className={`h-16 w-16 rounded-3xl ${selectedMascot.bg} flex items-center justify-center ${selectedMascot.color} shadow-inner border border-white/5`}>
+                      <div className={`h-16 w-16 rounded-3xl ${selectedMascot.bg} flex items-center justify-center ${selectedMascot.color} shadow-inner border border-slate-200/50 dark:border-white/5`}>
                         <MascotIcon size={32} className={selectedMascot.animation} />
                       </div>
-                      <p className="text-sm text-slate-500 font-medium px-8">
+                      <p className="text-[11px] text-slate-500 dark:text-slate-400 font-black uppercase tracking-widest px-8 leading-relaxed">
                         Olá! Estou analisando suas finanças.<br/>Um momento...
                       </p>
                     </div>
@@ -584,16 +571,16 @@ export default function FinanceAI({ user, mascotId, setMascotId }) {
                       className={`flex ${msg.role === 'user' ? 'justify-end' : 'justify-start'} gap-2.5 animate-in fade-in slide-in-from-bottom-2 duration-300`}
                     >
                       {msg.role === 'assistant' && (
-                        <div className={`h-9 w-9 rounded-xl ${selectedMascot.bg} flex items-center justify-center flex-shrink-0 mt-1 border border-white/5 ${selectedMascot.color}`}>
+                        <div className={`h-9 w-9 rounded-xl ${selectedMascot.bg} flex items-center justify-center flex-shrink-0 mt-1 border border-slate-200/50 dark:border-white/5 ${selectedMascot.color}`}>
                           <MascotIcon size={18} className={selectedMascot.animation} />
                         </div>
                       )}
                       <div className={`max-w-[85%] space-y-1 ${msg.role === 'user' ? 'items-end' : 'items-start'}`}>
                         <div 
-                          className={`p-3.5 rounded-2xl text-[11px] md:text-xs font-medium leading-relaxed shadow-sm ${
+                          className={`p-4 rounded-2xl text-xs font-bold leading-relaxed shadow-sm ${
                             msg.role === 'user' 
-                            ? 'bg-indigo-600 text-white rounded-tr-none shadow-lg shadow-indigo-900/20' 
-                            : 'bg-slate-900 border border-slate-800 text-slate-200 rounded-tl-none'
+                            ? 'bg-violet-600 text-white rounded-tr-none shadow-lg shadow-violet-500/20' 
+                            : 'bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 text-slate-800 dark:text-slate-200 rounded-tl-none'
                           }`}
                         >
                           {msg.content.split('\n\n').map((p, idx) => (
@@ -602,13 +589,13 @@ export default function FinanceAI({ user, mascotId, setMascotId }) {
                             </p>
                           ))}
                         </div>
-                        <p className="text-[9px] text-slate-600 font-bold uppercase px-1">
+                        <p className="text-[9px] text-slate-400 dark:text-slate-600 font-black uppercase px-1 tracking-tighter">
                           {msg.role === 'assistant' ? selectedMascot.name : 'Você'} • {msg.timestamp}
                         </p>
                       </div>
                       {msg.role === 'user' && (
-                        <div className="h-9 w-9 rounded-xl bg-indigo-600/20 flex items-center justify-center flex-shrink-0 mt-1 border border-indigo-500/20">
-                          <User size={18} className="text-indigo-400" />
+                        <div className="h-9 w-9 rounded-xl bg-violet-600/10 flex items-center justify-center flex-shrink-0 mt-1 border border-violet-500/20">
+                          <User size={18} className="text-violet-500" />
                         </div>
                       )}
                     </div>
@@ -616,26 +603,26 @@ export default function FinanceAI({ user, mascotId, setMascotId }) {
 
                   {loading && (
                     <div className="flex justify-start gap-2.5 animate-in fade-in duration-300">
-                      <div className={`h-9 w-9 rounded-xl ${selectedMascot.bg} flex items-center justify-center flex-shrink-0 mt-1 border border-white/5 ${selectedMascot.color}`}>
+                      <div className={`h-9 w-9 rounded-xl ${selectedMascot.bg} flex items-center justify-center flex-shrink-0 mt-1 border border-slate-200/50 dark:border-white/5 ${selectedMascot.color}`}>
                         <MascotIcon size={18} className={selectedMascot.animation} />
                       </div>
-                      <div className="bg-slate-900 border border-slate-800 p-3.5 rounded-2xl rounded-tl-none flex items-center gap-2">
+                      <div className="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 p-4 rounded-2xl rounded-tl-none flex items-center gap-2 shadow-sm">
                         <div className="flex gap-1">
-                          <div className={`h-1 w-1 ${selectedMascot.color.replace('text-', 'bg-')} rounded-full animate-bounce`} style={{ animationDelay: '0ms' }}></div>
-                          <div className={`h-1 w-1 ${selectedMascot.color.replace('text-', 'bg-')} rounded-full animate-bounce`} style={{ animationDelay: '150ms' }}></div>
-                          <div className={`h-1 w-1 ${selectedMascot.color.replace('text-', 'bg-')} rounded-full animate-bounce`} style={{ animationDelay: '300ms' }}></div>
+                          <div className={`h-1.5 w-1.5 ${selectedMascot.color.replace('text-', 'bg-')} rounded-full animate-bounce`} style={{ animationDelay: '0ms' }}></div>
+                          <div className={`h-1.5 w-1.5 ${selectedMascot.color.replace('text-', 'bg-')} rounded-full animate-bounce`} style={{ animationDelay: '150ms' }}></div>
+                          <div className={`h-1.5 w-1.5 ${selectedMascot.color.replace('text-', 'bg-')} rounded-full animate-bounce`} style={{ animationDelay: '300ms' }}></div>
                         </div>
                       </div>
                     </div>
                   )}
                 </div>
 
-                <div className="p-6 border-t border-slate-800/50 bg-slate-900/20">
+                <div className="p-6 border-t border-slate-100 dark:border-slate-800/50 bg-white dark:bg-slate-900/20">
                   <form onSubmit={handleSendMessage} className="relative flex items-center gap-2">
                     <input
                       type="text"
                       placeholder={`Pergunte ao ${selectedMascot.name}...`}
-                      className="flex-1 bg-slate-900 border border-slate-800 rounded-2xl pl-11 pr-12 py-4 text-sm text-white placeholder:text-slate-600 outline-none focus:border-indigo-500/50 transition-all shadow-inner truncate min-w-0"
+                      className="flex-1 bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-2xl pl-11 pr-12 py-4 text-sm font-bold text-slate-900 dark:text-white placeholder:text-slate-400 dark:placeholder:text-slate-600 outline-none focus:border-violet-500/50 focus:ring-4 focus:ring-violet-500/5 transition-all shadow-inner truncate min-w-0"
                       value={inputValue}
                       onChange={(e) => setInputValue(e.target.value)}
                       disabled={loading}
@@ -643,13 +630,13 @@ export default function FinanceAI({ user, mascotId, setMascotId }) {
                     <button
                       type="submit"
                       disabled={!inputValue.trim() || loading}
-                      className="absolute right-2 p-3 rounded-xl bg-indigo-600 text-white hover:bg-indigo-500 disabled:opacity-50 disabled:bg-slate-800 transition-all"
+                      className="absolute right-2 p-3 rounded-xl bg-violet-600 text-white hover:bg-violet-500 disabled:opacity-50 disabled:bg-slate-200 dark:disabled:bg-slate-800 transition-all shadow-lg shadow-violet-500/20 active:scale-95"
                     >
                       <Send size={18} />
                     </button>
                   </form>
-                  <p className="text-[10px] text-center text-slate-600 mt-4 font-bold uppercase tracking-widest">
-                    {selectedMascot.name} pode cometer erros. Revise informações importantes.
+                  <p className="text-[9px] text-center text-slate-400 dark:text-slate-600 mt-4 font-black uppercase tracking-[0.2em]">
+                    {selectedMascot.name} pode cometer erros. Revise informações.
                   </p>
                 </div>
               </>
