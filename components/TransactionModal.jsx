@@ -291,11 +291,11 @@ export default function TransactionModal({ open, mode, onClose, onSave, initialD
   }
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/70 backdrop-blur-sm px-4">
-      <div className={`${theme.cardStyles.base} max-w-md w-full shadow-2xl rounded-3xl overflow-hidden`}>
+    <div className="fixed inset-0 z-[10000] flex items-center justify-center bg-black/70 backdrop-blur-sm px-4 pb-32 sm:pb-0 overflow-y-auto">
+      <div className={`${theme.cardStyles.base} max-w-md w-full shadow-2xl rounded-3xl overflow-hidden my-auto`}>
         <form
           onSubmit={handleSubmit}
-          className={`${theme.spacing.cardPadding} space-y-6`}
+          className={`${theme.spacing.cardPadding} space-y-5 md:space-y-6`}
         >
           <div className="flex items-center justify-between">
             <h2 className={`${theme.typography.sectionTitle} text-xl font-bold text-slate-900 dark:text-white`}>
