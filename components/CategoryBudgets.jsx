@@ -59,8 +59,8 @@ export default function CategoryBudgets({ transactions }) {
                   >
                     <Info size={14} />
                   </button>
-                  <div className="absolute top-full left-0 mt-2 w-56 p-3 bg-slate-900/95 backdrop-blur-md text-[11px] text-slate-200 rounded-2xl opacity-0 group-hover:opacity-100 group-active:opacity-100 transition-all pointer-events-none z-[100] border border-slate-700/50 shadow-2xl font-medium">
-                    <p className="leading-relaxed">Estipule um valor máximo que deseja gastar em cada categoria para não estourar seu orçamento mensal.</p>
+                  <div className="absolute top-full left-0 md:left-0 -translate-x-[70%] md:translate-x-0 mt-2 w-56 p-3 bg-slate-900/95 backdrop-blur-md text-[11px] text-slate-200 rounded-2xl opacity-0 group-hover:opacity-100 group-active:opacity-100 transition-all pointer-events-none z-[100] border border-slate-700/50 shadow-2xl font-medium">
+                    Estipule um valor máximo para gastar em cada categoria e evite estourar seu orçamento mensal.
                   </div>
                 </div>
               </div>

@@ -5,7 +5,7 @@ import { theme } from "@config/design-system";
 import { recognize } from 'tesseract.js';
 import { Sparkles, Camera, X } from "lucide-react";
 
-const EXPENSE_CATEGORIES = [
+const DEFAULT_EXPENSE_CATEGORIES = [
   "Moradia",
   "Aluguel",
   "Supermercado",
@@ -17,7 +17,7 @@ const EXPENSE_CATEGORIES = [
   "Outros"
 ];
 
-const INCOME_CATEGORIES = ["Salário", "Investimento", "Presente", "Outros"];
+const DEFAULT_INCOME_CATEGORIES = ["Salário", "Investimento", "Presente", "Outros"];
 
 export default function TransactionModal({ open, mode, onClose, onSave, initialData }) {
   const [amountDisplay, setAmountDisplay] = useState("");
@@ -28,12 +28,35 @@ export default function TransactionModal({ open, mode, onClose, onSave, initialD
   const [suggestion, setSuggestion] = useState("");
   const [ocrLoading, setOcrLoading] = useState(false);
   const [ocrProgress, setOcrProgress] = useState(0);
+  const [customCategories, setCustomCategories] = useState([]);
   const fileInputRef = useRef(null);
 
   // Se estiver editando, o modo vem do tipo da transação
   const currentMode = initialData ? initialData.type : mode;
   const isIncome = currentMode === "income";
-  const categories = isIncome ? INCOME_CATEGORIES : EXPENSE_CATEGORIES;
+
+  // Busca categorias customizadas do banco
+  useEffect(() => {
+    async function fetchCustomCategories() {
+      try {
+        const res = await fetch("/api/categories");
+        if (res.ok) {
+          const data = await res.json();
+          setCustomCategories(data.map(c => c.name));
+        }
+      } catch (err) {
+        console.error("Erro ao buscar categorias:", err);
+      }
+    }
+    if (open) {
+      fetchCustomCategories();
+    }
+  }, [open]);
+
+  // Mescla categorias padrões com as customizadas (removendo duplicatas)
+  const categories = isIncome 
+    ? DEFAULT_INCOME_CATEGORIES 
+    : Array.from(new Set([...DEFAULT_EXPENSE_CATEGORIES, ...customCategories]));
 
   useEffect(() => {
     if (open) {
@@ -255,19 +278,19 @@ export default function TransactionModal({ open, mode, onClose, onSave, initialD
 
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/70 backdrop-blur-sm px-4">
-      <div className={`${theme.cardStyles.base} max-w-md w-full shadow-2xl rounded-3xl overflow-hidden border border-slate-800/50`}>
+      <div className={`${theme.cardStyles.base} max-w-md w-full shadow-2xl rounded-3xl overflow-hidden`}>
         <form
           onSubmit={handleSubmit}
           className={`${theme.spacing.cardPadding} space-y-6`}
         >
           <div className="flex items-center justify-between">
-            <h2 className={`${theme.typography.sectionTitle} text-xl font-bold text-white`}>
+            <h2 className={`${theme.typography.sectionTitle} text-xl font-bold text-slate-900 dark:text-white`}>
               {initialData ? "Editar Movimentação" : title}
             </h2>
             <button
               type="button"
               onClick={onClose}
-              className="p-2 rounded-full hover:bg-slate-800/50 text-slate-400 hover:text-slate-200 transition-colors"
+              className="p-2 rounded-full hover:bg-slate-100 dark:hover:bg-slate-800/50 text-slate-400 hover:text-slate-600 dark:hover:text-slate-200 transition-colors"
             >
               <svg xmlns="http://www.w3.org/2000/svg" className="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
@@ -279,17 +302,17 @@ export default function TransactionModal({ open, mode, onClose, onSave, initialD
             {ocrLoading && (
               <div className="space-y-3 text-center p-4 bg-violet-500/5 rounded-2xl border border-violet-500/10">
                 <div className="flex items-center justify-between mb-1">
-                  <p className="text-sm font-bold text-violet-400 uppercase tracking-widest">Analisando documento...</p>
+                  <p className="text-sm font-bold text-violet-600 dark:text-violet-400 uppercase tracking-widest">Analisando documento...</p>
                   <button 
                     type="button"
                     onClick={handleCancelOcr}
-                    className="p-1.5 rounded-lg bg-slate-800 hover:bg-slate-700 text-slate-400 hover:text-white transition-all"
+                    className="p-1.5 rounded-lg bg-slate-100 dark:bg-slate-800 hover:bg-slate-200 dark:hover:bg-slate-700 text-slate-500 dark:text-slate-400 hover:text-slate-700 dark:hover:text-white transition-all"
                     title="Cancelar análise"
                   >
                     <X size={14} />
                   </button>
                 </div>
-                <div className="w-full bg-slate-800 rounded-full h-2 overflow-hidden">
+                <div className="w-full bg-slate-200 dark:bg-slate-800 rounded-full h-2 overflow-hidden">
                   <div 
                     className="bg-violet-600 h-full rounded-full transition-all duration-300" 
                     style={{ width: `${ocrProgress}%` }}
@@ -297,17 +320,17 @@ export default function TransactionModal({ open, mode, onClose, onSave, initialD
                 </div>
                 <div className="flex justify-between items-center">
                   <p className="text-[10px] text-slate-500 font-bold uppercase tracking-wider">Aguarde um momento</p>
-                  <p className="text-[10px] text-violet-400 font-bold">{ocrProgress}%</p>
+                  <p className="text-[10px] text-violet-600 dark:text-violet-400 font-bold">{ocrProgress}%</p>
                 </div>
               </div>
             )}
 
             <div className="flex flex-col gap-1.5">
-              <label className="text-xs font-semibold uppercase tracking-wider text-slate-500 ml-1">Valor</label>
+              <label className="text-xs font-semibold uppercase tracking-wider text-slate-500 dark:text-slate-400 ml-1">Valor</label>
               <input
                 type="text"
                 inputMode="decimal"
-                className="bg-slate-900/50 border border-slate-700/50 rounded-2xl px-4 py-3 text-lg font-semibold text-white outline-none focus:border-violet-500/50 focus:ring-2 focus:ring-violet-500/10 transition-all placeholder:text-slate-700"
+                className="bg-slate-100 dark:bg-slate-900/50 border border-slate-200 dark:border-slate-700/50 rounded-2xl px-4 py-3 text-lg font-bold text-slate-900 dark:text-white outline-none focus:border-violet-500/50 focus:ring-2 focus:ring-violet-500/10 transition-all placeholder:text-slate-400 dark:placeholder:text-slate-700"
                 value={amountDisplay}
                 onChange={handleAmountChange}
                 placeholder="R$ 0,00"
@@ -319,15 +342,15 @@ export default function TransactionModal({ open, mode, onClose, onSave, initialD
             {!isIncome && (
               <>
                 <div className="flex flex-col gap-1.5">
-                  <label className="text-xs font-semibold uppercase tracking-wider text-slate-500 ml-1">Categoria</label>
+                  <label className="text-xs font-semibold uppercase tracking-wider text-slate-500 dark:text-slate-400 ml-1">Categoria</label>
                   <select
-                    className="bg-slate-900/50 border border-slate-700/50 rounded-2xl px-4 py-3 text-sm text-white outline-none focus:border-violet-500/50 focus:ring-2 focus:ring-violet-500/10 transition-all appearance-none cursor-pointer"
+                    className="bg-slate-100 dark:bg-slate-900/50 border border-slate-200 dark:border-slate-700/50 rounded-2xl px-4 py-3 text-sm text-slate-900 dark:text-white outline-none focus:border-violet-500/50 focus:ring-2 focus:ring-violet-500/10 transition-all appearance-none cursor-pointer"
                     value={category}
                     onChange={(e) => setCategory(e.target.value)}
                     required
                   >
                     {categories.map((cat) => (
-                      <option key={cat} value={cat} className="bg-slate-900">
+                      <option key={cat} value={cat} className="bg-white dark:bg-slate-900 text-slate-900 dark:text-white">
                         {cat}
                       </option>
                     ))}
@@ -336,18 +359,18 @@ export default function TransactionModal({ open, mode, onClose, onSave, initialD
                     <button
                       type="button"
                       onClick={applySuggestion}
-                      className="text-[10px] font-black text-violet-400 uppercase tracking-widest mt-1 ml-1 hover:text-violet-300 transition-colors flex items-center gap-1"
+                      className="text-[10px] font-black text-violet-600 dark:text-violet-400 uppercase tracking-widest mt-1 ml-1 hover:text-violet-500 dark:hover:text-violet-300 transition-colors flex items-center gap-1"
                     >
-                      <Sparkles size={10} className="fill-violet-400" />
+                      <Sparkles size={10} className="fill-violet-600 dark:fill-violet-400" />
                       Sugerimos: {suggestion} (Clique para aplicar)
                     </button>
                   )}
                 </div>
 
                 <div className="flex flex-col gap-1.5">
-                  <label className="text-xs font-semibold uppercase tracking-wider text-slate-500 ml-1">Descrição</label>
+                  <label className="text-xs font-semibold uppercase tracking-wider text-slate-500 dark:text-slate-400 ml-1">Descrição</label>
                   <input
-                    className="bg-slate-900/50 border border-slate-700/50 rounded-2xl px-4 py-3 text-sm text-white outline-none focus:border-violet-500/50 focus:ring-2 focus:ring-violet-500/10 transition-all placeholder:text-slate-700"
+                    className="bg-slate-100 dark:bg-slate-900/50 border border-slate-200 dark:border-slate-700/50 rounded-2xl px-4 py-3 text-sm text-slate-900 dark:text-white outline-none focus:border-violet-500/50 focus:ring-2 focus:ring-violet-500/10 transition-all placeholder:text-slate-400 dark:placeholder:text-slate-700"
                     value={description}
                     onChange={(e) => setDescription(e.target.value)}
                     placeholder="Ex: Almoço, Supermercado..."
@@ -355,10 +378,10 @@ export default function TransactionModal({ open, mode, onClose, onSave, initialD
                 </div>
 
                 <div className="flex flex-col gap-1.5">
-                  <label className="text-xs font-semibold uppercase tracking-wider text-slate-500 ml-1">Data</label>
+                  <label className="text-xs font-semibold uppercase tracking-wider text-slate-500 dark:text-slate-400 ml-1">Data</label>
                   <input
                     type="date"
-                    className="bg-slate-900/50 border border-slate-700/50 rounded-2xl px-4 py-3 text-sm text-white outline-none focus:border-violet-500/50 focus:ring-2 focus:ring-violet-500/10 transition-all"
+                    className="bg-slate-100 dark:bg-slate-900/50 border border-slate-200 dark:border-slate-700/50 rounded-2xl px-4 py-3 text-sm text-slate-900 dark:text-white outline-none focus:border-violet-500/50 focus:ring-2 focus:ring-violet-500/10 transition-all"
                     value={date}
                     onChange={(e) => setDate(e.target.value)}
                     required
@@ -377,7 +400,7 @@ export default function TransactionModal({ open, mode, onClose, onSave, initialD
                   type="button"
                   onClick={() => fileInputRef.current.click()}
                   disabled={ocrLoading}
-                  className="w-full flex items-center justify-center gap-2 py-3.5 rounded-xl bg-slate-800/50 hover:bg-slate-700/50 border border-slate-700 text-slate-300 font-bold text-xs transition-all disabled:opacity-50 group"
+                  className="w-full flex items-center justify-center gap-2 py-3.5 rounded-xl bg-slate-100 dark:bg-slate-800/50 hover:bg-slate-200 dark:hover:bg-slate-700/50 border border-slate-200 dark:border-slate-700 text-slate-600 dark:text-slate-300 font-bold text-xs transition-all disabled:opacity-50 group"
                 >
                   <Camera size={14} className="group-hover:scale-110 transition-transform" />
                   Importar Comprovante / Boleto
@@ -390,7 +413,7 @@ export default function TransactionModal({ open, mode, onClose, onSave, initialD
             <button
               type="button"
               onClick={onClose}
-              className="flex-1 px-6 py-3 rounded-2xl bg-slate-800/50 hover:bg-slate-800 text-slate-300 font-semibold transition-all border border-slate-700/30"
+              className="flex-1 px-6 py-3 rounded-2xl bg-slate-100 dark:bg-slate-800/50 hover:bg-slate-200 dark:hover:bg-slate-800 text-slate-600 dark:text-slate-300 font-bold transition-all border border-slate-200 dark:border-slate-700/30 shadow-sm"
             >
               Cancelar
             </button>
@@ -398,8 +421,8 @@ export default function TransactionModal({ open, mode, onClose, onSave, initialD
               type="submit" 
               className={`flex-1 px-6 py-3 rounded-2xl font-bold text-white shadow-lg transition-all transform active:scale-[0.98] ${
                 isIncome 
-                ? "bg-gradient-to-r from-emerald-600 to-teal-600 shadow-emerald-900/20 hover:from-emerald-500 hover:to-teal-500" 
-                : "bg-gradient-to-r from-rose-600 to-pink-600 shadow-rose-900/20 hover:from-rose-500 hover:to-pink-500"
+                ? "bg-gradient-to-r from-emerald-600 to-teal-600 shadow-emerald-500/20 dark:shadow-emerald-900/20 hover:from-emerald-500 hover:to-teal-500" 
+                : "bg-gradient-to-r from-rose-600 to-pink-600 shadow-rose-500/20 dark:shadow-rose-900/20 hover:from-rose-500 hover:to-pink-500"
               }`}
             >
               {isIncome ? "Adicionar" : "Salvar"}

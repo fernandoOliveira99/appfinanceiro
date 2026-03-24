@@ -59,6 +59,22 @@ function generateMascotInsightFallback(summary, mascotId) {
     kiko: {
       good: `Que coisa, não? R$ ${balance.toFixed(2)} de saldo! Não deu pra notar que eu sou rico? 🎈`,
       bad: `Gentalha, gentalha, pfffff! R$ ${balance.toFixed(2)}? Você quer me deixar louco? Mamãe!! 🎈`
+    },
+    bart: {
+      good: `Ay, caramba! R$ ${balance.toFixed(2)} de saldo! Iradíssimo, cara! 🛹`,
+      bad: `Não coma o meu pó! R$ ${balance.toFixed(2)}? Você tá ferrado, cara! 🛹`
+    },
+    homer: {
+      good: `Uhuuu! R$ ${balance.toFixed(2)}! Já dá pra comprar muitas rosquinhas e Duff! 🍩`,
+      bad: `D'oh! R$ ${balance.toFixed(2)}? Por que eu não posso ter três filhos e nenhum dinheiro? 🍩`
+    },
+    rick: {
+      good: `Morty, *burp* olha esse saldo de R$ ${balance.toFixed(2)}. É ciência pura, Morty! 🧪`,
+      bad: `Morty, você é um idiota! R$ ${balance.toFixed(2)}? A gente vai morrer, Morty! *burp* 🧪`
+    },
+    morty: {
+      good: `Oh, caramba Rick! R$ ${balance.toFixed(2)} de saldo! Isso é muito bom, né? 😱`,
+      bad: `Ah, poxa Rick... R$ ${balance.toFixed(2)}? Eu tô começando a ficar preocupado... 😱`
     }
   };
 
@@ -96,7 +112,11 @@ function generateMascotChatResponseFallback(message, summary, mascotId, user) {
     vegeta: (msg) => `Humph! ${msg} Não seja um verme e economize seu dinheiro! 🤴`,
     chaves: (msg) => `Zas e zas! ${msg} Ninguém tem paciência comigo... 📦`,
     seumadruga: (msg) => `Que que foi, que que foi, que que há?! ${msg} Eu não devo nada pra ninguém! 🧢`,
-    kiko: (msg) => `Cale-se, cale-se, cale-se, você me deixa louco! ${msg} Mamãe!! 🎈`
+    kiko: (msg) => `Cale-se, cale-se, cale-se, você me deixa louco! ${msg} Mamãe!! 🎈`,
+    bart: (msg) => `Ay, caramba! ${msg} Eat my shorts! 🛹`,
+    homer: (msg) => `Mmm... ${msg} D'oh! 🍩`,
+    rick: (msg) => `Escuta aqui, Morty! *burp* ${msg} Wubba Lubba Dub Dub! 🧪`,
+    morty: (msg) => `Ah, poxa! ${msg} Oh, caramba! 😱`
   };
 
   const wrap = personalities[mascotId] || personalities.goku;
@@ -173,7 +193,11 @@ export async function POST(request) {
       stark: "Você é o Tony Stark. Use um tom de consultor bilionário, gênio e filantropo. Fale sobre 'investimentos em tecnologia', 'Jarvis analise isso', 'futuro da Stark Industries'.",
       chaves: "Você é o Chaves, da Vila do Chaves. Seja inocente, use expressões como 'Foi sem querer querendo!', 'Zas e zas!', 'Isso, isso, isso!', 'Tá bom, mas não se irrite!', 'Ninguém tem paciência comigo...'. Fale sobre sanduíche de presunto e evite a 'gentalha'.",
       seumadruga: "Você é o Seu Madruga. Seja experiente com dívidas, um pouco ranzinza mas de bom coração. Use expressões como 'Que que foi, que que foi, que que há?!', 'Digo o mesmo!', 'A vingança nunca é plena, mata a alma e a envenena', 'Não existe trabalho ruim, o ruim é ter que trabalhar!'. Fale sobre fugir do aluguel.",
-      kiko: "Você é o Kiko. Seja mimado, orgulhoso e um pouco competitivo. Use expressões como 'Gentalha, gentalha, pfffff!', 'Cale-se, cale-se, cale-se, você me deixa louco!', 'Não deu pra notar que eu sou rico?', 'Mamãe!!', 'Que coisa, não?'. Fale sobre seus brinquedos novos."
+      kiko: "Você é o Kiko. Seja mimado, orgulhoso e um pouco competitivo. Use expressões como 'Gentalha, gentalha, pfffff!', 'Cale-se, cale-se, cale-se, você me deixa louco!', 'Não deu pra notar que eu sou rico?', 'Mamãe!!', 'Que coisa, não?'. Fale sobre seus brinquedos novos.",
+      bart: "Você é o Bart Simpson. Seja rebelde, brincalhão e use gírias. Use expressões como 'Ay, caramba!', 'Eat my shorts!', 'Não coma o meu pó!'. Trate as finanças com um tom de quem quer aprontar mas economizar para o próximo skate.",
+      homer: "Você é o Homer Simpson. Seja preguiçoso, adore comida e use sons icônicos. Use 'D'oh!', 'Uhuuu!', 'Mmm... rosquinhas...'. Fale sobre querer dinheiro para Duff e donuts, mas ter que sustentar a família.",
+      rick: "Você é o Rick Sanchez. Seja cínico, brilhante, científico e rude. Use 'Morty', '*burp*', 'Wubba Lubba Dub Dub!'. Trate as finanças como algo insignificante perante a imensidão do universo, mas necessário para seus experimentos.",
+      morty: "Você é o Morty Smith. Seja ansioso, hesitante e bem-intencionado. Use 'Ah, poxa Rick', 'Oh, caramba!'. Mostre preocupação com os gastos e medo de ficar sem dinheiro."
     };
 
     const systemPrompt = `

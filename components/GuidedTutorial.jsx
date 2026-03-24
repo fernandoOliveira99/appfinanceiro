@@ -16,40 +16,43 @@ const Tooltip = ({
   tooltipProps,
   isLastStep
 }) => (
-  <div {...tooltipProps} className="bg-slate-900 border border-white/10 rounded-[2rem] p-5 shadow-2xl w-[280px] xs:w-[320px] sm:w-[380px] text-left">
-    <div className="flex justify-between items-center mb-4">
-      <span className="text-[10px] font-black uppercase tracking-[0.2em] text-violet-400">
+  <div {...tooltipProps} className="bg-white dark:bg-slate-900 border border-slate-200 dark:border-white/10 rounded-[2rem] p-5 shadow-[0_20px_50px_rgba(0,0,0,0.2)] dark:shadow-2xl w-[280px] xs:w-[320px] sm:w-[380px] text-left relative">
+    {/* Balloon Pointer */}
+    <div className="absolute -top-2 left-1/2 -translate-x-1/2 w-4 h-4 bg-white dark:bg-slate-900 border-l border-t border-slate-200 dark:border-white/10 rotate-45 hidden sm:block"></div>
+
+    <div className="flex justify-between items-center mb-4 relative z-10">
+      <span className="text-[10px] font-black uppercase tracking-[0.2em] text-violet-600 dark:text-violet-400">
         Tutorial • Passo {index + 1}
       </span>
-      <button {...closeProps} className="text-slate-500 hover:text-white transition-colors">
+      <button {...closeProps} className="text-slate-400 hover:text-slate-900 dark:hover:text-white transition-colors">
         <X size={18} />
       </button>
     </div>
     
     {step.title && (
-      <h3 className="text-white font-black text-lg mb-2 italic tracking-tight leading-tight">
+      <h3 className="text-slate-900 dark:text-white font-black text-lg mb-2 italic tracking-tight leading-tight relative z-10">
         {step.title}
       </h3>
     )}
     
-    <div className="text-slate-300 text-sm font-medium leading-relaxed mb-6">
+    <div className="text-slate-600 dark:text-slate-300 text-sm font-medium leading-relaxed mb-6 relative z-10">
       {step.content}
     </div>
 
-    <div className="flex items-center justify-between gap-4">
-      <button {...skipProps} className="text-[10px] font-black text-slate-500 hover:text-slate-400 transition-colors uppercase tracking-widest">
+    <div className="flex items-center justify-between gap-4 relative z-10">
+      <button {...skipProps} className="text-[10px] font-black text-slate-400 hover:text-slate-600 dark:hover:text-slate-400 transition-colors uppercase tracking-widest">
         Pular
       </button>
       
       <div className="flex items-center gap-2">
         {index > 0 && (
-          <button {...backProps} className="text-[10px] font-black text-slate-400 hover:text-white transition-colors uppercase tracking-widest px-3 py-2">
+          <button {...backProps} className="text-[10px] font-black text-slate-400 hover:text-slate-600 dark:hover:text-white transition-colors uppercase tracking-widest px-3 py-2">
             Voltar
           </button>
         )}
         <button 
           {...primaryProps} 
-          className="bg-violet-600 hover:bg-violet-500 text-white text-[10px] font-black uppercase tracking-widest px-5 py-3 rounded-xl shadow-lg shadow-violet-900/20 transition-all active:scale-95"
+          className="bg-violet-600 hover:bg-violet-500 text-white text-[10px] font-black uppercase tracking-widest px-5 py-3 rounded-xl shadow-lg shadow-violet-600/20 dark:shadow-violet-900/20 transition-all active:scale-95"
         >
           {isLastStep ? "Finalizar" : "Próximo"}
         </button>

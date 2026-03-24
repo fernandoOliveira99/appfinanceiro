@@ -86,16 +86,16 @@ export default function CreateGoalModal({ open, onClose, onGoalCreated, initialD
 
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/70 backdrop-blur-sm px-4 animate-in fade-in duration-300">
-      <div className={`${theme.cardStyles.base} max-w-md w-full shadow-2xl rounded-3xl overflow-hidden border border-slate-800/50`}>
+      <div className={`${theme.cardStyles.base} max-w-md w-full shadow-2xl rounded-3xl overflow-hidden`}>
         <form onSubmit={handleSubmit} className={`${theme.spacing.cardPadding} space-y-6`}>
           <div className="flex items-center justify-between">
-            <h2 className={`${theme.typography.sectionTitle} text-xl font-bold text-white`}>
+            <h2 className={`${theme.typography.sectionTitle} text-xl font-bold text-slate-900 dark:text-white`}>
               {initialData ? "Editar Meta" : "Criar Nova Meta"}
             </h2>
             <button
               type="button"
               onClick={onClose}
-              className="p-2 rounded-full hover:bg-slate-800/50 text-slate-400 hover:text-slate-200 transition-colors"
+              className="p-2 rounded-full hover:bg-slate-100 dark:hover:bg-slate-800/50 text-slate-400 hover:text-slate-600 dark:hover:text-slate-200 transition-colors"
             >
               <X size={20} />
             </button>
@@ -103,9 +103,9 @@ export default function CreateGoalModal({ open, onClose, onGoalCreated, initialD
 
           <div className="space-y-4">
             <div className="flex flex-col gap-1.5">
-              <label className="text-xs font-semibold uppercase tracking-wider text-slate-500 ml-1 flex items-center gap-2"><Type size={12} /> Nome da Meta</label>
+              <label className="text-xs font-semibold uppercase tracking-wider text-slate-500 dark:text-slate-400 ml-1 flex items-center gap-2"><Type size={12} /> Nome da Meta</label>
               <input
-                className="bg-slate-900/50 border border-slate-700/50 rounded-2xl px-4 py-3 text-sm text-white outline-none focus:border-violet-500/50 transition-all"
+                className="bg-slate-100 dark:bg-slate-900/50 border border-slate-200 dark:border-slate-700/50 rounded-2xl px-4 py-3 text-sm text-slate-900 dark:text-white outline-none focus:border-violet-500/50 focus:ring-2 focus:ring-violet-500/10 transition-all placeholder:text-slate-400"
                 value={name}
                 onChange={(e) => setName(e.target.value)}
                 placeholder="Ex: Viagem para o Japão"
@@ -114,11 +114,11 @@ export default function CreateGoalModal({ open, onClose, onGoalCreated, initialD
             </div>
 
             <div className="flex flex-col gap-1.5">
-              <label className="text-xs font-semibold uppercase tracking-wider text-slate-500 ml-1 flex items-center gap-2"><DollarSign size={12} /> Valor Total</label>
+              <label className="text-xs font-semibold uppercase tracking-wider text-slate-500 dark:text-slate-400 ml-1 flex items-center gap-2"><DollarSign size={12} /> Valor Total</label>
               <input
                 type="text"
                 inputMode="decimal"
-                className="bg-slate-900/50 border border-slate-700/50 rounded-2xl px-4 py-3 text-sm text-white outline-none focus:border-violet-500/50 transition-all"
+                className="bg-slate-100 dark:bg-slate-900/50 border border-slate-200 dark:border-slate-700/50 rounded-2xl px-4 py-3 text-sm text-slate-900 dark:text-white outline-none focus:border-violet-500/50 focus:ring-2 focus:ring-violet-500/10 transition-all placeholder:text-slate-400"
                 value={new Intl.NumberFormat("pt-BR", { style: "currency", currency: "BRL" }).format(targetAmount || 0)}
                 onChange={handleAmountChange}
                 placeholder="R$ 0,00"
@@ -127,11 +127,11 @@ export default function CreateGoalModal({ open, onClose, onGoalCreated, initialD
             </div>
 
             <div className="flex flex-col gap-1.5">
-              <label className="text-xs font-semibold uppercase tracking-wider text-slate-500 ml-1 flex items-center gap-2"><DollarSign size={12} className="text-emerald-500" /> Já Tenho (Opcional)</label>
+              <label className="text-xs font-semibold uppercase tracking-wider text-slate-500 dark:text-slate-400 ml-1 flex items-center gap-2"><DollarSign size={12} className="text-emerald-500" /> Já Tenho (Opcional)</label>
               <input
                 type="text"
                 inputMode="decimal"
-                className="bg-slate-900/50 border border-slate-700/50 rounded-2xl px-4 py-3 text-sm text-white outline-none focus:border-violet-500/50 transition-all"
+                className="bg-slate-100 dark:bg-slate-900/50 border border-slate-200 dark:border-slate-700/50 rounded-2xl px-4 py-3 text-sm text-slate-900 dark:text-white outline-none focus:border-violet-500/50 focus:ring-2 focus:ring-violet-500/10 transition-all placeholder:text-slate-400"
                 value={new Intl.NumberFormat("pt-BR", { style: "currency", currency: "BRL" }).format(currentAmount || 0)}
                 onChange={handleCurrentAmountChange}
                 placeholder="R$ 0,00"
@@ -140,10 +140,10 @@ export default function CreateGoalModal({ open, onClose, onGoalCreated, initialD
             </div>
 
             <div className="flex flex-col gap-1.5">
-              <label className="text-xs font-semibold uppercase tracking-wider text-slate-500 ml-1 flex items-center gap-2"><Calendar size={12} /> Prazo (Opcional)</label>
+              <label className="text-xs font-semibold uppercase tracking-wider text-slate-500 dark:text-slate-400 ml-1 flex items-center gap-2"><Calendar size={12} /> Prazo (Opcional)</label>
               <input
                 type="date"
-                className="bg-slate-900/50 border border-slate-700/50 rounded-2xl px-4 py-3 text-sm text-white outline-none focus:border-violet-500/50 transition-all"
+                className="bg-slate-100 dark:bg-slate-900/50 border border-slate-200 dark:border-slate-700/50 rounded-2xl px-4 py-3 text-sm text-slate-900 dark:text-white outline-none focus:border-violet-500/50 focus:ring-2 focus:ring-violet-500/10 transition-all"
                 value={deadline}
                 onChange={(e) => setDeadline(e.target.value)}
               />
@@ -153,7 +153,7 @@ export default function CreateGoalModal({ open, onClose, onGoalCreated, initialD
           <button
             type="submit"
             disabled={loading}
-            className="w-full py-4 rounded-2xl bg-violet-600 hover:bg-violet-500 text-white font-black transition-all shadow-xl shadow-violet-900/20 active:scale-95 disabled:opacity-50"
+            className="w-full py-4 rounded-2xl bg-violet-600 hover:bg-violet-500 text-white font-black uppercase tracking-widest transition-all shadow-xl shadow-violet-600/20 active:scale-95 disabled:opacity-50"
           >
             {loading ? (initialData ? "Salvando..." : "Criando...") : (initialData ? "Salvar Alterações" : "Criar Meta")}
           </button>

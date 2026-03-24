@@ -104,8 +104,6 @@ export default function DashboardHeader({ user, onAddIncome, onAddExpense, hideV
   const firstName = user?.name?.split(' ')[0] || 'Usuário';
   const capitalizedName = firstName.charAt(0).toUpperCase() + firstName.slice(1).toLowerCase();
 
-  const unreadCount = notifications.filter(n => !n.is_read).length;
-
   if (!mounted) return (
     <section className={`${theme.cardStyles.base} rounded-[1.5rem] md:rounded-[2.5rem] p-4 md:p-8 shadow-2xl border border-slate-200/60 dark:border-slate-800/40 bg-white dark:bg-slate-900 h-32 md:h-48 animate-pulse`} />
   );
@@ -123,74 +121,6 @@ export default function DashboardHeader({ user, onAddIncome, onAddExpense, hideV
             </p>
             
             <div className="flex items-center gap-2">
-              {/* Notificações */}
-              <div className="relative" ref={dropdownRef}>
-                <button
-                  onClick={() => {
-                    setShowNotifications(!showNotifications);
-                    if (!showNotifications) fetchNotifications();
-                  }}
-                  className="group p-1.5 md:p-2 rounded-xl md:rounded-2xl bg-slate-50 dark:bg-slate-800 text-slate-500 dark:text-slate-400 hover:text-violet-600 dark:hover:text-violet-400 transition-all border border-slate-200 dark:border-slate-700 shadow-sm relative"
-                >
-                  <Bell size={14} className="md:w-4 md:h-4" />
-                  {unreadCount > 0 && (
-                    <span className="absolute -top-1 -right-1 h-3 w-3 bg-rose-500 rounded-full border-2 border-white dark:border-slate-900 animate-pulse"></span>
-                  )}
-                </button>
-
-                {showNotifications && (
-                  <div className="absolute top-full right-0 mt-3 w-[calc(100vw-2rem)] sm:w-80 bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-2xl shadow-2xl z-[100] animate-in fade-in slide-in-from-top-2 duration-200 origin-top-right">
-                    <div className="p-4 border-b border-slate-100 dark:border-slate-800 flex items-center justify-between bg-white dark:bg-slate-900 rounded-t-2xl">
-                      <h3 className="text-xs font-black uppercase tracking-widest text-slate-900 dark:text-white">Notificações</h3>
-                      {unreadCount > 0 && (
-                        <button 
-                          onClick={() => markAsRead()}
-                          className="text-[9px] font-bold text-violet-600 dark:text-violet-400 hover:underline"
-                        >
-                          Marcar todas como lidas
-                        </button>
-                      )}
-                    </div>
-                    <div className="max-h-64 overflow-y-auto custom-scrollbar">
-                      {notifications.length === 0 ? (
-                        <div className="p-8 text-center">
-                          <p className="text-xs text-slate-500 font-medium italic">Nenhuma notificação</p>
-                        </div>
-                      ) : (
-                        notifications.map((n) => (
-                          <div 
-                            key={n.id} 
-                            onClick={() => !n.is_read && markAsRead(n.id)}
-                            className={`p-4 border-b border-slate-50 dark:border-slate-800 last:border-0 transition-colors cursor-pointer hover:bg-slate-50 dark:hover:bg-slate-800/50 ${!n.is_read ? 'bg-violet-500/5 dark:bg-violet-500/10' : ''}`}
-                          >
-                            <div className="flex items-start gap-3">
-                              <div className={`h-8 w-8 rounded-xl flex items-center justify-center flex-shrink-0 ${
-                                n.type === 'warning' ? 'bg-rose-500/10 text-rose-500' : 
-                                n.type === 'success' ? 'bg-emerald-500/10 text-emerald-500' : 
-                                'bg-violet-500/10 text-violet-500'
-                              }`}>
-                                {n.type === 'warning' ? <XIcon size={14} /> : <Check size={14} />}
-                              </div>
-                              <div className="flex-1 min-w-0">
-                                <p className={`text-[11px] font-bold leading-tight ${!n.is_read ? 'text-slate-900 dark:text-white' : 'text-slate-500 dark:text-slate-400'}`}>
-                                  {n.title}
-                                </p>
-                                <p className="text-[10px] text-slate-500 dark:text-slate-500 mt-1 leading-snug break-words">
-                                  {n.message}
-                                </p>
-                                <p className="text-[8px] text-slate-400 mt-2 font-bold uppercase tracking-widest">
-                                  {new Date(n.created_at).toLocaleDateString()}
-                                </p>
-                              </div>
-                            </div>
-                          </div>
-                        ))
-                      )}
-                    </div>
-                  </div>
-                )}
-              </div>
-
               <button
                 onClick={onToggleHideValues}
                 className={`group p-1.5 md:p-2 rounded-xl md:rounded-2xl border transition-all shadow-sm ${

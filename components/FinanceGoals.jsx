@@ -257,35 +257,38 @@ export default function FinanceGoals({ currentBalance = 0, onTransactionAdded, h
 
       <AnimatePresence>
         {showTutorial && (
-          <div className="fixed inset-0 z-[200] flex items-center justify-center p-4 bg-slate-950/80 backdrop-blur-sm">
+          <div className="fixed inset-0 z-[200] flex items-center justify-center p-4 bg-slate-950/20 dark:bg-slate-950/60 backdrop-blur-[2px]">
             <motion.div 
-              initial={{ opacity: 0, scale: 0.9, y: 20 }}
+              initial={{ opacity: 0, scale: 0.9, y: 10 }}
               animate={{ opacity: 1, scale: 1, y: 0 }}
-              exit={{ opacity: 0, scale: 0.9, y: 20 }}
-              className="bg-slate-900 border border-slate-800 w-full max-w-md rounded-[2.5rem] overflow-hidden shadow-2xl"
+              exit={{ opacity: 0, scale: 0.9, y: 10 }}
+              className="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 w-full max-w-[320px] rounded-[2.5rem] shadow-2xl relative flex flex-col overflow-hidden"
             >
-              <div className="p-8 space-y-6">
-                <div className="flex items-center justify-between">
-                  <div className="flex items-center gap-3">
-                    <div className="p-3 rounded-2xl bg-amber-500/10 text-amber-500">
-                      <Lightbulb size={24} />
+              <div className="p-5 flex flex-col h-full">
+                <div className="flex items-center justify-between mb-3 shrink-0">
+                  <div className="flex items-center gap-2.5">
+                    <div className="p-1.5 rounded-lg bg-amber-500/10 text-amber-500">
+                      <Lightbulb size={16} />
                     </div>
-                    <h3 className="text-xl font-black text-white tracking-tight">Como poupar dinheiro</h3>
+                    <h3 className="text-sm font-black text-slate-900 dark:text-white tracking-tight italic">Como poupar</h3>
                   </div>
-                  <button onClick={() => setShowTutorial(false)} className="p-2 rounded-xl bg-slate-800 text-slate-400 hover:text-white transition-colors">
-                    <X size={20} />
+                  <button 
+                    onClick={() => setShowTutorial(false)} 
+                    className="p-1 rounded-lg bg-slate-100 dark:bg-slate-800 text-slate-500 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white transition-colors"
+                  >
+                    <X size={14} />
                   </button>
                 </div>
 
-                <div className="space-y-4 max-h-[400px] overflow-y-auto pr-2 custom-scrollbar">
+                <div className="flex-1 overflow-y-auto pr-1 custom-scrollbar space-y-2.5 max-h-[280px] mb-3">
                   {tutorialSteps.map((step, idx) => (
-                    <div key={idx} className="flex items-start gap-4 p-4 rounded-2xl bg-slate-950/50 border border-slate-800/50 hover:border-amber-500/30 transition-colors group">
-                      <div className="h-12 w-12 rounded-xl bg-slate-900 flex items-center justify-center shrink-0 shadow-inner border border-slate-800 group-hover:scale-110 transition-transform">
-                        {step.icon}
+                    <div key={idx} className="flex items-start gap-2.5 p-2.5 rounded-2xl bg-slate-50 dark:bg-slate-950/50 border border-slate-100 dark:border-slate-800/50 group transition-all hover:border-amber-200 dark:hover:border-amber-900/30">
+                      <div className="h-8 w-8 rounded-xl bg-white dark:bg-slate-900 flex items-center justify-center shrink-0 shadow-sm border border-slate-200 dark:border-slate-800">
+                        {step.icon && <div className="scale-75">{step.icon}</div>}
                       </div>
-                      <div className="space-y-1 min-w-0 flex-1">
-                        <h4 className="text-sm font-black text-white tracking-tight">{idx + 1}. {step.title}</h4>
-                        <p className="text-[11px] text-slate-400 leading-relaxed font-medium">{step.description}</p>
+                      <div className="space-y-0 min-w-0 flex-1">
+                        <h4 className="text-[11px] font-black text-slate-900 dark:text-white tracking-tight leading-tight">{idx + 1}. {step.title}</h4>
+                        <p className="text-[9px] text-slate-500 dark:text-slate-400 leading-tight font-medium mt-0.5">{step.description}</p>
                       </div>
                     </div>
                   ))}
@@ -293,9 +296,9 @@ export default function FinanceGoals({ currentBalance = 0, onTransactionAdded, h
 
                 <button 
                   onClick={() => setShowTutorial(false)}
-                  className="w-full py-4 rounded-2xl bg-violet-600 text-white font-black uppercase tracking-widest hover:bg-violet-500 transition-all shadow-lg shadow-violet-900/40"
+                  className="w-full py-2.5 rounded-xl bg-violet-600 text-white font-black uppercase tracking-widest text-[9px] hover:bg-violet-500 transition-all shadow-lg shadow-violet-600/20 dark:shadow-violet-900/40 active:scale-[0.98] shrink-0"
                 >
-                  Entendi, vamos lá!
+                  Entendi!
                 </button>
               </div>
             </motion.div>
@@ -320,7 +323,7 @@ export default function FinanceGoals({ currentBalance = 0, onTransactionAdded, h
                     >
                       <Info size={14} />
                     </button>
-                    <div className="absolute top-full left-0 mt-2 w-56 p-3 bg-slate-900/95 backdrop-blur-md text-[11px] text-slate-200 rounded-2xl opacity-0 group-hover:opacity-100 group-active:opacity-100 transition-all pointer-events-none z-[100] border border-slate-700/50 shadow-2xl font-medium">
+                    <div className="absolute top-full left-0 md:left-0 -translate-x-[70%] md:translate-x-0 mt-2 w-56 p-3 bg-slate-900/95 backdrop-blur-md text-[11px] text-slate-200 rounded-2xl opacity-0 group-hover:opacity-100 group-active:opacity-100 transition-all pointer-events-none z-[100] border border-slate-700/50 shadow-2xl font-medium">
                       <p className="leading-relaxed">Defina objetivos de poupança, como uma viagem ou reserva de emergência, e acompanhe seu progresso.</p>
                     </div>
                   </div>

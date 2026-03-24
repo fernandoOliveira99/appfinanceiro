@@ -42,7 +42,11 @@ import {
   Coffee,
   Glasses as TeacherIcon,
   Briefcase,
-  Skull
+  Skull,
+  Drip,
+  FlaskConical,
+  CircleAlert,
+  Ghost as Skateboard
 } from "lucide-react";
 import { getMascotMessage, personalities } from "@lib/personalities";
 
@@ -72,6 +76,10 @@ const MASCOTS = [
   { id: "chaves", name: "Chaves", icon: Package, color: "text-orange-400", bg: "bg-orange-500/10", animation: "animate-bounce" },
   { id: "seumadruga", name: "Seu Madruga", icon: UserCheck, color: "text-blue-400", bg: "bg-blue-500/10", animation: "animate-pulse" },
   { id: "kiko", name: "Kiko", icon: Zap, color: "text-yellow-400", bg: "bg-yellow-500/10", animation: "animate-bounce" },
+  { id: "bart", name: "Bart Simpson", icon: Zap, color: "text-yellow-500", bg: "bg-yellow-500/10", animation: "animate-bounce" },
+  { id: "homer", name: "Homer Simpson", icon: Coffee, color: "text-amber-600", bg: "bg-amber-600/10", animation: "animate-pulse" },
+  { id: "rick", name: "Rick Sanchez", icon: FlaskConical, color: "text-cyan-500", bg: "bg-cyan-500/10", animation: "animate-pulse" },
+  { id: "morty", name: "Morty Smith", icon: CircleAlert, color: "text-yellow-300", bg: "bg-yellow-300/10", animation: "animate-bounce" },
 ];
 
 export default function FinanceAI({ user, mascotId, setMascotId }) {

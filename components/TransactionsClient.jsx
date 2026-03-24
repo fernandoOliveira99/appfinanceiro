@@ -54,7 +54,10 @@ export default function TransactionsClient({ initialTransactions, initialCategor
     filtered.filter((t) => t.type === "expense")
   );
 
-  const categoryNames = categories.map((c) => c.name);
+  const categoryNames = Array.from(new Set([
+    "Moradia", "Aluguel", "Supermercado", "Transporte", "Lazer", "Saúde", "Educação", "Investimentos", "Outros",
+    ...categories.map((c) => c.name)
+  ]));
 
   function handleDeleted(id) {
     setTransactions((prev) => prev.filter((t) => t.id !== id));

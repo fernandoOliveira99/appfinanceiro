@@ -99,8 +99,8 @@ export default function RootLayout({ children }) {
               </main>
             </div>
           </div>
-          </div>
-        </AuthProvider>
+        </div>
+      </AuthProvider>
       </body>
     </html>
   );
