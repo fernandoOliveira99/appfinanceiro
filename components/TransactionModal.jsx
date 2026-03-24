@@ -3,7 +3,7 @@
 import { useState, useEffect, useRef, useMemo } from "react";
 import { theme } from "@config/design-system";
 import { recognize } from 'tesseract.js';
-import { Sparkles, Camera, X, ChevronDown } from "lucide-react";
+import { Sparkles, Camera, X, ChevronDown, Loader2 } from "lucide-react";
 
 const DEFAULT_EXPENSE_CATEGORIES = [
   "Moradia",
@@ -27,6 +27,7 @@ export default function TransactionModal({ open, mode, onClose, onSave, initialD
   const [date, setDate] = useState(() => new Date().toISOString().slice(0, 10));
   const [suggestion, setSuggestion] = useState("");
   const [ocrLoading, setOcrLoading] = useState(false);
+  const [isSaving, setIsSaving] = useState(false);
   const [ocrProgress, setOcrProgress] = useState(0);
   const [customCategories, setCustomCategories] = useState([]);
   const fileInputRef = useRef(null);
@@ -50,6 +51,7 @@ export default function TransactionModal({ open, mode, onClose, onSave, initialD
     }
     if (open) {
       fetchCustomCategories();
+      setIsSaving(false); // Reseta o estado ao abrir
     }
   }, [open]);
 
@@ -265,20 +267,27 @@ export default function TransactionModal({ open, mode, onClose, onSave, initialD
 
   async function handleSubmit(e) {
     e.preventDefault();
-    if (!amountValue) return;
+    if (!amountValue || isSaving) return;
     
     // If it's an expense, we need a category
     if (!isIncome && !category) return;
 
-    await onSave({
-      id: initialData?.id,
-      name: description || (isIncome ? "Adição de saldo" : "Saída"),
-      amount: amountValue,
-      category: isIncome ? "Salário" : category,
-      date,
-      type: isIncome ? "income" : "expense"
-    });
-    onClose();
+    setIsSaving(true);
+    
+    try {
+      await onSave({
+        id: initialData?.id,
+        name: description || (isIncome ? "Adição de saldo" : "Saída"),
+        amount: amountValue,
+        category: isIncome ? "Salário" : category,
+        date,
+        type: isIncome ? "income" : "expense"
+      });
+      onClose();
+    } catch (error) {
+      console.error("Erro ao salvar transação:", error);
+      setIsSaving(false);
+    }
   }
 
   return (
@@ -429,13 +438,23 @@ export default function TransactionModal({ open, mode, onClose, onSave, initialD
             </button>
             <button 
               type="submit" 
-              className={`flex-1 px-6 py-3 rounded-2xl font-bold text-white shadow-lg transition-all transform active:scale-[0.98] ${
+              disabled={isSaving}
+              className={`flex-1 px-6 py-3 rounded-2xl font-bold text-white shadow-lg transition-all transform active:scale-[0.98] flex items-center justify-center gap-2 ${
+                isSaving ? "opacity-70 cursor-not-allowed" : ""
+              } ${
                 isIncome 
                 ? "bg-gradient-to-r from-emerald-600 to-teal-600 shadow-emerald-500/20 dark:shadow-emerald-900/20 hover:from-emerald-500 hover:to-teal-500" 
                 : "bg-gradient-to-r from-rose-600 to-pink-600 shadow-rose-500/20 dark:shadow-rose-900/20 hover:from-rose-500 hover:to-pink-500"
               }`}
             >
-              {isIncome ? "Adicionar" : "Salvar"}
+              {isSaving ? (
+                <>
+                  <Loader2 size={18} className="animate-spin" />
+                  Salvando...
+                </>
+              ) : (
+                isIncome ? "Adicionar" : "Salvar"
+              )}
             </button>
           </div>
         </form>
