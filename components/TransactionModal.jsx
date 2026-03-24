@@ -1,9 +1,9 @@
 "use client";
 
-import { useState, useEffect, useRef } from "react";
+import { useState, useEffect, useRef, useMemo } from "react";
 import { theme } from "@config/design-system";
 import { recognize } from 'tesseract.js';
-import { Sparkles, Camera, X } from "lucide-react";
+import { Sparkles, Camera, X, ChevronDown } from "lucide-react";
 
 const DEFAULT_EXPENSE_CATEGORIES = [
   "Moradia",
@@ -54,10 +54,13 @@ export default function TransactionModal({ open, mode, onClose, onSave, initialD
   }, [open]);
 
   // Mescla categorias padrões com as customizadas (removendo duplicatas)
-  const categories = isIncome 
-    ? DEFAULT_INCOME_CATEGORIES 
-    : Array.from(new Set([...DEFAULT_EXPENSE_CATEGORIES, ...customCategories]));
+  const categories = useMemo(() => {
+    return isIncome 
+      ? DEFAULT_INCOME_CATEGORIES 
+      : Array.from(new Set([...DEFAULT_EXPENSE_CATEGORIES, ...customCategories]));
+  }, [isIncome, customCategories]);
 
+  // Inicializa o formulário apenas quando o modal abre ou initialData muda
   useEffect(() => {
     if (open) {
       if (initialData) {
@@ -80,7 +83,9 @@ export default function TransactionModal({ open, mode, onClose, onSave, initialD
       }
       setSuggestion("");
     }
-  }, [open, initialData, isIncome, categories]);
+    // NOTA: 'categories' não deve ser dependência aqui para não resetar o form ao digitar
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [open, initialData, isIncome]);
 
   // Auto-classification logic
   useEffect(() => {
@@ -343,18 +348,23 @@ export default function TransactionModal({ open, mode, onClose, onSave, initialD
               <>
                 <div className="flex flex-col gap-1.5">
                   <label className="text-xs font-semibold uppercase tracking-wider text-slate-500 dark:text-slate-400 ml-1">Categoria</label>
-                  <select
-                    className="bg-slate-100 dark:bg-slate-900/50 border border-slate-200 dark:border-slate-700/50 rounded-2xl px-4 py-3 text-sm text-slate-900 dark:text-white outline-none focus:border-violet-500/50 focus:ring-2 focus:ring-violet-500/10 transition-all appearance-none cursor-pointer"
-                    value={category}
-                    onChange={(e) => setCategory(e.target.value)}
-                    required
-                  >
-                    {categories.map((cat) => (
-                      <option key={cat} value={cat} className="bg-white dark:bg-slate-900 text-slate-900 dark:text-white">
-                        {cat}
-                      </option>
-                    ))}
-                  </select>
+                  <div className="relative group">
+                    <select
+                      className="w-full bg-slate-100 dark:bg-slate-900/50 border border-slate-200 dark:border-slate-700/50 rounded-2xl px-4 py-3 text-sm text-slate-900 dark:text-white outline-none focus:border-violet-500/50 focus:ring-2 focus:ring-violet-500/10 transition-all appearance-none cursor-pointer group-hover:bg-slate-200/50 dark:group-hover:bg-slate-800/50"
+                      value={category}
+                      onChange={(e) => setCategory(e.target.value)}
+                      required
+                    >
+                      {categories.map((cat) => (
+                        <option key={cat} value={cat} className="bg-white dark:bg-slate-900 text-slate-900 dark:text-white">
+                          {cat}
+                        </option>
+                      ))}
+                    </select>
+                    <div className="absolute right-4 top-1/2 -translate-y-1/2 pointer-events-none text-slate-400 group-hover:text-violet-500 transition-colors">
+                      <ChevronDown size={16} />
+                    </div>
+                  </div>
                   {suggestion && (
                     <button
                       type="button"
