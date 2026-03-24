@@ -426,6 +426,19 @@ export default function TransactionModal({ open, mode, onClose, onSave, initialD
                 </button>
               </>
             )}
+
+            {isIncome && (
+              <div className="flex flex-col gap-1.5">
+                <label className="text-xs font-semibold uppercase tracking-wider text-slate-500 dark:text-slate-400 ml-1">Data do Recebimento</label>
+                <input
+                  type="date"
+                  className="bg-slate-100 dark:bg-slate-900/50 border border-slate-200 dark:border-slate-700/50 rounded-2xl px-4 py-3 text-sm text-slate-900 dark:text-white outline-none focus:border-violet-500/50 focus:ring-2 focus:ring-violet-500/10 transition-all"
+                  value={date}
+                  onChange={(e) => setDate(e.target.value)}
+                  required
+                />
+              </div>
+            )}
           </div>
 
           <div className="flex gap-3 pt-2">
