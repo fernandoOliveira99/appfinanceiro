@@ -1,4 +1,4 @@
-import { formatCurrencyBRL } from "@lib/finance-utils";
+import { formatCurrencyBRL, formatDate } from "@lib/finance-utils";
 import { theme } from "@config/design-system";
 import { getCategoryIcon } from "@lib/category-icons";
 
@@ -21,7 +21,7 @@ export default function TransactionItem({ transaction, onDelete, hideValues = fa
           <div className="flex items-center gap-1.5 text-xs font-medium text-slate-500 dark:text-slate-400">
             <span>{transaction.category || "Sem categoria"}</span>
             <span className="text-slate-300 dark:text-slate-700">•</span>
-            <span>{new Date(transaction.date).toLocaleDateString("pt-BR")}</span>
+            <span>{formatDate(transaction.date)}</span>
           </div>
         </div>
       </div>

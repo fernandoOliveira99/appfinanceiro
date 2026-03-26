@@ -2,7 +2,7 @@
 
 import { useState, useEffect } from "react";
 import { theme } from "@config/design-system";
-import { formatCurrencyBRL } from "@lib/finance-utils";
+import { formatCurrencyBRL, formatDate, getTodayLocalDate } from "@lib/finance-utils";
 import { 
   Target, 
   TrendingUp, 
@@ -164,7 +164,7 @@ export default function FinanceGoals({ currentBalance = 0, onTransactionAdded, h
             amount: Number(amountValue),
             type: modalMode === "add" ? "expense" : "income",
             category: "Metas",
-            date: new Date().toISOString().slice(0, 10)
+            date: getTodayLocalDate()
           };
           console.log("Enviando transação de meta:", txData);
           await onTransactionAdded(txData);
@@ -219,7 +219,7 @@ export default function FinanceGoals({ currentBalance = 0, onTransactionAdded, h
             amount: Number(amount),
             type: "expense",
             category: "Metas",
-            date: new Date().toISOString().slice(0, 10)
+            date: getTodayLocalDate()
           });
         }
 
@@ -397,7 +397,7 @@ export default function FinanceGoals({ currentBalance = 0, onTransactionAdded, h
                       </div>
                       <div className="flex items-center gap-2 text-[10px] text-slate-400 dark:text-slate-500 font-bold uppercase tracking-wider mt-0.5">
                         <Calendar size={12} className="shrink-0" />
-                        <span className="truncate">{goal.deadline ? new Date(goal.deadline).toLocaleDateString('pt-BR') : 'Sem prazo'}</span>
+                        <span className="truncate">{goal.deadline ? formatDate(goal.deadline) : 'Sem prazo'}</span>
                       </div>
                     </div>
                     

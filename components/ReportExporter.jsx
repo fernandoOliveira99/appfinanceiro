@@ -1,10 +1,6 @@
 "use client";
 
 import { useState } from "react";
-import jsPDF from "jspdf";
-import autoTable from 'jspdf-autotable';
-import ExcelJS from "exceljs";
-import html2canvas from "html2canvas";
 import { FileDown, FileText, FileSpreadsheet } from "lucide-react";
 import { formatCurrencyBRL } from "@lib/finance-utils";
 import { theme } from "@config/design-system";
@@ -15,6 +11,10 @@ export default function ReportExporter({ transactions, user, balance, income, ex
   const exportPDF = async () => {
     setIsExporting(true);
     try {
+      const { default: jsPDF } = await import("jspdf");
+      const { default: autoTable } = await import("jspdf-autotable");
+      const { default: html2canvas } = await import("html2canvas");
+      
       const doc = new jsPDF();
       const today = new Date();
       const month = today.toLocaleString('pt-BR', { month: 'long' });
@@ -182,6 +182,9 @@ export default function ReportExporter({ transactions, user, balance, income, ex
   const exportXLSX = async () => {
     setIsExporting(true);
     try {
+      const ExcelJS = await import("exceljs");
+      const { default: html2canvas } = await import("html2canvas");
+      
       const workbook = new ExcelJS.Workbook();
       const summarySheet = workbook.addWorksheet('Resumo');
       const transactionsSheet = workbook.addWorksheet('Transações');

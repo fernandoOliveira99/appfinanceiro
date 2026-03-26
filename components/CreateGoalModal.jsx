@@ -3,6 +3,7 @@
 import { useState, useEffect } from "react";
 import { theme } from "@config/design-system";
 import { X, DollarSign, Calendar, Type } from "lucide-react";
+import { getTodayLocalDate } from "@lib/finance-utils";
 
 export default function CreateGoalModal({ open, onClose, onGoalCreated, initialData }) {
   const [name, setName] = useState("");
@@ -20,7 +21,16 @@ export default function CreateGoalModal({ open, onClose, onGoalCreated, initialD
         setName(initialData.type);
         setTargetAmount(Number(initialData.target_amount));
         setCurrentAmount(Number(initialData.current_amount || 0));
-        setDeadline(initialData.deadline ? new Date(initialData.deadline).toISOString().slice(0, 10) : "");
+        
+        if (initialData.deadline) {
+          const d = new Date(initialData.deadline);
+          const yyyy = d.getUTCFullYear();
+          const mm = String(d.getUTCMonth() + 1).padStart(2, '0');
+          const dd = String(d.getUTCDate()).padStart(2, '0');
+          setDeadline(`${yyyy}-${mm}-${dd}`);
+        } else {
+          setDeadline("");
+        }
       } else {
         setName("");
         setTargetAmount("");

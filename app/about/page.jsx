@@ -4,6 +4,7 @@ import { theme } from "@config/design-system";
 import { Info, Github, Linkedin, Globe, CheckCircle2, Heart, Copy, Check } from "lucide-react";
 import { useState } from "react";
 import Link from "next/link";
+import Image from "next/image";
 
 export default function AboutPage() {
   const [copied, setCopied] = useState(false);
@@ -127,10 +128,13 @@ export default function AboutPage() {
               <div className="relative">
                 <div className="absolute -inset-4 bg-gradient-to-tr from-violet-600/20 to-indigo-600/20 rounded-full blur-2xl opacity-0 group-hover:opacity-100 transition-opacity" />
                 <div className="relative bg-white p-4 rounded-3xl shadow-2xl shadow-slate-900/10 dark:shadow-black/50 ring-1 ring-slate-200 dark:ring-slate-800/10">
-                  <img
+                  <Image
                     src={`https://api.qrserver.com/v1/create-qr-code/?size=250x250&data=${encodeURIComponent(pixPayload)}&bgcolor=ffffff&color=0f172a&margin=2`}
                     alt="Pix QR Code"
+                    width={160}
+                    height={160}
                     className="w-32 h-32 md:w-40 md:h-40 object-contain rounded-lg"
+                    unoptimized
                   />
                 </div>
               </div>

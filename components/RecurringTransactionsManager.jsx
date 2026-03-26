@@ -2,7 +2,7 @@
 
 import { useState, useEffect } from "react";
 import { theme } from "@config/design-system";
-import { formatCurrencyBRL } from "@lib/finance-utils";
+import { formatCurrencyBRL, formatDate, getTodayLocalDate } from "@lib/finance-utils";
 import { Repeat, Trash2, Plus, Calendar, DollarSign, Edit2, Info } from "lucide-react";
 
 export default function RecurringTransactionsManager({ transactions = [], hideValues = false }) {
@@ -18,7 +18,7 @@ export default function RecurringTransactionsManager({ transactions = [], hideVa
   const [category, setCategory] = useState("Outros");
   const [type, setType] = useState("expense");
   const [frequency, setFrequency] = useState("monthly");
-  const [nextDate, setNextDate] = useState(new Date().toISOString().slice(0, 10));
+  const [nextDate, setNextDate] = useState(() => getTodayLocalDate());
 
   useEffect(() => {
     fetchRecurring();
@@ -33,7 +33,7 @@ export default function RecurringTransactionsManager({ transactions = [], hideVa
     setCategory("Outros");
     setType("expense");
     setFrequency("monthly");
-    setNextDate(new Date().toISOString().slice(0, 10));
+    setNextDate(getTodayLocalDate());
     setEditingId(null);
   }
 
@@ -82,7 +82,14 @@ export default function RecurringTransactionsManager({ transactions = [], hideVa
     setCategory(item.category);
     setType(item.type);
     setFrequency(item.frequency);
-    setNextDate(new Date(item.next_date).toISOString().slice(0, 10));
+    
+    // Garante que a data seja extraída no formato YYYY-MM-DD sem problemas de fuso horário
+    const d = new Date(item.next_date);
+    const yyyy = d.getUTCFullYear();
+    const mm = String(d.getUTCMonth() + 1).padStart(2, '0');
+    const dd = String(d.getUTCDate()).padStart(2, '0');
+    setNextDate(`${yyyy}-${mm}-${dd}`);
+    
     setEditingId(item.id);
     setShowAdd(true);
   }
@@ -240,7 +247,7 @@ export default function RecurringTransactionsManager({ transactions = [], hideVa
                     <div>
                       <h4 className="text-sm font-bold text-slate-900 dark:text-slate-200">{item.name}</h4>
                       <p className="text-[10px] font-bold text-slate-500 uppercase tracking-widest">
-                        {item.frequency === 'monthly' ? 'Mensal' : 'Semanal'} • Próximo: {new Date(item.next_date).toLocaleDateString('pt-BR')}
+                        {item.frequency === 'monthly' ? 'Mensal' : 'Semanal'} • Próximo: {formatDate(item.next_date)}
                       </p>
                     </div>
                   </div>
@@ -290,7 +297,7 @@ export default function RecurringTransactionsManager({ transactions = [], hideVa
                     <div>
                       <h4 className="text-sm font-bold text-slate-900 dark:text-slate-300">{tx.name || tx.description}</h4>
                       <p className="text-[10px] font-bold text-slate-500 uppercase tracking-widest">
-                        {tx.category} • {new Date(tx.date).toLocaleDateString('pt-BR')}
+                        {tx.category} • {formatDate(tx.date)}
                       </p>
                     </div>
                   </div>

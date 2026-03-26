@@ -1,6 +1,7 @@
 import { useState } from "react";
 import { theme } from "@config/design-system";
 import { Trash2, Edit2 } from "lucide-react";
+import { formatDate } from "@lib/finance-utils";
 
 export default function TransactionList({ title, transactions, onDeleted, onEdit, hideValues = false }) {
   const [searchTerm, setSearchString] = useState("");
@@ -106,7 +107,7 @@ export default function TransactionList({ title, transactions, onDeleted, onEdit
                     <div className="flex items-center gap-2 mt-0.5">
                       <span className="text-[10px] font-black uppercase tracking-widest text-slate-500 dark:text-slate-400">{tx.category}</span>
                       <span className="text-[10px] font-bold text-slate-300 dark:text-slate-700">•</span>
-                      <span className="text-[10px] font-bold text-slate-500 dark:text-slate-400">{new Date(tx.date).toLocaleDateString('pt-BR')}</span>
+                      <span className="text-[10px] font-bold text-slate-500 dark:text-slate-400">{formatDate(tx.date)}</span>
                     </div>
                   </div>
                 </div>

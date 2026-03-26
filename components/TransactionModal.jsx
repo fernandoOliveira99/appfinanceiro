@@ -2,8 +2,8 @@
 
 import { useState, useEffect, useRef, useMemo } from "react";
 import { theme } from "@config/design-system";
-import { recognize } from 'tesseract.js';
 import { Sparkles, Camera, X, ChevronDown, Loader2 } from "lucide-react";
+import { getTodayLocalDate } from "@lib/finance-utils";
 
 const DEFAULT_EXPENSE_CATEGORIES = [
   "Moradia",
@@ -24,7 +24,7 @@ export default function TransactionModal({ open, mode, onClose, onSave, initialD
   const [amountValue, setAmountValue] = useState(0);
   const [category, setCategory] = useState("");
   const [description, setDescription] = useState("");
-  const [date, setDate] = useState(() => new Date().toISOString().slice(0, 10));
+  const [date, setDate] = useState(() => getTodayLocalDate());
   const [suggestion, setSuggestion] = useState("");
   const [ocrLoading, setOcrLoading] = useState(false);
   const [isSaving, setIsSaving] = useState(false);
@@ -75,13 +75,18 @@ export default function TransactionModal({ open, mode, onClose, onSave, initialD
         );
         setCategory(initialData.category);
         setDescription(initialData.name || initialData.description || "");
-        setDate(new Date(initialData.date).toISOString().slice(0, 10));
+        // Garante que a data seja extraída no formato YYYY-MM-DD sem problemas de fuso horário
+        const d = new Date(initialData.date);
+        const yyyy = d.getUTCFullYear();
+        const mm = String(d.getUTCMonth() + 1).padStart(2, '0');
+        const dd = String(d.getUTCDate()).padStart(2, '0');
+        setDate(`${yyyy}-${mm}-${dd}`);
       } else {
         setAmountDisplay("");
         setAmountValue(0);
         setCategory(isIncome ? "Salário" : categories[0]);
         setDescription(isIncome ? "Adição de saldo" : "");
-        setDate(new Date().toISOString().slice(0, 10));
+        setDate(getTodayLocalDate());
       }
       setSuggestion("");
     }
@@ -150,7 +155,8 @@ export default function TransactionModal({ open, mode, onClose, onSave, initialD
         }
         text = fullText;
       } else if (file.type.startsWith('image/')) {
-        // Lógica para Imagem usando Tesseract
+        // Lógica para Imagem usando Tesseract com carregamento dinâmico
+        const { recognize } = await import('tesseract.js');
         const reader = new FileReader();
         const imageData = await new Promise((resolve, reject) => {
           reader.onload = () => resolve(reader.result);

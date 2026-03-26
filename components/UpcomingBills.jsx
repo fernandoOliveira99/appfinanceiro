@@ -2,7 +2,7 @@
 
 import { useState, useEffect } from "react";
 import { theme } from "@config/design-system";
-import { formatCurrencyBRL } from "@lib/finance-utils";
+import { formatCurrencyBRL, formatDate } from "@lib/finance-utils";
 import { Calendar, AlertCircle, CheckCircle2, Clock } from "lucide-react";
 
 export default function UpcomingBills() {
@@ -87,7 +87,7 @@ export default function UpcomingBills() {
                     <p className={`text-[10px] font-bold uppercase tracking-widest ${
                       isToday ? 'text-amber-600' : 'text-slate-500'
                     }`}>
-                      {isToday ? 'Vence Hoje' : `Vence em ${diffDays} dias`} • {nextDate.toLocaleDateString('pt-BR')}
+                      {isToday ? 'Vence Hoje' : `Vence em ${diffDays} dias`} • {formatDate(bill.next_date)}
                     </p>
                   </div>
                 </div>

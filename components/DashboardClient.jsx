@@ -1,25 +1,44 @@
 "use client";
 
 import { useEffect, useState } from "react";
+import dynamic from "next/dynamic";
 import { theme } from "@config/design-system";
 import FinanceCards from "@components/FinanceCards";
 import TransactionList from "@components/TransactionList";
 import { calculateTotals } from "@lib/finance-utils";
 import Charts from "@components/Charts";
-import TransactionModal from "@components/TransactionModal";
-import FinanceAI from "@components/FinanceAI";
+
+// Carregamento dinâmico de componentes pesados para melhorar a performance inicial, especialmente no mobile
+const TransactionModal = dynamic(() => import("@components/TransactionModal"), {
+  loading: () => <div className="fixed inset-0 bg-black/50 backdrop-blur-sm z-[10000] flex items-center justify-center text-white font-bold">Carregando formulário...</div>,
+  ssr: false
+});
+
+const FinanceAI = dynamic(() => import("@components/FinanceAI"), {
+  ssr: false
+});
+
+const GuidedTutorial = dynamic(() => import("@components/GuidedTutorial"), {
+  ssr: false
+});
+
+const ReportExporter = dynamic(() => import("@components/ReportExporter"), {
+  ssr: false
+});
+
+const WelcomeExperience = dynamic(() => import("@components/WelcomeExperience"), {
+  ssr: false
+});
+
 import FinanceGoals from "@components/FinanceGoals";
 import DashboardHeader from "@components/DashboardHeader";
-import GuidedTutorial from "@components/GuidedTutorial";
 import FinancialInsightsCard from "@components/FinancialInsightsCard";
 import IntelligentInsights from "@components/IntelligentInsights";
 import CategoryRanking from "@components/CategoryRanking";
 import FinancialHealthScore from "@components/FinancialHealthScore";
 import UpcomingBills from "@components/UpcomingBills";
 import CategoryBudgets from "@components/CategoryBudgets";
-import ReportExporter from "@components/ReportExporter";
 import RecurringTransactionsManager from "@components/RecurringTransactionsManager";
-import WelcomeExperience from "@components/WelcomeExperience";
 import SmartTips from "@components/SmartTips";
 import { generateDashboardReport } from "@lib/report";
 import { Zap, Plus, ArrowUpCircle, ArrowDownCircle, Target, PieChart, Smile, Sparkles, CalendarClock, Sliders } from "lucide-react";
@@ -42,6 +61,15 @@ export default function DashboardClient({ user, initialSalary, initialTransactio
   const [forceShowTutorial, setForceShowTutorial] = useState(false);
   const [showTips, setShowTips] = useState(false);
   const [hideValues, setHideValues] = useState(false);
+  const [isMobile, setIsMobile] = useState(false);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    const checkMobile = () => setIsMobile(window.innerWidth < 768);
+    checkMobile();
+    window.addEventListener('resize', checkMobile);
+    return () => window.removeEventListener('resize', checkMobile);
+  }, []);
 
   useEffect(() => {
     // Carrega preferências de dicas e ocultação de valores
@@ -131,25 +159,32 @@ export default function DashboardClient({ user, initialSalary, initialTransactio
 
   useEffect(() => {
     async function refresh() {
-      const [txRes, salaryRes, catChartRes, goalsRes] = await Promise.all([
-        fetch("/api/transactions"),
-        fetch("/api/settings/salary"),
-        fetch("/api/charts/categories"),
-        fetch("/api/goals")
-      ]);
-      if (txRes.ok) {
-        setTransactions(await txRes.json());
-      }
-      if (salaryRes.ok) {
-        const data = await salaryRes.json();
-        setSalary(data.salary ?? 0);
-      }
-      if (catChartRes.ok) {
-        const catData = await catChartRes.json();
-        setCategoryChartData(catData);
-      }
-      if (goalsRes.ok) {
-        setGoals(await goalsRes.json());
+      setLoading(true);
+      try {
+        const [txRes, salaryRes, catChartRes, goalsRes] = await Promise.all([
+          fetch("/api/transactions"),
+          fetch("/api/settings/salary"),
+          fetch("/api/charts/categories"),
+          fetch("/api/goals")
+        ]);
+        if (txRes.ok) {
+          setTransactions(await txRes.json());
+        }
+        if (salaryRes.ok) {
+          const data = await salaryRes.json();
+          setSalary(data.salary ?? 0);
+        }
+        if (catChartRes.ok) {
+          const catData = await catChartRes.json();
+          setCategoryChartData(catData);
+        }
+        if (goalsRes.ok) {
+          setGoals(await goalsRes.json());
+        }
+      } catch (err) {
+        console.error("Error refreshing dashboard:", err);
+      } finally {
+        setLoading(false);
       }
     }
     refresh();
@@ -293,6 +328,22 @@ export default function DashboardClient({ user, initialSalary, initialTransactio
     setTransactions((prev) => prev.filter((t) => t.id !== id));
   }
 
+  if (loading && transactions.length === 0) {
+    return (
+      <div className="w-full space-y-8 animate-pulse pb-20">
+        <div className="h-20 bg-slate-100 dark:bg-slate-800/50 rounded-3xl w-full"></div>
+        <div className="grid grid-cols-1 md:grid-cols-4 gap-6">
+          <div className="md:col-span-3 h-48 bg-slate-100 dark:bg-slate-800/50 rounded-[2rem]"></div>
+          <div className="h-48 bg-slate-100 dark:bg-slate-800/50 rounded-[2rem]"></div>
+        </div>
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
+          <div className="h-64 bg-slate-100 dark:bg-slate-800/50 rounded-[2rem]"></div>
+          <div className="h-64 bg-slate-100 dark:bg-slate-800/50 rounded-[2rem]"></div>
+        </div>
+      </div>
+    );
+  }
+
   return (
     <div className="w-full max-w-full overflow-x-hidden md:overflow-visible space-y-6 md:space-y-8 pb-32 md:pb-8 relative">
       <AnimatePresence>
@@ -336,87 +387,97 @@ export default function DashboardClient({ user, initialSalary, initialTransactio
       </div>
 
       {/* 1. TOP SECTION: Cards (Summary & Prediction) - Always shown in overview, hidden in other tabs on mobile */}
-      <div className={`${activeTab !== 'overview' ? 'hidden md:grid' : 'grid'} grid-cols-1 lg:grid-cols-4 gap-6`}>
-        {showTips && (
-          <div className="lg:col-span-4 animate-in fade-in slide-in-from-top-4 duration-500">
-            <SmartTips mascotId={mascotId} />
+      {(activeTab === 'overview' || !isMobile) && (
+        <div className="grid grid-cols-1 lg:grid-cols-4 gap-6">
+          {showTips && (
+            <div className="lg:col-span-4 animate-in fade-in slide-in-from-top-4 duration-500">
+              <SmartTips mascotId={mascotId} />
+            </div>
+          )}
+          <div className="lg:col-span-3">
+            <FinanceCards 
+              salary={salary} 
+              totalExpenses={totalExpenses} 
+              totalIncome={totalIncome} 
+              currentBalance={currentBalance}
+              forecastBalance={estimatedEndBalance}
+              previousBalance={balanceBeforeLast}
+              lastMovementDate={lastMovementDate}
+              onAddIncome={() => setModalMode("income")}
+              onAddExpense={() => setModalMode("expense")}
+              transactions={transactions}
+              balanceHistory={recentBalanceHistory}
+              hideValues={hideValues}
+            />
           </div>
-        )}
-        <div className="lg:col-span-3">
-          <FinanceCards 
-            salary={salary} 
-            totalExpenses={totalExpenses} 
-            totalIncome={totalIncome} 
-            currentBalance={currentBalance}
-            forecastBalance={estimatedEndBalance}
-            previousBalance={balanceBeforeLast}
-            lastMovementDate={lastMovementDate}
-            onAddIncome={() => setModalMode("income")}
-            onAddExpense={() => setModalMode("expense")}
-            transactions={transactions}
-            balanceHistory={recentBalanceHistory}
-            hideValues={hideValues}
-          />
+          <div>
+            <FinancialHealthScore transactions={transactions} goals={goals} />
+          </div>
         </div>
-        <div>
-          <FinancialHealthScore transactions={transactions} goals={goals} />
-        </div>
-      </div>
+      )}
 
       {/* 2. INTELLIGENT INSIGHTS (Suspicious Spending & Economy Tips) - Overview and Analysis Tabs on Mobile */}
-      <div className={`${(activeTab !== 'analysis' && activeTab !== 'overview') ? 'hidden md:grid' : 'grid'} grid-cols-1 lg:grid-cols-2 gap-4 sm:gap-8 w-full max-w-full overflow-hidden`}>
-        <IntelligentInsights transactions={transactions} economyMode={economyMode} />
-        <UpcomingBills />
-      </div>
+      {(activeTab === 'overview' || activeTab === 'analysis' || !isMobile) && (
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-4 sm:gap-8 w-full max-w-full overflow-hidden">
+          <IntelligentInsights transactions={transactions} economyMode={economyMode} />
+          <div className="hidden md:block">
+            <UpcomingBills />
+          </div>
+        </div>
+      )}
 
       {/* Upcoming Bills in Overview on Mobile */}
-      <div className={`${activeTab === 'overview' ? 'block md:hidden' : 'hidden'}`}>
+      {isMobile && activeTab === 'overview' && (
         <UpcomingBills />
-      </div>
+      )}
 
       {/* 3. ALERTS SECTION - Analysis Tab on Mobile */}
-      <div className={`${activeTab !== 'analysis' ? 'hidden md:block' : 'block'}`}>
+      {(activeTab === 'analysis' || !isMobile) && (
         <FinancialInsightsCard transactions={transactions} />
-      </div>
+      )}
 
       {/* 4. CATEGORY RANKING & BUDGETS - Analysis and Budgets Tabs */}
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
-        <div className={`${activeTab !== 'analysis' ? 'hidden md:block' : 'block'}`}>
+        {(activeTab === 'analysis' || !isMobile) && (
           <CategoryRanking transactions={transactions} />
-        </div>
-        <div className={`${activeTab !== 'budgets' ? 'hidden md:block' : 'block'}`}>
+        )}
+        {(activeTab === 'budgets' || !isMobile) && (
           <CategoryBudgets transactions={transactions} />
-        </div>
+        )}
       </div>
 
       {/* 5. MIDDLE SECTION: Charts & Goals Progress - Analysis and Goals Tabs */}
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
-        <div className={`${activeTab !== 'analysis' ? 'hidden md:block' : 'block'} lg:col-span-2`}>
-          <Charts 
-            categoryData={categoryChartData ?? byCategory} 
-            income={totalIncome} 
-            expenses={totalExpenses} 
-            lastMonthIncome={lastMonthIncome}
-            lastMonthExpenses={lastMonthExpenses}
-            hideValues={hideValues}
-          />
-        </div>
-        <div className={`${activeTab !== 'goals' ? 'hidden md:block' : 'block'} space-y-8`}>
-          <FinanceGoals 
-            currentBalance={currentBalance} 
-            onTransactionAdded={handleSaveTransaction} 
-            hideValues={hideValues}
-          />
-        </div>
+        {(activeTab === 'analysis' || !isMobile) && (
+          <div className="lg:col-span-2">
+            <Charts 
+              categoryData={categoryChartData ?? byCategory} 
+              income={totalIncome} 
+              expenses={totalExpenses} 
+              lastMonthIncome={lastMonthIncome}
+              lastMonthExpenses={lastMonthExpenses}
+              hideValues={hideValues}
+            />
+          </div>
+        )}
+        {(activeTab === 'goals' || !isMobile) && (
+          <div className="space-y-8">
+            <FinanceGoals 
+              currentBalance={currentBalance} 
+              onTransactionAdded={handleSaveTransaction} 
+              hideValues={hideValues}
+            />
+          </div>
+        )}
       </div>
 
       {/* Recurring Transactions Manager - Only on 'Recurring' Tab for mobile, visible on desktop */}
-      <div className={`${activeTab !== 'recurring' ? 'hidden md:block' : 'block'}`}>
+      {(activeTab === 'recurring' || !isMobile) && (
         <RecurringTransactionsManager transactions={transactions} hideValues={hideValues} />
-      </div>
+      )}
 
       {/* 4. BOTTOM SECTION: Recent transactions list - Overview Tab on Mobile */}
-      <div className={`${activeTab !== 'overview' ? 'hidden md:block' : 'block'}`}>
+      {(activeTab === 'overview' || !isMobile) && (
         <TransactionList 
           title="Movimentações Recentes" 
           transactions={recent} 
@@ -427,7 +488,7 @@ export default function DashboardClient({ user, initialSalary, initialTransactio
           }}
           hideValues={hideValues}
         />
-      </div>
+      )}
 
       {/* Export Section */}
       <ReportExporter 

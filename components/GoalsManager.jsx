@@ -2,7 +2,7 @@
 
 import { useState, useEffect } from "react";
 import { theme } from "@config/design-system";
-import { formatCurrencyBRL } from "@lib/finance-utils";
+import { formatCurrencyBRL, formatDate, getTodayLocalDate } from "@lib/finance-utils";
 import { Target, Trash2, Plus, TrendingUp, AlertCircle } from "lucide-react";
 
 export default function GoalsManager() {
@@ -15,7 +15,7 @@ export default function GoalsManager() {
   const [type, setType] = useState("");
   const [targetAmount, setTargetAmount] = useState("");
   const [currentAmount, setCurrentAmount] = useState("");
-  const [deadline, setDeadline] = useState(new Date().toISOString().slice(0, 10));
+  const [deadline, setDeadline] = useState(() => getTodayLocalDate());
 
   useEffect(() => {
     fetchGoals();
@@ -158,7 +158,7 @@ export default function GoalsManager() {
                       <div>
                         <h4 className="text-sm font-bold text-slate-200">{goal.type}</h4>
                         <p className="text-[10px] font-bold text-slate-500 uppercase tracking-widest">
-                          Prazo: {new Date(goal.deadline).toLocaleDateString('pt-BR')}
+                          Prazo: {formatDate(goal.deadline)}
                         </p>
                       </div>
                     </div>

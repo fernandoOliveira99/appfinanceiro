@@ -1,11 +1,24 @@
 "use client";
 
 import { useEffect, useState } from "react";
+import dynamic from "next/dynamic";
 import { theme } from "@config/design-system";
-import CategoryPieChart from "@components/charts/CategoryPieChart";
-import IncomeExpenseBarChart from "@components/charts/IncomeExpenseBarChart";
-import BalanceLineChart from "@components/charts/BalanceLineChart";
 import { calculateTotals } from "@lib/finance-utils";
+
+const CategoryPieChart = dynamic(() => import("@components/charts/CategoryPieChart"), {
+  ssr: false,
+  loading: () => <div className="h-[300px] flex items-center justify-center bg-slate-100 dark:bg-slate-900/50 rounded-2xl animate-pulse text-xs font-bold text-slate-400 uppercase tracking-widest">Carregando gráfico...</div>
+});
+
+const IncomeExpenseBarChart = dynamic(() => import("@components/charts/IncomeExpenseBarChart"), {
+  ssr: false,
+  loading: () => <div className="h-[300px] flex items-center justify-center bg-slate-100 dark:bg-slate-900/50 rounded-2xl animate-pulse text-xs font-bold text-slate-400 uppercase tracking-widest">Carregando gráfico...</div>
+});
+
+const BalanceLineChart = dynamic(() => import("@components/charts/BalanceLineChart"), {
+  ssr: false,
+  loading: () => <div className="h-[300px] flex items-center justify-center bg-slate-100 dark:bg-slate-900/50 rounded-2xl animate-pulse text-xs font-bold text-slate-400 uppercase tracking-widest">Carregando gráfico...</div>
+});
 
 function buildMonthlySeries(transactions) {
   const byMonth = new Map();
