@@ -2,6 +2,7 @@
 
 import { ResponsiveContainer, PieChart, Pie, Cell, Tooltip, Legend } from "recharts";
 import { theme } from "@config/design-system";
+import { formatCurrencyBRL } from "@lib/finance-utils";
 
 const CATEGORY_COLORS = {
   Moradia: "#ef4444", // red

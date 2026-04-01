@@ -122,6 +122,9 @@ export default function FinanceAI({ user, mascotId, setMascotId }) {
   const [showNotification, setShowNotification] = useState(false);
   const [notificationMessage, setNotificationMessage] = useState("");
   const [showConfirmDelete, setShowConfirmDelete] = useState(false);
+  const [showConfirmProviderChange, setShowConfirmProviderChange] = useState(false);
+  const [pendingProvider, setPendingProvider] = useState(null);
+  const [showWelcomeTooltip, setShowWelcomeTooltip] = useState(false);
   const scrollRef = useRef(null);
 
   // Persiste mensagens no localStorage sempre que mudarem
@@ -260,6 +263,25 @@ export default function FinanceAI({ user, mascotId, setMascotId }) {
 
 
 
+  useEffect(() => {
+    // Exibe o balãozinho após 3 segundos do carregamento inicial
+    const timer = setTimeout(() => {
+      if (!isOpen) {
+        setShowWelcomeTooltip(true);
+      }
+    }, 3000);
+
+    // Esconde o balãozinho após 10 segundos
+    const hideTimer = setTimeout(() => {
+      setShowWelcomeTooltip(false);
+    }, 13000);
+
+    return () => {
+      clearTimeout(timer);
+      clearTimeout(hideTimer);
+    };
+  }, []);
+
   const handleSelectMascot = (mascot) => {
     setMascotId(mascot.id);
     localStorage.setItem(`user_mascot_${user?.id || 'guest'}`, mascot.id);
@@ -334,11 +356,23 @@ export default function FinanceAI({ user, mascotId, setMascotId }) {
     }
   };
 
+  const handleProviderChangeRequest = (providerId) => {
+    if (providerId === provider) return;
+    setPendingProvider(providerId);
+    setShowConfirmProviderChange(true);
+  };
+
+  const confirmProviderChange = () => {
+    if (!pendingProvider) return;
+    setProvider(pendingProvider);
+    clearChat(); // Limpa o chat para não misturar as IAs
+    setShowConfirmProviderChange(false);
+    setPendingProvider(null);
+    setIsSettingsOpen(false);
+  };
+
   const AI_PROVIDERS = [
-    { id: "gemini", name: "Gemini", icon: Zap, color: "text-blue-400", disabled: true },
-    { id: "groq", name: "Groq", icon: Flame, color: "text-orange-400", disabled: false },
-    { id: "openai", name: "OpenAI", icon: Sparkles, color: "text-emerald-400", disabled: true },
-    { id: "anthropic", name: "Claude", icon: Bot, color: "text-orange-400", disabled: true }
+    { id: "groq", name: "Groq", icon: Flame, color: "text-orange-400", disabled: false }
   ];
 
   const handleDeleteHistory = () => {
@@ -363,9 +397,38 @@ export default function FinanceAI({ user, mascotId, setMascotId }) {
 
   return (
     <>
-      <div className="fixed bottom-28 md:bottom-6 right-6 z-[9999] pointer-events-auto flex justify-end">
+      <div className="fixed bottom-28 md:bottom-6 right-6 z-[9999] pointer-events-auto flex flex-col items-end gap-3">
+        <AnimatePresence>
+          {showWelcomeTooltip && !isOpen && (
+            <motion.div
+              initial={{ opacity: 0, scale: 0.8, y: 10, x: 20 }}
+              animate={{ opacity: 1, scale: 1, y: 0, x: 0 }}
+              exit={{ opacity: 0, scale: 0.8, y: 10, x: 20 }}
+              className="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 px-4 py-3 rounded-2xl shadow-2xl relative mb-1 mr-2"
+            >
+              {/* Seta do balão */}
+              <div className="absolute -bottom-1.5 right-6 w-3 h-3 bg-white dark:bg-slate-900 border-r border-b border-slate-200 dark:border-slate-800 rotate-45"></div>
+              
+              <div className="flex items-center gap-2.5">
+                <div className={`h-8 w-8 rounded-xl ${selectedMascot.bg} flex items-center justify-center ${selectedMascot.color} flex-shrink-0`}>
+                  <MascotIcon size={18} className={selectedMascot.animation} />
+                </div>
+                <span className="text-xs font-black text-slate-900 dark:text-white whitespace-nowrap italic">
+                  Pergunte ao {selectedMascot.name}
+                </span>
+                <button 
+                  onClick={() => setShowWelcomeTooltip(false)}
+                  className="p-1 hover:bg-slate-100 dark:hover:bg-slate-800 rounded-lg text-slate-400 transition-colors"
+                >
+                  <X size={14} />
+                </button>
+              </div>
+            </motion.div>
+          )}
+        </AnimatePresence>
+
         <button
-          onClick={() => setIsOpen(true)}
+          onClick={() => { setIsOpen(true); setShowWelcomeTooltip(false); }}
           className={`h-12 w-12 md:h-14 md:w-14 rounded-2xl flex items-center justify-center shadow-2xl transition-all active:scale-90 group relative ${selectedMascot.bg} border border-white/10`}
         >
           <div className="absolute inset-0 bg-gradient-to-tr from-white/10 to-transparent opacity-0 group-hover:opacity-100 transition-opacity rounded-2xl" />
@@ -448,6 +511,35 @@ export default function FinanceAI({ user, mascotId, setMascotId }) {
               </div>
             )}
 
+            {/* Provider Change Confirmation Overlay */}
+            {showConfirmProviderChange && (
+              <div className="absolute inset-0 z-[70] bg-white/80 dark:bg-slate-950/80 backdrop-blur-sm flex items-center justify-center p-6">
+                <div className="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-[2rem] p-6 shadow-2xl w-full max-w-[320px] animate-in zoom-in-95 duration-200">
+                  <div className="h-12 w-12 rounded-2xl bg-violet-500/10 flex items-center justify-center text-violet-500 mb-4 mx-auto">
+                    <Sparkles size={24} />
+                  </div>
+                  <h3 className="text-sm font-black text-slate-900 dark:text-white text-center mb-2 italic">Trocar de IA?</h3>
+                  <p className="text-[11px] text-slate-500 dark:text-slate-400 text-center mb-6 font-medium">
+                    Ao mudar para o **{AI_PROVIDERS.find(p => p.id === pendingProvider)?.name}**, o histórico atual será limpo para evitar confusão entre as personalidades.
+                  </p>
+                  <div className="flex gap-3">
+                    <button 
+                      onClick={() => { setShowConfirmProviderChange(false); setPendingProvider(null); }}
+                      className="flex-1 py-3 rounded-xl bg-slate-100 dark:bg-slate-800 text-[10px] font-black text-slate-600 dark:text-slate-300 hover:bg-slate-200 dark:hover:bg-slate-700 transition-all uppercase tracking-widest"
+                    >
+                      Manter
+                    </button>
+                    <button 
+                      onClick={confirmProviderChange}
+                      className="flex-1 py-3 rounded-xl bg-violet-600 text-[10px] font-black text-white hover:bg-violet-500 transition-all shadow-lg shadow-violet-600/20 uppercase tracking-widest"
+                    >
+                      Trocar
+                    </button>
+                  </div>
+                </div>
+              </div>
+            )}
+
             {isSettingsOpen ? (
               <div className="flex-1 p-6 space-y-6 animate-in fade-in slide-in-from-top-2 duration-300 overflow-y-auto custom-scrollbar bg-slate-50/30 dark:bg-transparent">
                 <div className="space-y-6">
@@ -466,8 +558,7 @@ export default function FinanceAI({ user, mascotId, setMascotId }) {
                             disabled={p.disabled}
                             onClick={() => {
                               if (!p.disabled) {
-                                setProvider(p.id);
-                                setIsSettingsOpen(false);
+                                handleProviderChangeRequest(p.id);
                               }
                             }}
                             className={`flex flex-col items-center justify-center gap-2 p-4 rounded-2xl border transition-all relative overflow-hidden ${

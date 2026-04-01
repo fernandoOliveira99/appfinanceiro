@@ -75,7 +75,12 @@ export default function Sidebar() {
 
     const handleProfileUpdate = (e) => {
       if (e.detail) {
-        setUser(e.detail);
+        // Force update user state with new details immediately
+        setUser(prev => ({
+          ...prev,
+          name: e.detail.name || prev?.name,
+          avatar_url: e.detail.avatar_url
+        }));
       } else {
         load();
       }

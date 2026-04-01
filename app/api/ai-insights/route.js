@@ -1,15 +1,10 @@
 import { NextResponse } from "next/server";
 import { getCurrentUser } from "@lib/auth";
 import { query } from "@lib/db";
-import { GoogleGenAI } from "@google/genai";
-import OpenAI from "openai";
-import Anthropic from "@anthropic-ai/sdk";
 import Groq from "groq-sdk";
 
-const gemini = process.env.GEMINI_API_KEY ? new GoogleGenAI({ apiKey: process.env.GEMINI_API_KEY }) : null;
-const openai = process.env.OPENAI_API_KEY ? new OpenAI({ apiKey: process.env.OPENAI_API_KEY }) : null;
-const anthropic = process.env.ANTHROPIC_API_KEY ? new Anthropic({ apiKey: process.env.ANTHROPIC_API_KEY }) : null;
-const groq = process.env.GROQ_API_KEY ? new Groq({ apiKey: process.env.GROQ_API_KEY }) : null;
+const groqKey = process.env.GROQ_API_KEY;
+const groq = groqKey ? new Groq({ apiKey: groqKey }) : null;
 
 // Fallback functions for when LLM fails (Quota/Errors)
 function generateMascotInsightFallback(summary, mascotId) {
@@ -220,28 +215,7 @@ export async function POST(request) {
 
     async function tryAI(p, sysPrompt, history) {
       try {
-        if (p === "openai" && openai) {
-          const response = await openai.chat.completions.create({
-            model: "gpt-3.5-turbo",
-            messages: [
-              { role: "system", content: sysPrompt },
-              ...(history || []).map(m => ({ role: m.role, content: m.content }))
-            ],
-          });
-          return response.choices[0].message.content;
-        } 
-        
-        if (p === "anthropic" && anthropic) {
-          const response = await anthropic.messages.create({
-            model: "claude-3-haiku-20240307",
-            max_tokens: 1000,
-            system: sysPrompt,
-            messages: (history || []).map(m => ({ role: m.role === "assistant" ? "assistant" : "user", content: m.content }))
-          });
-          return response.content[0].text;
-        }
-
-        if (p === "groq" && groq) {
+        if (groq) {
           const response = await groq.chat.completions.create({
             model: "llama-3.3-70b-versatile",
             messages: [
@@ -251,48 +225,16 @@ export async function POST(request) {
           });
           return response.choices[0].message.content;
         }
-
-        if (gemini) {
-          const lastUserMsg = (history && history.length > 0) 
-            ? history[history.length - 1].content 
-            : "Me dê uma dica financeira curta e motivadora baseada nos meus dados atuais.";
-
-          const prompt = `${sysPrompt}\n\nMensagem do usuário: ${lastUserMsg}`;
-
-          const res = await gemini.models.generateContent({
-            model: "gemini-2.0-flash",
-            contents: prompt,
-          });
-
-          return res.text;
-        }
         
-        throw new Error("Provedor não disponível ou não configurado.");
+        throw new Error("Provedor Groq não disponível.");
       } catch (err) {
-        console.error(`Falha no provedor ${p}:`, err.message);
+        console.error(`Falha no Groq:`, err.message);
         throw err;
       }
     }
 
     try {
-      let aiResponse = "";
-      
-      try {
-        // Tenta o provedor selecionado (Groq agora é o principal se configurado no front)
-        aiResponse = await tryAI(provider, systemPrompt, messages);
-      } catch (error) {
-        // Se o selecionado falhar, tenta o Groq como backup inteligente principal
-        if (provider !== "groq" && groq) {
-          console.log("Tentando fallback inteligente para Groq...");
-          aiResponse = await tryAI("groq", systemPrompt, messages);
-        } else if (provider !== "gemini" && gemini) {
-          console.log("Tentando fallback inteligente para Gemini...");
-          aiResponse = await tryAI("gemini", systemPrompt, messages);
-        } else {
-          throw error;
-        }
-      }
-
+      const aiResponse = await tryAI("groq", systemPrompt, messages);
       return NextResponse.json({ message: aiResponse });
 
     } catch (apiError) {

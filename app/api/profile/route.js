@@ -19,9 +19,12 @@ export async function POST(req) {
   const { name, avatar_url } = await req.json();
 
   try {
+    const finalAvatar = avatar_url === "" ? null : (avatar_url || user.avatar_url);
+    const finalName = name || user.name;
+    
     const result = await query(
       "UPDATE users SET name = $1, avatar_url = $2 WHERE id = $3 RETURNING id, name, email, avatar_url",
-      [name || user.name, avatar_url || user.avatar_url, user.id]
+      [finalName, finalAvatar, user.id]
     );
     return NextResponse.json(result.rows[0]);
   } catch (error) {

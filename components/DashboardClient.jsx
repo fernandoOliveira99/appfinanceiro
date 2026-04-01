@@ -41,7 +41,7 @@ import CategoryBudgets from "@components/CategoryBudgets";
 import RecurringTransactionsManager from "@components/RecurringTransactionsManager";
 import SmartTips from "@components/SmartTips";
 import { generateDashboardReport } from "@lib/report";
-import { Zap, Plus, ArrowUpCircle, ArrowDownCircle, Target, PieChart, Smile, Sparkles, CalendarClock, Sliders } from "lucide-react";
+import { Home, Zap, Plus, ArrowUpCircle, ArrowDownCircle, Target, PieChart, Smile, Sparkles, CalendarClock, Sliders } from "lucide-react";
 import { personalities } from "@lib/personalities";
 import { AnimatePresence } from "framer-motion";
 
@@ -268,14 +268,27 @@ export default function DashboardClient({ user, initialSalary, initialTransactio
 
   const recent = transactions.slice(0, 8);
   
-  // --- Previsão de Saldo (Forecast) ---
+  // --- Previsão de Saldo (Forecast) Inteligente ---
   const daysInMonth = new Date(today.getFullYear(), today.getMonth() + 1, 0).getDate();
   const daysRemaining = daysInMonth - today.getDate();
   
-  // Cálculo da média de gastos diários (baseado nos dias decorridos do mês atual)
-  const currentDay = today.getDate() || 1;
-  const averageDailySpending = totalExpenses / currentDay;
-  const estimatedEndBalance = currentBalance - (averageDailySpending * daysRemaining);
+  // 1. Identificamos gastos que parecem ser "fixos" ou grandes (ex: Aluguel, Cartão)
+  // Gastos acima de R$ 200 ou de categorias específicas não devem ser usados para calcular a média diária
+  const fixedCategories = ["Moradia", "Aluguel", "Educação", "Cartão de Crédito"];
+  const fixedExpenses = realExpensesTransactions
+    .filter(t => Number(t.amount) > 200 || fixedCategories.includes(t.category))
+    .reduce((acc, t) => acc + Number(t.amount), 0);
+
+  // 2. Gastos variáveis (o que sobra) - esses sim usamos para a média diária
+  const variableExpenses = totalExpenses - fixedExpenses;
+  
+  // 3. Média diária apenas dos gastos variáveis (mínimo de 1 dia para evitar divisão por zero)
+  const currentDayForMedia = today.getDate() || 1;
+  const avgDailyVariable = variableExpenses / currentDayForMedia;
+
+  // 4. Projeção: Saldo Atual - (Média Variável * Dias Restantes)
+  // Não subtraímos os gastos fixos novamente pois eles já estão descontados do currentBalance
+  const estimatedEndBalance = currentBalance - (avgDailyVariable * daysRemaining);
 
   async function handleSaveTransaction(tx) {
     const isUpdate = Boolean(tx.id);
@@ -362,13 +375,15 @@ export default function DashboardClient({ user, initialSalary, initialTransactio
         setActiveTab={setActiveTab}
       />
       
-      <DashboardHeader 
-        user={user} 
-        onAddIncome={() => setModalMode("income")} 
-        onAddExpense={() => setModalMode("expense")} 
-        hideValues={hideValues}
-        onToggleHideValues={toggleHideValues}
-      />
+      {(activeTab === 'overview' || !isMobile) && (
+        <DashboardHeader 
+          user={user} 
+          onAddIncome={() => setModalMode("income")} 
+          onAddExpense={() => setModalMode("expense")} 
+          hideValues={hideValues}
+          onToggleHideValues={toggleHideValues}
+        />
+      )}
 
       {/* Economy Mode Toggle - Hidden in 'Goals' and 'Analysis' on Mobile */}
       <div className={`${activeTab !== 'overview' ? 'hidden md:flex' : 'flex'} items-center justify-end gap-3 md:gap-4`}>
@@ -446,6 +461,17 @@ export default function DashboardClient({ user, initialSalary, initialTransactio
         )}
       </div>
 
+      {/* Export Section - Visible in Budgets Tab on Mobile */}
+      {(activeTab === 'budgets' || !isMobile) && (
+        <ReportExporter 
+          transactions={transactions} 
+          user={user} 
+          balance={currentBalance} 
+          income={totalIncome} 
+          expenses={totalExpenses} 
+        />
+      )}
+
       {/* 5. MIDDLE SECTION: Charts & Goals Progress - Analysis and Goals Tabs */}
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
         {(activeTab === 'analysis' || !isMobile) && (
@@ -490,16 +516,10 @@ export default function DashboardClient({ user, initialSalary, initialTransactio
         />
       )}
 
-      {/* Export Section */}
-      <ReportExporter 
-        transactions={transactions} 
-        user={user} 
-        balance={currentBalance} 
-        income={totalIncome} 
-        expenses={totalExpenses} 
-      />
+      {/* Export Section - Visible in Budgets Tab on Mobile */}
+      {/* Já incluído acima */}
 
-      {/* Transaction Modal */}
+      {/* 5. MIDDLE SECTION: Charts & Goals Progress - Analysis and Goals Tabs */}
       <TransactionModal
         open={Boolean(modalMode)}
         mode={modalMode}
@@ -516,7 +536,7 @@ export default function DashboardClient({ user, initialSalary, initialTransactio
         <div className="px-2 pb-6 pt-10 bg-gradient-to-t from-white dark:from-slate-950 via-white/90 dark:via-slate-950/90 to-transparent">
           <div id="mobile-tabs" className="flex bg-white/95 dark:bg-slate-900/95 backdrop-blur-xl p-1.5 rounded-2xl border border-slate-200 dark:border-slate-800 shadow-[0_-10px_40px_rgba(0,0,0,0.3)] pointer-events-auto max-w-[calc(100vw-1rem)] mx-auto">
             {[
-              { id: 'overview', label: 'Início', icon: <Zap size={14} /> },
+              { id: 'overview', label: 'Início', icon: <Home size={14} /> },
               { id: 'budgets', label: 'Controle', icon: <Sliders size={14} /> },
               { id: 'goals', label: 'Objetivos', icon: <Target size={14} /> },
               { id: 'analysis', label: 'Análise', icon: <PieChart size={14} /> },

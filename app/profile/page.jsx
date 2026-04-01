@@ -19,6 +19,9 @@ export default function ProfilePage() {
   const [confirmPassword, setConfirmPassword] = useState("");
   const [loading, setLoading] = useState(true);
   const [message, setMessage] = useState({ type: "", text: "" });
+  const [showPhotoModal, setShowPhotoModal] = useState(false);
+  const [pendingPhoto, setPendingPhoto] = useState(null);
+  const [isRemoving, setIsRemoving] = useState(false);
 
   useEffect(() => {
     async function fetchProfile() {
@@ -47,9 +50,6 @@ export default function ProfilePage() {
       setUser(updated);
       setMessage({ type: "success", text: "Perfil atualizado com sucesso!" });
       
-      // Dispatch custom event to notify other components (Sidebar, TopBar)
-      window.dispatchEvent(new CustomEvent('profile-updated', { detail: updated }));
-      
       // Update NextAuth session
       await update({
         ...session,
@@ -59,6 +59,17 @@ export default function ProfilePage() {
           image: updated.avatar_url,
         },
       });
+
+      // Dispatch custom event to notify other components (Sidebar, TopBar)
+      // Usamos setTimeout para garantir que a atualização da sessão ocorra antes
+      setTimeout(() => {
+        window.dispatchEvent(new CustomEvent('profile-updated', { 
+          detail: {
+            name: updated.name,
+            avatar_url: updated.avatar_url
+          } 
+        }));
+      }, 50);
       
       router.refresh();
     } else {
@@ -94,10 +105,64 @@ export default function ProfilePage() {
     if (!file) return;
     const reader = new FileReader();
     reader.onload = () => {
-      setAvatarUrl(reader.result);
+      setPendingPhoto(reader.result);
+      setIsRemoving(false);
+      setShowPhotoModal(true);
     };
     reader.readAsDataURL(file);
+    // Limpa o input para permitir selecionar a mesma imagem se necessário
+    e.target.value = "";
   };
+
+  const handleRemoveAvatar = () => {
+    setIsRemoving(true);
+    setPendingPhoto(null);
+    setShowPhotoModal(true);
+  };
+
+  async function handleAutoSavePhoto(newAvatarUrl) {
+    setMessage({ type: "info", text: "Atualizando foto..." });
+    setShowPhotoModal(false);
+    
+    try {
+      const res = await fetch("/api/profile", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ name, avatar_url: newAvatarUrl === null ? "" : newAvatarUrl })
+      });
+
+      if (res.ok) {
+        const updated = await res.json();
+        setUser(updated);
+        setAvatarUrl(updated.avatar_url || "");
+        setMessage({ type: "success", text: "Foto atualizada com sucesso!" });
+        
+        await update({
+          ...session,
+          user: {
+            ...session?.user,
+            image: updated.avatar_url,
+          },
+        });
+
+        setTimeout(() => {
+          window.dispatchEvent(new CustomEvent('profile-updated', { 
+            detail: {
+              name: updated.name,
+              avatar_url: updated.avatar_url
+            } 
+          }));
+        }, 50);
+        
+        router.refresh();
+      } else {
+        setMessage({ type: "error", text: "Erro ao atualizar foto." });
+      }
+    } catch (error) {
+      console.error("Auto-save photo error:", error);
+      setMessage({ type: "error", text: "Erro na conexão." });
+    }
+  }
 
   if (loading) {
     return (
@@ -109,6 +174,51 @@ export default function ProfilePage() {
 
   return (
     <div className="max-w-4xl mx-auto space-y-8 pb-20 px-4 md:px-0">
+      {/* Photo Confirmation Modal */}
+      {showPhotoModal && (
+        <div className="fixed inset-0 z-[1000] flex items-center justify-center p-4 bg-slate-950/40 backdrop-blur-md animate-in fade-in duration-200">
+          <div className="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-[2.5rem] p-8 shadow-2xl w-full max-w-sm animate-in zoom-in-95 duration-200">
+            <div className="flex flex-col items-center text-center space-y-6">
+              <div className={`h-24 w-24 rounded-[2rem] flex items-center justify-center overflow-hidden border-4 border-white dark:border-slate-800 shadow-2xl ${isRemoving ? 'bg-rose-500/10 text-rose-500' : 'bg-slate-50 dark:bg-slate-950'}`}>
+                {isRemoving ? (
+                  <Trash2 size={40} />
+                ) : pendingPhoto ? (
+                  <Image src={pendingPhoto} alt="Preview" width={96} height={96} className="h-full w-full object-cover" />
+                ) : (
+                  <User size={40} className="text-slate-300 dark:text-slate-700" />
+                )}
+              </div>
+
+              <div className="space-y-2">
+                <h3 className="text-lg font-black text-slate-900 dark:text-white italic tracking-tight">
+                  {isRemoving ? "Remover Foto?" : "Salvar esta foto?"}
+                </h3>
+                <p className="text-xs font-bold text-slate-500 dark:text-slate-400 leading-relaxed uppercase tracking-widest">
+                  {isRemoving 
+                    ? "Deseja realmente apagar sua imagem de perfil atual?" 
+                    : "Esta imagem será exibida em todo o seu painel financeiro."}
+                </p>
+              </div>
+
+              <div className="grid grid-cols-2 gap-4 w-full pt-2">
+                <button 
+                  onClick={() => setShowPhotoModal(false)}
+                  className="py-4 rounded-2xl bg-slate-100 dark:bg-slate-800 text-[10px] font-black text-slate-600 dark:text-slate-300 hover:bg-slate-200 dark:hover:bg-slate-700 transition-all uppercase tracking-widest active:scale-95"
+                >
+                  Cancelar
+                </button>
+                <button 
+                  onClick={() => handleAutoSavePhoto(isRemoving ? null : pendingPhoto)}
+                  className={`py-4 rounded-2xl text-[10px] font-black text-white transition-all uppercase tracking-widest shadow-xl active:scale-95 ${isRemoving ? 'bg-rose-600 hover:bg-rose-500 shadow-rose-600/20' : 'bg-violet-600 hover:bg-violet-500 shadow-violet-600/20'}`}
+                >
+                  {isRemoving ? "Confirmar" : "Salvar"}
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
+
       <div className="flex items-center gap-4">
         <Link href="/dashboard" className="p-2.5 rounded-2xl bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 text-slate-500 dark:text-slate-400 hover:text-violet-600 dark:hover:text-white transition-all shadow-sm hover:shadow-md active:scale-95">
           <ArrowLeft size={20} />
@@ -159,6 +269,18 @@ export default function ProfilePage() {
                       <User size={50} className="text-slate-300 dark:text-slate-700" />
                     )}
                   </div>
+                  
+                  {avatarUrl && (
+                    <button 
+                      type="button"
+                      onClick={handleRemoveAvatar}
+                      className="absolute -top-2 -right-2 p-2.5 rounded-2xl bg-rose-500 text-white shadow-xl hover:bg-rose-600 transition-all hover:scale-110 active:scale-90 border-4 border-white dark:border-slate-900 z-10"
+                      title="Remover foto"
+                    >
+                      <Trash2 size={16} />
+                    </button>
+                  )}
+
                   <label className="absolute -bottom-2 -right-2 p-3 rounded-2xl bg-violet-600 text-white shadow-xl cursor-pointer hover:bg-violet-500 transition-all hover:scale-110 active:scale-90 border-4 border-white dark:border-slate-900">
                     <Camera size={18} />
                     <input type="file" className="hidden" accept="image/*" onChange={handleAvatarChange} />
