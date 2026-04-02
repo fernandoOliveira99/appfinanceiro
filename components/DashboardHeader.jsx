@@ -1,10 +1,10 @@
 "use client";
 
 import { theme } from "@config/design-system";
-import { Plus, Moon, Sun, Bell, Check, X as XIcon, Eye, EyeOff } from "lucide-react";
+import { Plus, Moon, Sun, Bell, Check, X as XIcon, Eye, EyeOff, ChevronLeft, ChevronRight, Calendar } from "lucide-react";
 import { useState, useEffect, useRef } from "react";
 
-export default function DashboardHeader({ user, onAddIncome, onAddExpense, hideValues, onToggleHideValues }) {
+export default function DashboardHeader({ user, onAddIncome, onAddExpense, hideValues, onToggleHideValues, selectedDate, setSelectedDate }) {
   const [mounted, setMounted] = useState(false);
   const [isDark, setIsDark] = useState(true);
   const [notifications, setNotifications] = useState([]);
@@ -104,6 +104,22 @@ export default function DashboardHeader({ user, onAddIncome, onAddExpense, hideV
   const firstName = user?.name?.split(' ')[0] || 'Usuário';
   const capitalizedName = firstName.charAt(0).toUpperCase() + firstName.slice(1).toLowerCase();
 
+  const handlePrevMonth = () => {
+    const newDate = new Date(selectedDate);
+    newDate.setMonth(newDate.getMonth() - 1);
+    setSelectedDate(newDate);
+  };
+
+  const handleNextMonth = () => {
+    const newDate = new Date(selectedDate);
+    newDate.setMonth(newDate.getMonth() + 1);
+    setSelectedDate(newDate);
+  };
+
+  const monthName = selectedDate.toLocaleString('pt-BR', { month: 'long' });
+  const yearName = selectedDate.getFullYear();
+  const formattedMonth = monthName.charAt(0).toUpperCase() + monthName.slice(1);
+
   if (!mounted) return (
     <section className={`${theme.cardStyles.base} rounded-[1.5rem] md:rounded-[2.5rem] p-4 md:p-8 shadow-2xl border border-slate-200/60 dark:border-slate-800/40 bg-white dark:bg-slate-900 h-32 md:h-48 animate-pulse`} />
   );
@@ -116,9 +132,31 @@ export default function DashboardHeader({ user, onAddIncome, onAddExpense, hideV
       <div className="relative z-10 flex flex-col md:flex-row items-start md:items-center justify-between gap-4 md:gap-8">
         <div className="space-y-1 md:space-y-3 w-full flex-1">
           <div className="flex items-center justify-between md:justify-start gap-4">
-            <p className="text-[9px] md:text-[10px] font-black uppercase tracking-[0.2em] text-violet-600 dark:text-violet-400">
-              Finanças App
-            </p>
+            <div className="flex items-center gap-3">
+              {/* Branding removido conforme solicitação do usuário */}
+              
+              {/* Month Selector Pill */}
+              <div className="flex items-center gap-1 bg-slate-100 dark:bg-slate-800/50 rounded-full p-1 border border-slate-200 dark:border-slate-700/50 shadow-inner">
+                <button 
+                  onClick={handlePrevMonth}
+                  className="p-1 rounded-full hover:bg-white dark:hover:bg-slate-700 text-slate-400 hover:text-violet-500 transition-all active:scale-90"
+                >
+                  <ChevronLeft size={14} />
+                </button>
+                <div className="flex items-center gap-1.5 px-2 min-w-[100px] justify-center">
+                  <Calendar size={10} className="text-violet-500" />
+                  <span className="text-[10px] font-black uppercase tracking-tighter text-slate-700 dark:text-slate-200">
+                    {formattedMonth} {yearName}
+                  </span>
+                </div>
+                <button 
+                  onClick={handleNextMonth}
+                  className="p-1 rounded-full hover:bg-white dark:hover:bg-slate-700 text-slate-400 hover:text-violet-500 transition-all active:scale-90"
+                >
+                  <ChevronRight size={14} />
+                </button>
+              </div>
+            </div>
             
             <div className="flex items-center gap-2">
               <button

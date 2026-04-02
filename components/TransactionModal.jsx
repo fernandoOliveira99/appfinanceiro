@@ -2,7 +2,7 @@
 
 import { useState, useEffect, useRef, useMemo } from "react";
 import { theme } from "@config/design-system";
-import { Sparkles, Camera, X, ChevronDown, Loader2 } from "lucide-react";
+import { Sparkles, Camera, X, ChevronDown, Loader2, Plus, Check, Trash2 } from "lucide-react";
 import { getTodayLocalDate } from "@lib/finance-utils";
 
 const DEFAULT_EXPENSE_CATEGORIES = [
@@ -19,7 +19,7 @@ const DEFAULT_EXPENSE_CATEGORIES = [
 
 const DEFAULT_INCOME_CATEGORIES = ["Salário", "Investimento", "Presente", "Outros"];
 
-export default function TransactionModal({ open, mode, onClose, onSave, initialData }) {
+export default function TransactionModal({ open, mode, onClose, onSave, initialData, onCategoriesChanged }) {
   const [amountDisplay, setAmountDisplay] = useState("");
   const [amountValue, setAmountValue] = useState(0);
   const [category, setCategory] = useState("");
@@ -29,7 +29,10 @@ export default function TransactionModal({ open, mode, onClose, onSave, initialD
   const [ocrLoading, setOcrLoading] = useState(false);
   const [isSaving, setIsSaving] = useState(false);
   const [ocrProgress, setOcrProgress] = useState(0);
-  const [customCategories, setCustomCategories] = useState([]);
+  const [customCategories, setCustomCategories] = useState([]); // Lista de objetos {id, name}
+  const [isAddingNewCategory, setIsAddingNewCategory] = useState(false);
+  const [newCategoryName, setNewCategoryName] = useState("");
+  const [isSavingCategory, setIsSavingCategory] = useState(false);
   const fileInputRef = useRef(null);
 
   // Se estiver editando, o modo vem do tipo da transação
@@ -43,7 +46,7 @@ export default function TransactionModal({ open, mode, onClose, onSave, initialD
         const res = await fetch("/api/categories");
         if (res.ok) {
           const data = await res.json();
-          setCustomCategories(data.map(c => c.name));
+          setCustomCategories(data);
         }
       } catch (err) {
         console.error("Erro ao buscar categorias:", err);
@@ -55,11 +58,12 @@ export default function TransactionModal({ open, mode, onClose, onSave, initialD
     }
   }, [open]);
 
-  // Mescla categorias padrões com as customizadas (removendo duplicatas)
-  const categories = useMemo(() => {
-    return isIncome 
-      ? DEFAULT_INCOME_CATEGORIES 
-      : Array.from(new Set([...DEFAULT_EXPENSE_CATEGORIES, ...customCategories]));
+  // Usa categorias do banco, com fallback para as padrões se ainda estiver carregando
+  const categoriesList = useMemo(() => {
+    if (customCategories.length > 0) {
+      return customCategories.map(c => c.name);
+    }
+    return isIncome ? DEFAULT_INCOME_CATEGORIES : DEFAULT_EXPENSE_CATEGORIES;
   }, [isIncome, customCategories]);
 
   // Inicializa o formulário apenas quando o modal abre ou initialData muda
@@ -84,7 +88,7 @@ export default function TransactionModal({ open, mode, onClose, onSave, initialD
       } else {
         setAmountDisplay("");
         setAmountValue(0);
-        setCategory(isIncome ? "Salário" : categories[0]);
+        setCategory(isIncome ? "Salário" : categoriesList[0]);
         setDescription(isIncome ? "Adição de saldo" : "");
         setDate(getTodayLocalDate());
       }
@@ -234,6 +238,71 @@ export default function TransactionModal({ open, mode, onClose, onSave, initialD
     setOcrProgress(0);
   };
 
+  const handleSaveCategory = async () => {
+    const nameToSave = newCategoryName.trim();
+    if (!nameToSave) return;
+
+    // Verifica se já existe localmente antes de enviar para o servidor
+    if (categoriesList.some(c => c.toLowerCase() === nameToSave.toLowerCase())) {
+      alert("Esta categoria já existe.");
+      return;
+    }
+
+    setIsSavingCategory(true);
+    try {
+      const res = await fetch("/api/categories", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ name: nameToSave })
+      });
+      if (res.ok) {
+        const created = await res.json();
+        const updated = [...customCategories, created];
+        setCustomCategories(updated);
+        onCategoriesChanged?.(updated); // Notifica o pai se necessário
+        setCategory(created.name);
+        setIsAddingNewCategory(false);
+        setNewCategoryName("");
+      } else {
+        const errorData = await res.json();
+        alert(errorData.error || "Erro ao salvar categoria.");
+      }
+    } catch (err) {
+      console.error("Erro ao salvar categoria:", err);
+    } finally {
+      setIsSavingCategory(false);
+    }
+  };
+
+  const handleDeleteCategory = async (catName) => {
+    const catObj = customCategories.find(c => c.name === catName);
+    if (!catObj) return;
+
+    if (!confirm(`Deseja realmente excluir a categoria "${catName}"?`)) return;
+
+    try {
+      const res = await fetch(`/api/categories/${catObj.id}`, {
+        method: "DELETE"
+      });
+      if (res.ok) {
+        setCustomCategories(prev => {
+          const newList = prev.filter(c => c.id !== catObj.id);
+          onCategoriesChanged?.(newList); // Notifica o pai se necessário
+          if (category === catName) {
+            // Se deletou a atual, seleciona a primeira da nova lista
+            const nextCat = newList.length > 0 
+              ? newList[0].name 
+              : (isIncome ? DEFAULT_INCOME_CATEGORIES[0] : DEFAULT_EXPENSE_CATEGORIES[0]);
+            setCategory(nextCat);
+          }
+          return newList;
+        });
+      }
+    } catch (err) {
+      console.error("Erro ao excluir categoria:", err);
+    }
+  };
+
   if (!open) return null;
 
   const title = isIncome ? "Adicionar Dinheiro" : "Adicionar Despesa";
@@ -359,60 +428,125 @@ export default function TransactionModal({ open, mode, onClose, onSave, initialD
               />
             </div>
 
+            <div className="flex flex-col gap-1.5">
+              <div className="flex items-center justify-between">
+                <label className="text-xs font-semibold uppercase tracking-wider text-slate-500 dark:text-slate-400 ml-1">Categoria</label>
+                {!isAddingNewCategory && (
+                  <button 
+                    type="button"
+                    onClick={() => setIsAddingNewCategory(true)}
+                    className="text-[10px] font-black uppercase tracking-widest text-violet-500 hover:text-violet-400 transition-colors flex items-center gap-1"
+                  >
+                    <Plus size={12} />
+                    Nova Categoria
+                  </button>
+                )}
+              </div>
+
+              {isAddingNewCategory ? (
+                <div className="flex gap-2 animate-in slide-in-from-right-2 duration-200">
+                  <div className="relative flex-1">
+                    <input
+                      type="text"
+                      autoFocus
+                      value={newCategoryName}
+                      onChange={(e) => setNewCategoryName(e.target.value)}
+                      placeholder="Nome da categoria..."
+                      className="w-full bg-slate-100 dark:bg-slate-900/50 border border-slate-200 dark:border-slate-700/50 rounded-2xl px-4 py-3 text-sm font-bold text-slate-900 dark:text-white placeholder:text-slate-400 focus:ring-2 focus:ring-violet-500/20 focus:border-violet-500 outline-none transition-all"
+                      onKeyDown={(e) => {
+                        if (e.key === 'Enter') { e.preventDefault(); handleSaveCategory(); }
+                        if (e.key === 'Escape') setIsAddingNewCategory(false);
+                      }}
+                    />
+                  </div>
+                  <button
+                    type="button"
+                    onClick={handleSaveCategory}
+                    disabled={isSavingCategory || !newCategoryName.trim()}
+                    className="p-3 rounded-2xl bg-violet-600 text-white hover:bg-violet-500 disabled:opacity-50 disabled:cursor-not-allowed transition-all shadow-lg shadow-violet-600/20 flex items-center justify-center min-w-[48px]"
+                  >
+                    {isSavingCategory ? <Loader2 size={18} className="animate-spin" /> : <Check size={18} />}
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => setIsAddingNewCategory(false)}
+                    className="p-3 rounded-2xl bg-slate-100 dark:bg-slate-800 text-slate-500 hover:bg-slate-200 dark:hover:bg-slate-700 transition-all flex items-center justify-center min-w-[48px]"
+                  >
+                    <X size={18} />
+                  </button>
+                </div>
+              ) : (
+                <div className="relative group">
+                  <div className="flex gap-2">
+                    <div className="relative flex-1">
+                      <select
+                        className="w-full bg-slate-100 dark:bg-slate-900/50 border border-slate-200 dark:border-slate-700/50 rounded-2xl px-4 py-3 text-sm text-slate-900 dark:text-white outline-none focus:border-violet-500/50 focus:ring-2 focus:ring-violet-500/10 transition-all appearance-none cursor-pointer group-hover:bg-slate-200/50 dark:group-hover:bg-slate-800/50"
+                        value={category}
+                        onChange={(e) => setCategory(e.target.value)}
+                        required
+                      >
+                        {categoriesList.map((cat) => (
+                          <option key={cat} value={cat} className="bg-white dark:bg-slate-900 text-slate-900 dark:text-white">
+                            {cat}
+                          </option>
+                        ))}
+                      </select>
+                      <div className="absolute right-4 top-1/2 -translate-y-1/2 pointer-events-none text-slate-400 group-hover:text-violet-500 transition-colors">
+                        <ChevronDown size={16} />
+                      </div>
+                    </div>
+                    
+                    {/* Botão de Excluir Categoria (apenas para customizadas) */}
+                    {customCategories.some(c => c.name === category) && (
+                      <button
+                        type="button"
+                        onClick={() => handleDeleteCategory(category)}
+                        className="p-3 rounded-2xl bg-rose-500/10 text-rose-500 hover:bg-rose-500 hover:text-white transition-all flex items-center justify-center min-w-[48px] border border-rose-500/20"
+                        title="Excluir categoria"
+                      >
+                        <Trash2 size={18} />
+                      </button>
+                    )}
+                  </div>
+                </div>
+              )}
+              {suggestion && !isAddingNewCategory && (
+                <button
+                  type="button"
+                  onClick={applySuggestion}
+                  className="text-[10px] font-black text-violet-600 dark:text-violet-400 uppercase tracking-widest mt-1 ml-1 hover:text-violet-500 dark:hover:text-violet-300 transition-colors flex items-center gap-1"
+                >
+                  <Sparkles size={10} className="fill-violet-600 dark:fill-violet-400" />
+                  Sugerimos: {suggestion} (Clique para aplicar)
+                </button>
+              )}
+            </div>
+
+            <div className="flex flex-col gap-1.5">
+              <label className="text-xs font-semibold uppercase tracking-wider text-slate-500 dark:text-slate-400 ml-1">Descrição</label>
+              <input
+                className="bg-slate-100 dark:bg-slate-900/50 border border-slate-200 dark:border-slate-700/50 rounded-2xl px-4 py-3 text-sm text-slate-900 dark:text-white outline-none focus:border-violet-500/50 focus:ring-2 focus:ring-violet-500/10 transition-all placeholder:text-slate-400 dark:placeholder:text-slate-700"
+                value={description}
+                onChange={(e) => setDescription(e.target.value)}
+                placeholder={isIncome ? "Ex: Salário Mensal, Freelance..." : "Ex: Almoço, Supermercado..."}
+              />
+            </div>
+
+            <div className="flex flex-col gap-1.5">
+              <label className="text-xs font-semibold uppercase tracking-wider text-slate-500 dark:text-slate-400 ml-1">
+                {isIncome ? "Data do Recebimento" : "Data"}
+              </label>
+              <input
+                type="date"
+                className="bg-slate-100 dark:bg-slate-900/50 border border-slate-200 dark:border-slate-700/50 rounded-2xl px-4 py-3 text-sm text-slate-900 dark:text-white outline-none focus:border-violet-500/50 focus:ring-2 focus:ring-violet-500/10 transition-all"
+                value={date}
+                onChange={(e) => setDate(e.target.value)}
+                required
+              />
+            </div>
+
             {!isIncome && (
               <>
-                <div className="flex flex-col gap-1.5">
-                  <label className="text-xs font-semibold uppercase tracking-wider text-slate-500 dark:text-slate-400 ml-1">Categoria</label>
-                  <div className="relative group">
-                    <select
-                      className="w-full bg-slate-100 dark:bg-slate-900/50 border border-slate-200 dark:border-slate-700/50 rounded-2xl px-4 py-3 text-sm text-slate-900 dark:text-white outline-none focus:border-violet-500/50 focus:ring-2 focus:ring-violet-500/10 transition-all appearance-none cursor-pointer group-hover:bg-slate-200/50 dark:group-hover:bg-slate-800/50"
-                      value={category}
-                      onChange={(e) => setCategory(e.target.value)}
-                      required
-                    >
-                      {categories.map((cat) => (
-                        <option key={cat} value={cat} className="bg-white dark:bg-slate-900 text-slate-900 dark:text-white">
-                          {cat}
-                        </option>
-                      ))}
-                    </select>
-                    <div className="absolute right-4 top-1/2 -translate-y-1/2 pointer-events-none text-slate-400 group-hover:text-violet-500 transition-colors">
-                      <ChevronDown size={16} />
-                    </div>
-                  </div>
-                  {suggestion && (
-                    <button
-                      type="button"
-                      onClick={applySuggestion}
-                      className="text-[10px] font-black text-violet-600 dark:text-violet-400 uppercase tracking-widest mt-1 ml-1 hover:text-violet-500 dark:hover:text-violet-300 transition-colors flex items-center gap-1"
-                    >
-                      <Sparkles size={10} className="fill-violet-600 dark:fill-violet-400" />
-                      Sugerimos: {suggestion} (Clique para aplicar)
-                    </button>
-                  )}
-                </div>
-
-                <div className="flex flex-col gap-1.5">
-                  <label className="text-xs font-semibold uppercase tracking-wider text-slate-500 dark:text-slate-400 ml-1">Descrição</label>
-                  <input
-                    className="bg-slate-100 dark:bg-slate-900/50 border border-slate-200 dark:border-slate-700/50 rounded-2xl px-4 py-3 text-sm text-slate-900 dark:text-white outline-none focus:border-violet-500/50 focus:ring-2 focus:ring-violet-500/10 transition-all placeholder:text-slate-400 dark:placeholder:text-slate-700"
-                    value={description}
-                    onChange={(e) => setDescription(e.target.value)}
-                    placeholder="Ex: Almoço, Supermercado..."
-                  />
-                </div>
-
-                <div className="flex flex-col gap-1.5">
-                  <label className="text-xs font-semibold uppercase tracking-wider text-slate-500 dark:text-slate-400 ml-1">Data</label>
-                  <input
-                    type="date"
-                    className="bg-slate-100 dark:bg-slate-900/50 border border-slate-200 dark:border-slate-700/50 rounded-2xl px-4 py-3 text-sm text-slate-900 dark:text-white outline-none focus:border-violet-500/50 focus:ring-2 focus:ring-violet-500/10 transition-all"
-                    value={date}
-                    onChange={(e) => setDate(e.target.value)}
-                    required
-                  />
-                </div>
-
                 <input 
                   type="file"
                   ref={fileInputRef}
@@ -431,19 +565,6 @@ export default function TransactionModal({ open, mode, onClose, onSave, initialD
                   Importar Comprovante / Boleto
                 </button>
               </>
-            )}
-
-            {isIncome && (
-              <div className="flex flex-col gap-1.5">
-                <label className="text-xs font-semibold uppercase tracking-wider text-slate-500 dark:text-slate-400 ml-1">Data do Recebimento</label>
-                <input
-                  type="date"
-                  className="bg-slate-100 dark:bg-slate-900/50 border border-slate-200 dark:border-slate-700/50 rounded-2xl px-4 py-3 text-sm text-slate-900 dark:text-white outline-none focus:border-violet-500/50 focus:ring-2 focus:ring-violet-500/10 transition-all"
-                  value={date}
-                  onChange={(e) => setDate(e.target.value)}
-                  required
-                />
-              </div>
             )}
           </div>
 

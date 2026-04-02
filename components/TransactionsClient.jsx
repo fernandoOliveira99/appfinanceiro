@@ -54,10 +54,7 @@ export default function TransactionsClient({ initialTransactions, initialCategor
     filtered.filter((t) => t.type === "expense")
   );
 
-  const categoryNames = Array.from(new Set([
-    "Moradia", "Aluguel", "Supermercado", "Transporte", "Lazer", "Saúde", "Educação", "Investimentos", "Outros",
-    ...categories.map((c) => c.name)
-  ]));
+  const categoryNames = Array.from(new Set(categories.map((c) => c.name)));
 
   function handleDeleted(id) {
     setTransactions((prev) => prev.filter((t) => t.id !== id));
@@ -81,6 +78,13 @@ export default function TransactionsClient({ initialTransactions, initialCategor
       } else {
         setTransactions((prev) => [saved, ...prev]);
       }
+      
+      // Atualiza categorias para refletir qualquer nova categoria criada
+      const catRes = await fetch("/api/categories");
+      if (catRes.ok) {
+        setCategories(await catRes.json());
+      }
+      
       setEditingTransaction(null);
       setModalMode(null);
     }
@@ -148,6 +152,7 @@ export default function TransactionsClient({ initialTransactions, initialCategor
           setEditingTransaction(null);
         }}
         onSave={handleSaveTransaction}
+        onCategoriesChanged={(cats) => setCategories(cats)}
       />
     </div>
   );

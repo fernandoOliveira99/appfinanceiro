@@ -124,9 +124,7 @@ export default function Sidebar() {
         <div className="h-9 w-9 rounded-2xl bg-gradient-to-tr from-violet-600 to-indigo-600 flex items-center justify-center text-white shadow-lg shadow-violet-500/20">
           <span className="font-black text-xl">F</span>
         </div>
-        <h1 className="text-sm font-black text-slate-900 dark:text-white tracking-tight uppercase">
-          Finanças App
-        </h1>
+        {/* Nome do app removido para visual mais limpo */}
       </div>
 
       <div className="px-4 mb-8" ref={dropdownRef}>

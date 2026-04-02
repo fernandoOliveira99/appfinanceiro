@@ -27,7 +27,22 @@ export async function POST(request) {
       { status: 400 }
     );
   }
-  const created = await createUserCategory(user.id, name);
-  return NextResponse.json(created, { status: 201 });
+  try {
+    const created = await createUserCategory(user.id, name);
+    return NextResponse.json(created, { status: 201 });
+  } catch (error) {
+    // Código 23505 é erro de unicidade (categoria já existe para este usuário)
+    if (error.code === '23505') {
+      return NextResponse.json(
+        { error: "Esta categoria já existe." },
+        { status: 409 }
+      );
+    }
+    console.error("Erro ao criar categoria:", error);
+    return NextResponse.json(
+      { error: "Erro interno ao criar categoria." },
+      { status: 500 }
+    );
+  }
 }
 

@@ -213,15 +213,7 @@ export default function MobileTopBar() {
             )}
           </div>
 
-          <div className="flex items-center gap-3">
-            <div className="h-8 w-8 rounded-2xl bg-gradient-to-tr from-violet-600 to-indigo-600 flex items-center justify-center text-white shadow-lg shadow-violet-500/20">
-              <span className="font-black text-lg">F</span>
-            </div>
-            <div className="flex flex-col leading-tight">
-              <span className="text-[10px] text-slate-400 dark:text-slate-500 font-bold uppercase tracking-widest">App Finanças</span>
-              <span className="text-xs font-black text-slate-900 dark:text-white uppercase tracking-tight">Painel pessoal</span>
-            </div>
-          </div>
+          {/* Branding removido conforme solicitação do usuário */}
         </div>
 
         <div className="flex items-center gap-3">

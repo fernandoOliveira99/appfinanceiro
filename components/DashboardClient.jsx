@@ -30,6 +30,10 @@ const WelcomeExperience = dynamic(() => import("@components/WelcomeExperience"),
   ssr: false
 });
 
+const ChangelogModal = dynamic(() => import("@components/ChangelogModal"), {
+  ssr: false
+});
+
 import FinanceGoals from "@components/FinanceGoals";
 import DashboardHeader from "@components/DashboardHeader";
 import FinancialInsightsCard from "@components/FinancialInsightsCard";
@@ -49,6 +53,7 @@ export default function DashboardClient({ user, initialSalary, initialTransactio
   const [salary, setSalary] = useState(initialSalary ?? 0);
   const [transactions, setTransactions] = useState(initialTransactions || []);
   const [goals, setGoals] = useState([]);
+  const [selectedDate, setSelectedDate] = useState(new Date()); // Estado do mês selecionado
   const [month, setMonth] = useState("Mês atual");
   const [downloading, setDownloading] = useState(false);
   const [categoryChartData, setCategoryChartData] = useState(null);
@@ -190,39 +195,57 @@ export default function DashboardClient({ user, initialSalary, initialTransactio
     refresh();
   }, []);
 
-  // 1. Receitas: Tudo que entra no saldo (Salário + Resgates de Metas)
-  const incomeTransactions = transactions.filter((t) => t.type === "income");
-  const totalIncome = incomeTransactions.reduce((acc, t) => acc + (Number(t.amount) || 0), 0);
+  // Filtragem por mês selecionado
+  const filteredTransactions = transactions.filter(t => {
+    const d = new Date(t.date || t.created_at);
+    return d.getMonth() === selectedDate.getMonth() && d.getFullYear() === selectedDate.getFullYear();
+  });
 
-  // 2. Despesas Reais: Gastos do dia a dia (NÃO inclui dinheiro guardado em metas)
-  const realExpensesTransactions = transactions.filter((t) => t.type === "expense" && t.category !== "Metas");
-  const { totalExpenses, byCategory } = calculateTotals(realExpensesTransactions);
+  // 1. Receitas do Mês: Tudo que entra no saldo (Salário + Resgates de Metas)
+  const monthlyIncomeTransactions = filteredTransactions.filter((t) => t.type === "income");
+  const monthlyTotalIncome = monthlyIncomeTransactions.reduce((acc, t) => acc + (Number(t.amount) || 0), 0);
 
-  // 3. Contribuições para Metas: Dinheiro que saiu do saldo para ser guardado
-  const goalContributionsTransactions = transactions.filter((t) => t.type === "expense" && t.category === "Metas");
-  const totalGoalContributions = goalContributionsTransactions.reduce((acc, t) => acc + (Number(t.amount) || 0), 0);
+  // 2. Despesas do Mês: Gastos do dia a dia (NÃO inclui dinheiro guardado em metas)
+  const monthlyRealExpensesTransactions = filteredTransactions.filter((t) => t.type === "expense" && t.category !== "Metas");
+  const { totalExpenses: monthlyTotalExpenses, byCategory: monthlyByCategory } = calculateTotals(monthlyRealExpensesTransactions);
 
-  // 4. Saldo Atual: Receitas - (Despesas + Metas)
-  const currentBalance = totalIncome - totalExpenses - totalGoalContributions;
+  // 3. Saldo Atual (ACUMULADO TOTAL - REAL DA CONTA)
+  const totalIncomeAllTime = transactions
+    .filter(t => t.type === "income")
+    .reduce((acc, t) => acc + (Number(t.amount) || 0), 0);
+  
+  const totalExpensesAllTime = transactions
+    .filter(t => t.type === "expense")
+    .reduce((acc, t) => acc + (Number(t.amount) || 0), 0);
+
+  const currentBalance = totalIncomeAllTime - totalExpensesAllTime;
+
+  const monthName = selectedDate.toLocaleString('pt-BR', { month: 'long' });
+  const formattedMonth = monthName.charAt(0).toUpperCase() + monthName.slice(1);
 
   const today = new Date();
+  const fixedCategories = ["Moradia", "Aluguel", "Educação", "Assinaturas", "Internet", "Condomínio"];
 
-  // --- Last Month Comparison ---
-  const lastMonthDate = new Date();
+  // --- Comparação com Mês Anterior (em relação ao selecionado) ---
+  const lastMonthDate = new Date(selectedDate);
   lastMonthDate.setMonth(lastMonthDate.getMonth() - 1);
   const lastMonth = lastMonthDate.getMonth();
   const lastMonthYear = lastMonthDate.getFullYear();
 
-  const lastMonthTransactions = transactions.filter(t => {
+  const prevMonthTransactions = transactions.filter(t => {
     const d = new Date(t.date || t.created_at);
     return d.getMonth() === lastMonth && d.getFullYear() === lastMonthYear;
   });
 
-  const lastMonthExpenses = lastMonthTransactions
+  const lastMonthExpenses = prevMonthTransactions
     .filter(t => t.type === 'expense' && t.category !== 'Metas')
     .reduce((acc, t) => acc + Number(t.amount), 0);
   
-  const lastMonthIncome = lastMonthTransactions
+  const lastMonthVariableExpenses = prevMonthTransactions
+    .filter(t => t.type === 'expense' && t.category !== 'Metas' && !fixedCategories.includes(t.category) && Number(t.amount) <= 500)
+    .reduce((acc, t) => acc + Number(t.amount), 0);
+  
+  const lastMonthIncome = prevMonthTransactions
     .filter(t => t.type === 'income')
     .reduce((acc, t) => acc + Number(t.amount), 0);
 
@@ -269,25 +292,32 @@ export default function DashboardClient({ user, initialSalary, initialTransactio
   const recent = transactions.slice(0, 8);
   
   // --- Previsão de Saldo (Forecast) Inteligente ---
-  const daysInMonth = new Date(today.getFullYear(), today.getMonth() + 1, 0).getDate();
-  const daysRemaining = daysInMonth - today.getDate();
+  const isCurrentMonth = selectedDate.getMonth() === today.getMonth() && selectedDate.getFullYear() === today.getFullYear();
+  
+  const daysInMonth = new Date(selectedDate.getFullYear(), selectedDate.getMonth() + 1, 0).getDate();
+  const daysRemaining = isCurrentMonth ? Math.max(0, daysInMonth - today.getDate()) : 0;
   
   // 1. Identificamos gastos que parecem ser "fixos" ou grandes (ex: Aluguel, Cartão)
-  // Gastos acima de R$ 200 ou de categorias específicas não devem ser usados para calcular a média diária
-  const fixedCategories = ["Moradia", "Aluguel", "Educação", "Cartão de Crédito"];
-  const fixedExpenses = realExpensesTransactions
-    .filter(t => Number(t.amount) > 200 || fixedCategories.includes(t.category))
+  // Apenas categorias realmente fixas ou valores muito altos que não se repetem diariamente
+  const fixedExpenses = monthlyRealExpensesTransactions
+    .filter(t => Number(t.amount) > 500 || fixedCategories.includes(t.category))
     .reduce((acc, t) => acc + Number(t.amount), 0);
 
   // 2. Gastos variáveis (o que sobra) - esses sim usamos para a média diária
-  const variableExpenses = totalExpenses - fixedExpenses;
+  const variableExpenses = monthlyTotalExpenses - fixedExpenses;
   
-  // 3. Média diária apenas dos gastos variáveis (mínimo de 1 dia para evitar divisão por zero)
-  const currentDayForMedia = today.getDate() || 1;
-  const avgDailyVariable = variableExpenses / currentDayForMedia;
+  // 3. Média diária apenas dos gastos variáveis
+  // Usamos um mínimo de 7 dias para o divisor para suavizar o início do mês
+  const currentDayForMedia = isCurrentMonth ? Math.max(today.getDate(), 7) : daysInMonth;
+  let avgDailyVariable = variableExpenses / currentDayForMedia;
+
+  // Fallback: Se não houver gastos variáveis ainda neste mês, usamos a média do mês passado (se houver)
+  if (isCurrentMonth && avgDailyVariable === 0 && lastMonthVariableExpenses > 0) {
+    const lastMonthDays = new Date(lastMonthDate.getFullYear(), lastMonthDate.getMonth() + 1, 0).getDate();
+    avgDailyVariable = lastMonthVariableExpenses / lastMonthDays;
+  }
 
   // 4. Projeção: Saldo Atual - (Média Variável * Dias Restantes)
-  // Não subtraímos os gastos fixos novamente pois eles já estão descontados do currentBalance
   const estimatedEndBalance = currentBalance - (avgDailyVariable * daysRemaining);
 
   async function handleSaveTransaction(tx) {
@@ -324,11 +354,11 @@ export default function DashboardClient({ user, initialSalary, initialTransactio
     setDownloading(true);
     try {
       generateDashboardReport({
-        monthLabel: month,
+        monthLabel: formattedMonth,
         salary,
-        incomeTotal: totalIncome,
-        expenseTotal: totalExpenses,
-        transactions
+        incomeTotal: monthlyTotalIncome,
+        expenseTotal: monthlyTotalExpenses,
+        transactions: filteredTransactions
       });
     } finally {
       setDownloading(false);
@@ -367,6 +397,7 @@ export default function DashboardClient({ user, initialSalary, initialTransactio
             onSkip={() => handleFinishWelcome(false)} 
           />
         )}
+        {!showWelcome && <ChangelogModal />}
       </AnimatePresence>
 
       <GuidedTutorial 
@@ -375,15 +406,15 @@ export default function DashboardClient({ user, initialSalary, initialTransactio
         setActiveTab={setActiveTab}
       />
       
-      {(activeTab === 'overview' || !isMobile) && (
-        <DashboardHeader 
-          user={user} 
-          onAddIncome={() => setModalMode("income")} 
-          onAddExpense={() => setModalMode("expense")} 
-          hideValues={hideValues}
-          onToggleHideValues={toggleHideValues}
-        />
-      )}
+      <DashboardHeader 
+        user={user} 
+        onAddIncome={() => setModalMode("income")} 
+        onAddExpense={() => setModalMode("expense")} 
+        hideValues={hideValues}
+        onToggleHideValues={toggleHideValues}
+        selectedDate={selectedDate}
+        setSelectedDate={setSelectedDate}
+      />
 
       {/* Economy Mode Toggle - Hidden in 'Goals' and 'Analysis' on Mobile */}
       <div className={`${activeTab !== 'overview' ? 'hidden md:flex' : 'flex'} items-center justify-end gap-3 md:gap-4`}>
@@ -412,21 +443,21 @@ export default function DashboardClient({ user, initialSalary, initialTransactio
           <div className="lg:col-span-3">
             <FinanceCards 
               salary={salary} 
-              totalExpenses={totalExpenses} 
-              totalIncome={totalIncome} 
+              totalExpenses={monthlyTotalExpenses} 
+              totalIncome={monthlyTotalIncome} 
               currentBalance={currentBalance}
-              forecastBalance={estimatedEndBalance}
+              forecastBalance={isCurrentMonth ? estimatedEndBalance : null}
               previousBalance={balanceBeforeLast}
               lastMovementDate={lastMovementDate}
               onAddIncome={() => setModalMode("income")}
               onAddExpense={() => setModalMode("expense")}
-              transactions={transactions}
+              transactions={filteredTransactions}
               balanceHistory={recentBalanceHistory}
               hideValues={hideValues}
             />
           </div>
           <div>
-            <FinancialHealthScore transactions={transactions} goals={goals} />
+            <FinancialHealthScore transactions={filteredTransactions} goals={goals} />
           </div>
         </div>
       )}
@@ -434,7 +465,7 @@ export default function DashboardClient({ user, initialSalary, initialTransactio
       {/* 2. INTELLIGENT INSIGHTS (Suspicious Spending & Economy Tips) - Overview and Analysis Tabs on Mobile */}
       {(activeTab === 'overview' || activeTab === 'analysis' || !isMobile) && (
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-4 sm:gap-8 w-full max-w-full overflow-hidden">
-          <IntelligentInsights transactions={transactions} economyMode={economyMode} />
+          <IntelligentInsights transactions={filteredTransactions} economyMode={economyMode} />
           <div className="hidden md:block">
             <UpcomingBills />
           </div>
@@ -448,27 +479,27 @@ export default function DashboardClient({ user, initialSalary, initialTransactio
 
       {/* 3. ALERTS SECTION - Analysis Tab on Mobile */}
       {(activeTab === 'analysis' || !isMobile) && (
-        <FinancialInsightsCard transactions={transactions} />
+        <FinancialInsightsCard transactions={filteredTransactions} />
       )}
 
       {/* 4. CATEGORY RANKING & BUDGETS - Analysis and Budgets Tabs */}
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
         {(activeTab === 'analysis' || !isMobile) && (
-          <CategoryRanking transactions={transactions} />
+          <CategoryRanking transactions={filteredTransactions} />
         )}
         {(activeTab === 'budgets' || !isMobile) && (
-          <CategoryBudgets transactions={transactions} />
+          <CategoryBudgets transactions={filteredTransactions} />
         )}
       </div>
 
       {/* Export Section - Visible in Budgets Tab on Mobile */}
       {(activeTab === 'budgets' || !isMobile) && (
         <ReportExporter 
-          transactions={transactions} 
+          transactions={filteredTransactions} 
           user={user} 
           balance={currentBalance} 
-          income={totalIncome} 
-          expenses={totalExpenses} 
+          income={monthlyTotalIncome} 
+          expenses={monthlyTotalExpenses} 
         />
       )}
 
@@ -477,9 +508,9 @@ export default function DashboardClient({ user, initialSalary, initialTransactio
         {(activeTab === 'analysis' || !isMobile) && (
           <div className="lg:col-span-2">
             <Charts 
-              categoryData={categoryChartData ?? byCategory} 
-              income={totalIncome} 
-              expenses={totalExpenses} 
+              categoryData={categoryChartData ?? monthlyByCategory} 
+              income={monthlyTotalIncome} 
+              expenses={monthlyTotalExpenses} 
               lastMonthIncome={lastMonthIncome}
               lastMonthExpenses={lastMonthExpenses}
               hideValues={hideValues}
@@ -505,8 +536,8 @@ export default function DashboardClient({ user, initialSalary, initialTransactio
       {/* 4. BOTTOM SECTION: Recent transactions list - Overview Tab on Mobile */}
       {(activeTab === 'overview' || !isMobile) && (
         <TransactionList 
-          title="Movimentações Recentes" 
-          transactions={recent} 
+          title={`Movimentações de ${formattedMonth}`} 
+          transactions={filteredTransactions.slice(0, 10)} 
           onDeleted={handleDeleted}
           onEdit={(tx) => {
             setEditingTransaction(tx);

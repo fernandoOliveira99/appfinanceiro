@@ -43,8 +43,35 @@ export default function FinanceCards({
     return `${day}/${month}, ${hours}:${minutes}`;
   };
 
+  const monthlyBalance = totalIncome - totalExpenses;
+
   return (
     <div className="w-full space-y-4 md:space-y-6">
+      {/* Card de Saldo Geral (Acumulado) */}
+      <div className={`${theme.cardStyles.base} rounded-[2rem] p-6 md:p-8 shadow-2xl border border-slate-200 dark:border-slate-800/40 bg-white dark:bg-gradient-to-br dark:from-slate-900 dark:to-slate-950 hover:border-violet-500/30 transition-all duration-500 group relative overflow-hidden`}>
+        <div className="absolute top-0 right-0 p-4 opacity-[0.03] dark:opacity-[0.07] group-hover:scale-110 transition-transform duration-700">
+          <DollarSign size={120} className="text-slate-900 dark:text-white" />
+        </div>
+        <div className="relative z-10 flex items-center justify-between">
+          <div className="flex items-center gap-4">
+            <div className="h-12 w-12 md:h-16 md:w-16 rounded-2xl md:rounded-3xl bg-violet-500/10 flex items-center justify-center text-2xl md:text-4xl shadow-inner border border-violet-500/20">💰</div>
+            <div>
+              <p className="text-[10px] md:text-xs font-black uppercase tracking-[0.2em] text-slate-500 dark:text-slate-400">Saldo Geral (Conta)</p>
+              <h2 className={`text-2xl md:text-5xl font-black ${saldo >= 0 ? "text-emerald-600 dark:text-emerald-400" : "text-rose-600 dark:text-rose-400"} tracking-tight mt-1`}>
+                {formatCurrencyBRL(saldo, hideValues)}
+              </h2>
+            </div>
+          </div>
+          <button 
+            onClick={() => setShowHistory(!showHistory)}
+            className={`p-3 md:p-4 rounded-2xl transition-all ${showHistory ? 'bg-violet-600 text-white shadow-lg shadow-violet-600/20' : 'bg-slate-100 dark:bg-slate-800 text-slate-500 hover:text-violet-500 border border-slate-200 dark:border-slate-700'} active:scale-95`}
+            title="Histórico"
+          >
+            <History size={24} />
+          </button>
+        </div>
+      </div>
+
       <section id="balance-area" className="grid grid-cols-2 md:grid-cols-2 gap-3 md:gap-6">
         {/* Card de Saldo Total */}
         <div className={`${theme.cardStyles.base} rounded-3xl md:rounded-[2rem] p-3 md:p-8 shadow-2xl border border-slate-200 dark:border-slate-800/40 bg-white dark:bg-gradient-to-br dark:from-slate-900 dark:to-slate-950 hover:border-violet-500/30 transition-all duration-500 group relative overflow-hidden flex flex-col justify-between min-h-[110px] md:min-h-0`}>
@@ -57,28 +84,23 @@ export default function FinanceCards({
               <div className="flex items-center gap-2 md:gap-3 min-w-0">
                 <div className="h-7 w-7 md:h-12 md:w-12 rounded-lg md:rounded-2xl bg-violet-500/10 flex items-center justify-center text-sm md:text-2xl shadow-inner border border-violet-500/20 shrink-0">💰</div>
                 <div className="min-w-0 flex-1">
-                  <p className="text-[7px] md:text-xs font-black uppercase tracking-tighter md:tracking-[0.2em] text-slate-500 dark:text-slate-400 leading-none">Saldo</p>
-                  <h3 className={`text-sm xs:text-base md:text-5xl font-black ${saldo >= 0 ? "text-emerald-600 dark:text-emerald-400" : "text-rose-600 dark:text-rose-400"} tracking-tight mt-0.5 md:mt-1 truncate leading-tight whitespace-nowrap`}>
-                    {formatCurrencyBRL(saldo, hideValues)}
+                  <p className="text-[7px] md:text-xs font-black uppercase tracking-tighter md:tracking-[0.2em] text-slate-500 dark:text-slate-400 leading-none">Saldo (Mês)</p>
+                  <h3 className={`text-sm xs:text-base md:text-4xl font-black ${monthlyBalance >= 0 ? "text-emerald-600 dark:text-emerald-500" : "text-rose-600 dark:text-rose-500"} mt-0.5 md:mt-1 truncate leading-tight whitespace-nowrap`}>
+                    {formatCurrencyBRL(monthlyBalance, hideValues)}
                   </h3>
                 </div>
               </div>
               
-              <div className="flex items-center gap-1.5 md:gap-2 shrink-0 mt-auto">
-                <button 
-                  onClick={onAddIncome}
-                  className="p-2 md:p-2.5 rounded-lg md:rounded-xl bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 hover:bg-emerald-500/20 transition-all active:scale-95 border border-emerald-500/20 shadow-sm flex items-center justify-center aspect-square"
-                  title="Adicionar"
-                >
-                  <Plus size={18} className="md:w-5 md:h-5" />
-                </button>
-                <button 
-                  onClick={() => setShowHistory(!showHistory)}
-                  className={`p-2 md:p-2.5 rounded-lg md:rounded-xl transition-all ${showHistory ? 'bg-violet-600 text-white shadow-lg' : 'bg-slate-100 dark:bg-slate-800 text-slate-500 hover:text-violet-500 border border-slate-200 dark:border-slate-700'} active:scale-95 flex items-center justify-center aspect-square`}
-                  title="Histórico"
-                >
-                  <History size={18} className="md:w-5 md:h-5" />
-                </button>
+              <div className="flex flex-col gap-2">
+                <div className="flex justify-start">
+                  <button 
+                    onClick={onAddIncome}
+                    className="p-2 md:p-2.5 rounded-lg md:rounded-xl bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 hover:bg-emerald-500/20 transition-all active:scale-95 border border-emerald-500/20 shadow-sm flex items-center justify-center aspect-square"
+                    title="Adicionar"
+                  >
+                    <Plus size={18} className="md:w-5 md:h-5" />
+                  </button>
+                </div>
               </div>
             </div>
           </div>
@@ -90,7 +112,7 @@ export default function FinanceCards({
             <div className="flex items-center gap-2 md:gap-4 min-w-0">
               <div className="h-7 w-7 md:h-12 md:w-12 rounded-lg md:rounded-2xl bg-rose-500/10 flex items-center justify-center text-sm md:text-2xl shadow-inner border border-rose-500/20 shrink-0">📉</div>
               <div className="min-w-0 flex-1">
-                <p className="text-[7px] md:text-xs font-black uppercase tracking-tighter md:tracking-[0.2em] text-slate-500 dark:text-slate-400 leading-none">Despesas</p>
+                <p className="text-[7px] md:text-xs font-black uppercase tracking-tighter md:tracking-[0.2em] text-slate-500 dark:text-slate-400 leading-none">Despesas (Mês)</p>
                 <h3 className="text-sm xs:text-base md:text-4xl font-black text-rose-600 dark:text-rose-500 mt-0.5 md:mt-1 truncate leading-tight whitespace-nowrap">
                   {formatCurrencyBRL(totalExpenses, hideValues)}
                 </h3>
@@ -204,38 +226,40 @@ export default function FinanceCards({
         </motion.section>
       )}
 
-      {/* Previsão de Saldo (Forecast) */}
-      <section id="forecast-section" className={`${theme.cardStyles.base} rounded-[2rem] p-6 shadow-xl border border-slate-200 dark:border-slate-800/40 bg-white dark:bg-gradient-to-r dark:from-slate-900 dark:via-slate-900 dark:to-indigo-950/30 hover:shadow-2xl transition-all duration-500 group overflow-hidden relative`}>
-        <div className="absolute top-0 right-0 p-4 opacity-5 group-hover:opacity-10 transition-opacity duration-700">
-          <div className="text-6xl font-black italic select-none text-slate-900 dark:text-white">FORECAST</div>
-        </div>
-        
-        <div className="flex flex-col md:flex-row md:items-center justify-between gap-6 relative z-10">
-          <div className="space-y-1">
-            <h3 className="text-lg font-bold text-slate-900 dark:text-white flex items-center gap-2">
-              🔮 Previsão para o fim do mês
-            </h3>
-            <p className="text-xs text-slate-500 dark:text-slate-400 font-medium">
-              Baseado na sua média de gastos diários e dias restantes no mês.
-            </p>
+      {/* Previsão de Saldo (Forecast) - Apenas para o mês atual */}
+      {forecastBalance !== null && (
+        <section id="forecast-section" className={`${theme.cardStyles.base} rounded-[2rem] p-6 shadow-xl border border-slate-200 dark:border-slate-800/40 bg-white dark:bg-gradient-to-r dark:from-slate-900 dark:via-slate-900 dark:to-indigo-950/30 hover:shadow-2xl transition-all duration-500 group overflow-hidden relative`}>
+          <div className="absolute top-0 right-0 p-4 opacity-5 group-hover:opacity-10 transition-opacity duration-700">
+            <div className="text-6xl font-black italic select-none text-slate-900 dark:text-white">FORECAST</div>
           </div>
           
-          <div className="flex items-center gap-8">
-            <div className="text-right border-r border-slate-200 dark:border-slate-800 pr-8 hidden sm:block">
-              <p className="text-[10px] font-bold uppercase tracking-widest text-slate-500 mb-1">Saldo Atual</p>
-              <h4 className={`text-lg font-bold ${saldo >= 0 ? "text-emerald-600 dark:text-emerald-400/80" : "text-rose-600 dark:text-rose-400/80"}`}>
-                {formatCurrencyBRL(saldo, hideValues)}
-              </h4>
+          <div className="flex flex-col md:flex-row md:items-center justify-between gap-6 relative z-10">
+            <div className="space-y-1">
+              <h3 className="text-lg font-bold text-slate-900 dark:text-white flex items-center gap-2">
+                🔮 Previsão para o fim do mês
+              </h3>
+              <p className="text-xs text-slate-500 dark:text-slate-400 font-medium">
+                Baseado na sua média de gastos diários e dias restantes no mês.
+              </p>
             </div>
-            <div className="text-right">
-              <p className="text-[10px] font-bold uppercase tracking-widest text-slate-500 mb-1">Previsão no fim do mês</p>
-              <h4 className={`text-2xl font-black ${forecastBalance >= 0 ? "text-violet-600 dark:text-violet-400" : "text-rose-600 dark:text-rose-500 animate-pulse"}`}>
-                {formatCurrencyBRL(forecastBalance, hideValues)}
-              </h4>
+            
+            <div className="flex items-center gap-8">
+              <div className="text-right border-r border-slate-200 dark:border-slate-800 pr-8 hidden sm:block">
+                <p className="text-[10px] font-bold uppercase tracking-widest text-slate-500 mb-1">Saldo Atual</p>
+                <h4 className={`text-lg font-bold ${saldo >= 0 ? "text-emerald-600 dark:text-emerald-400/80" : "text-rose-600 dark:text-rose-400/80"}`}>
+                  {formatCurrencyBRL(saldo, hideValues)}
+                </h4>
+              </div>
+              <div className="text-right">
+                <p className="text-[10px] font-bold uppercase tracking-widest text-slate-500 mb-1">Previsão no fim do mês</p>
+                <h4 className={`text-2xl font-black ${forecastBalance >= 0 ? "text-violet-600 dark:text-violet-400" : "text-rose-600 dark:text-rose-500 animate-pulse"}`}>
+                  {formatCurrencyBRL(forecastBalance, hideValues)}
+                </h4>
+              </div>
             </div>
           </div>
-        </div>
-      </section>
+        </section>
+      )}
     </div>
   );
 }

@@ -19,9 +19,7 @@ export default function Header() {
           <div className="h-8 w-8 rounded-xl bg-gradient-to-tr from-violet-600 to-indigo-600 flex items-center justify-center text-white shadow-lg shadow-violet-500/20">
             <span className="font-black text-lg">F</span>
           </div>
-          <h1 className="text-sm font-black text-slate-900 dark:text-white tracking-tight uppercase">
-            Finanças App
-          </h1>
+          {/* Nome do app removido conforme solicitado */}
         </Link>
       </div>
     </header>
