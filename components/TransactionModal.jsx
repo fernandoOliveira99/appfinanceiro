@@ -366,14 +366,14 @@ export default function TransactionModal({ open, mode, onClose, onSave, initialD
   }
 
   return (
-    <div className="fixed inset-0 z-[10000] flex items-center justify-center bg-black/70 backdrop-blur-sm px-4 pb-32 sm:pb-0 overflow-y-auto">
-      <div className={`${theme.cardStyles.base} max-w-md w-full shadow-2xl rounded-3xl overflow-hidden my-auto`}>
+    <div className="fixed inset-0 z-[10000] flex items-center justify-center bg-black/70 backdrop-blur-sm px-4 py-6 sm:py-0 overflow-hidden">
+      <div className={`${theme.cardStyles.base} max-w-md w-full max-h-full sm:max-h-[90vh] shadow-2xl rounded-3xl overflow-hidden flex flex-col my-auto`}>
         <form
           onSubmit={handleSubmit}
-          className={`${theme.spacing.cardPadding} space-y-5 md:space-y-6`}
+          className={`${theme.spacing.cardPadding} space-y-4 sm:space-y-6 overflow-y-auto custom-scrollbar`}
         >
-          <div className="flex items-center justify-between">
-            <h2 className={`${theme.typography.sectionTitle} text-xl font-bold text-slate-900 dark:text-white`}>
+          <div className="flex items-center justify-between sticky top-0 bg-inherit z-10 pb-2">
+            <h2 className={`${theme.typography.sectionTitle} text-lg sm:text-xl font-bold text-slate-900 dark:text-white`}>
               {initialData ? "Editar Movimentação" : title}
             </h2>
             <button
