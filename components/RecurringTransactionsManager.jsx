@@ -5,11 +5,14 @@ import { theme } from "@config/design-system";
 import { formatCurrencyBRL, formatDate, getTodayLocalDate } from "@lib/finance-utils";
 import { Repeat, Trash2, Plus, Calendar, DollarSign, Edit2, Info } from "lucide-react";
 
-export default function RecurringTransactionsManager({ transactions = [], hideValues = false }) {
+export default function RecurringTransactionsManager({ transactions = [], selectedDate = new Date(), hideValues = false }) {
   const [recurring, setRecurring] = useState([]);
   const [loading, setLoading] = useState(true);
   const [showAdd, setShowAdd] = useState(false);
   const [editingId, setEditingId] = useState(null);
+  
+  const monthName = selectedDate.toLocaleString('pt-BR', { month: 'long' });
+  const formattedMonth = monthName.charAt(0).toUpperCase() + monthName.slice(1);
   
   // Form state
   const [name, setName] = useState("");
@@ -283,10 +286,10 @@ export default function RecurringTransactionsManager({ transactions = [], hideVa
           <div className="space-y-3 pt-4 border-t border-slate-200 dark:border-slate-800/50">
             <h3 className="text-[10px] font-black uppercase tracking-widest text-rose-600 dark:text-rose-500/80 px-1 flex items-center gap-2">
               <DollarSign size={12} />
-              Despesas Reais do Mês
+              Despesas Reais de {formattedMonth}
             </h3>
             {expenses.length === 0 ? (
-              <p className="text-center py-4 text-xs text-slate-500 italic bg-slate-100 dark:bg-slate-900/20 rounded-2xl border border-dashed border-slate-200 dark:border-slate-800">Nenhuma despesa registrada no dashboard.</p>
+              <p className="text-center py-4 text-xs text-slate-500 italic bg-slate-100 dark:bg-slate-900/20 rounded-2xl border border-dashed border-slate-200 dark:border-slate-800">Nenhuma despesa registrada em {formattedMonth}.</p>
             ) : (
               expenses.slice(0, 5).map((tx) => (
                 <div key={tx.id} className="flex items-center justify-between p-4 rounded-2xl bg-slate-50 dark:bg-slate-950/20 border border-slate-100 dark:border-slate-800/30">

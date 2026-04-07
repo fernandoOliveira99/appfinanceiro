@@ -530,7 +530,11 @@ export default function DashboardClient({ user, initialSalary, initialTransactio
 
       {/* Recurring Transactions Manager - Only on 'Recurring' Tab for mobile, visible on desktop */}
       {(activeTab === 'recurring' || !isMobile) && (
-        <RecurringTransactionsManager transactions={transactions} hideValues={hideValues} />
+        <RecurringTransactionsManager 
+          transactions={filteredTransactions} 
+          selectedDate={selectedDate}
+          hideValues={hideValues} 
+        />
       )}
 
       {/* 4. BOTTOM SECTION: Recent transactions list - Overview Tab on Mobile */}
