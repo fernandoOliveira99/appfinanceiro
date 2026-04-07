@@ -116,6 +116,16 @@ export default function DashboardHeader({ user, onAddIncome, onAddExpense, hideV
     setSelectedDate(newDate);
   };
 
+  const handleResetMonth = () => {
+    setSelectedDate(new Date());
+  };
+
+  const isCurrentMonth = () => {
+    const today = new Date();
+    return selectedDate.getMonth() === today.getMonth() && 
+           selectedDate.getFullYear() === today.getFullYear();
+  };
+
   const monthName = selectedDate.toLocaleString('pt-BR', { month: 'long' });
   const yearName = selectedDate.getFullYear();
   const formattedMonth = monthName.charAt(0).toUpperCase() + monthName.slice(1);
@@ -136,24 +146,36 @@ export default function DashboardHeader({ user, onAddIncome, onAddExpense, hideV
               {/* Branding removido conforme solicitação do usuário */}
               
               {/* Month Selector Pill */}
-              <div className="flex items-center gap-1 bg-slate-100 dark:bg-slate-800/50 rounded-full p-1 border border-slate-200 dark:border-slate-700/50 shadow-inner">
+              <div className="flex items-center gap-1 bg-slate-100 dark:bg-slate-800/50 rounded-2xl p-1 border border-slate-200 dark:border-slate-700/50 shadow-sm transition-all hover:border-violet-500/30">
                 <button 
                   onClick={handlePrevMonth}
-                  className="p-1 rounded-full hover:bg-white dark:hover:bg-slate-700 text-slate-400 hover:text-violet-500 transition-all active:scale-90"
+                  className="p-1.5 rounded-xl hover:bg-white dark:hover:bg-slate-700 text-slate-400 hover:text-violet-500 transition-all active:scale-90"
+                  title="Mês anterior"
                 >
-                  <ChevronLeft size={14} />
+                  <ChevronLeft size={16} />
                 </button>
-                <div className="flex items-center gap-1.5 px-2 min-w-[100px] justify-center">
-                  <Calendar size={10} className="text-violet-500" />
-                  <span className="text-[10px] font-black uppercase tracking-tighter text-slate-700 dark:text-slate-200">
-                    {formattedMonth} {yearName}
-                  </span>
+                <div className="flex flex-col items-center px-3 min-w-[120px] md:min-w-[140px] justify-center">
+                  <div className="flex items-center gap-1.5">
+                    <Calendar size={12} className="text-violet-500" />
+                    <span className="text-[11px] md:text-xs font-black uppercase tracking-widest text-slate-700 dark:text-slate-200">
+                      {formattedMonth} <span className="text-violet-500/50 ml-0.5">{yearName}</span>
+                    </span>
+                  </div>
+                  {!isCurrentMonth() && (
+                    <button 
+                      onClick={handleResetMonth}
+                      className="text-[8px] font-black text-violet-500 uppercase tracking-tighter hover:underline animate-in fade-in slide-in-from-top-1 duration-300"
+                    >
+                      Voltar para hoje
+                    </button>
+                  )}
                 </div>
                 <button 
                   onClick={handleNextMonth}
-                  className="p-1 rounded-full hover:bg-white dark:hover:bg-slate-700 text-slate-400 hover:text-violet-500 transition-all active:scale-90"
+                  className="p-1.5 rounded-xl hover:bg-white dark:hover:bg-slate-700 text-slate-400 hover:text-violet-500 transition-all active:scale-90"
+                  title="Próximo mês"
                 >
-                  <ChevronRight size={14} />
+                  <ChevronRight size={16} />
                 </button>
               </div>
             </div>
@@ -161,28 +183,29 @@ export default function DashboardHeader({ user, onAddIncome, onAddExpense, hideV
             <div className="flex items-center gap-2">
               <button
                 onClick={onToggleHideValues}
-                className={`group p-1.5 md:p-2 rounded-xl md:rounded-2xl border transition-all shadow-sm ${
+                className={`group p-2 md:p-3 rounded-xl md:rounded-2xl border transition-all shadow-sm active:scale-95 ${
                   hideValues 
-                    ? 'bg-rose-500/10 border-rose-500/20 text-rose-500' 
-                    : 'bg-slate-50 dark:bg-slate-800 border-slate-200 dark:border-slate-700 text-slate-500 dark:text-slate-400 hover:text-violet-600 dark:hover:text-violet-400'
+                    ? 'bg-rose-500/10 border-rose-500/20 text-rose-500 ring-4 ring-rose-500/5' 
+                    : 'bg-slate-50 dark:bg-slate-800 border-slate-200 dark:border-slate-700 text-slate-500 dark:text-slate-400 hover:text-violet-600 dark:hover:text-violet-400 hover:border-violet-500/30'
                 }`}
                 title={hideValues ? "Mostrar valores" : "Ocultar valores"}
               >
-                {hideValues ? <EyeOff size={14} className="md:w-4 md:h-4" /> : <Eye size={14} className="md:w-4 md:h-4" />}
+                {hideValues ? <EyeOff size={18} /> : <Eye size={18} />}
               </button>
 
               <button
                 onClick={toggleTheme}
-                className="group p-1.5 md:p-2 rounded-xl md:rounded-2xl bg-slate-50 dark:bg-slate-800 text-slate-500 dark:text-slate-400 hover:text-violet-600 dark:hover:text-violet-400 transition-all border border-slate-200 dark:border-slate-700 shadow-sm"
+                className="group p-2 md:p-3 rounded-xl md:rounded-2xl bg-slate-50 dark:bg-slate-800 text-slate-500 dark:text-slate-400 hover:text-violet-600 dark:hover:text-violet-400 transition-all border border-slate-200 dark:border-slate-700 shadow-sm active:scale-95 hover:border-violet-500/30"
+                title={isDark ? "Modo Claro" : "Modo Escuro"}
               >
-                {isDark ? <Sun size={14} className="md:w-4 md:h-4" /> : <Moon size={14} className="md:w-4 md:h-4" />}
+                {isDark ? <Sun size={18} /> : <Moon size={18} />}
               </button>
             </div>
           </div>
-          <h1 className="text-2xl md:text-5xl font-black text-slate-900 dark:text-white tracking-tight truncate max-w-full">
+          <h1 className="text-3xl md:text-6xl font-black text-slate-900 dark:text-white tracking-tighter truncate max-w-full drop-shadow-sm">
             Olá, {capitalizedName} 👋
           </h1>
-          <p className="text-[10px] md:text-base text-slate-500 dark:text-slate-400 max-w-lg font-medium">
+          <p className="text-xs md:text-base text-slate-500 dark:text-slate-400 max-w-lg font-medium leading-relaxed">
             Acompanhe seus gastos e metas em um só lugar.
           </p>
         </div>

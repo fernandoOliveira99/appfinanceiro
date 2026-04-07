@@ -15,6 +15,12 @@ export default function FinancialHealthScore({ transactions, goals }) {
     const expenses = transactions.filter(t => t.type === 'expense').reduce((acc, t) => acc + Number(t.amount), 0);
     const balance = income - expenses;
 
+    // Se não houver movimentações no mês, o score deve refletir "Em Análise" (0)
+    if (income === 0 && expenses === 0) {
+      setScore(0);
+      return;
+    }
+
     // 1. Saldo Positivo (até 40 pontos)
     if (balance > 0) currentScore += 20;
     if (balance > income * 0.2) currentScore += 20;
@@ -22,14 +28,19 @@ export default function FinancialHealthScore({ transactions, goals }) {
     // 2. Controle de Gastos (até 30 pontos)
     if (income > 0 && expenses < income * 0.8) currentScore += 30;
     else if (income > 0 && expenses < income) currentScore += 15;
+    // Se tiver apenas despesas (income 0), não ganha pontos aqui
 
     // 3. Metas (até 30 pontos)
     if (goals.length > 0) {
-      const avgProgress = goals.reduce((acc, g) => acc + (g.current_amount / g.target_amount), 0) / goals.length;
-      currentScore += Math.min(30, Math.floor(avgProgress * 30));
+      const activeGoals = goals.filter(g => g.target_amount > 0);
+      if (activeGoals.length > 0) {
+        const avgProgress = activeGoals.reduce((acc, g) => acc + (g.current_amount / g.target_amount), 0) / activeGoals.length;
+        currentScore += Math.min(30, Math.floor(avgProgress * 30));
+      }
     }
 
-    setScore(currentScore);
+    // Garante um score mínimo de 1 se houver alguma movimentação, para não cair no estado "Em Análise"
+    setScore(Math.max(1, currentScore));
   }, [transactions, goals]);
 
   const getScoreInfo = () => {
@@ -38,7 +49,7 @@ export default function FinancialHealthScore({ transactions, goals }) {
       color: "text-slate-500",
       bg: "bg-slate-500/10",
       icon: Shield,
-      tip: "Continue lançando suas movimentações para que possamos calcular sua saúde financeira."
+      tip: "Novo mês iniciado! Adicione suas receitas e despesas para calcularmos sua saúde financeira."
     };
     if (score >= 80) return { 
       label: "Excelente", 
