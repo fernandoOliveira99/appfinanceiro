@@ -428,109 +428,113 @@ export default function TransactionModal({ open, mode, onClose, onSave, initialD
               />
             </div>
 
-            <div className="flex flex-col gap-1.5">
-              <div className="flex items-center justify-between">
-                <label className="text-xs font-semibold uppercase tracking-wider text-slate-500 dark:text-slate-400 ml-1">Categoria</label>
-                {!isAddingNewCategory && (
-                  <button 
+            {!isIncome && (
+              <div className="flex flex-col gap-1.5">
+                <div className="flex items-center justify-between">
+                  <label className="text-xs font-semibold uppercase tracking-wider text-slate-500 dark:text-slate-400 ml-1">Categoria</label>
+                  {!isAddingNewCategory && (
+                    <button 
+                      type="button"
+                      onClick={() => setIsAddingNewCategory(true)}
+                      className="text-[10px] font-black uppercase tracking-widest text-violet-500 hover:text-violet-400 transition-colors flex items-center gap-1"
+                    >
+                      <Plus size={12} />
+                      Nova Categoria
+                    </button>
+                  )}
+                </div>
+
+                {isAddingNewCategory ? (
+                  <div className="flex gap-2 animate-in slide-in-from-right-2 duration-200">
+                    <div className="relative flex-1">
+                      <input
+                        type="text"
+                        autoFocus
+                        value={newCategoryName}
+                        onChange={(e) => setNewCategoryName(e.target.value)}
+                        placeholder="Nome da categoria..."
+                        className="w-full bg-slate-100 dark:bg-slate-900/50 border border-slate-200 dark:border-slate-700/50 rounded-2xl px-4 py-3 text-sm font-bold text-slate-900 dark:text-white placeholder:text-slate-400 focus:ring-2 focus:ring-violet-500/20 focus:border-violet-500 outline-none transition-all"
+                        onKeyDown={(e) => {
+                          if (e.key === 'Enter') { e.preventDefault(); handleSaveCategory(); }
+                          if (e.key === 'Escape') setIsAddingNewCategory(false);
+                        }}
+                      />
+                    </div>
+                    <button
+                      type="button"
+                      onClick={handleSaveCategory}
+                      disabled={isSavingCategory || !newCategoryName.trim()}
+                      className="p-3 rounded-2xl bg-violet-600 text-white hover:bg-violet-500 disabled:opacity-50 disabled:cursor-not-allowed transition-all shadow-lg shadow-violet-600/20 flex items-center justify-center min-w-[48px]"
+                    >
+                      {isSavingCategory ? <Loader2 size={18} className="animate-spin" /> : <Check size={18} />}
+                    </button>
+                    <button
+                      type="button"
+                      onClick={() => setIsAddingNewCategory(false)}
+                      className="p-3 rounded-2xl bg-slate-100 dark:bg-slate-800 text-slate-500 hover:bg-slate-200 dark:hover:bg-slate-700 transition-all flex items-center justify-center min-w-[48px]"
+                    >
+                      <X size={18} />
+                    </button>
+                  </div>
+                ) : (
+                  <div className="relative group">
+                    <div className="flex gap-2">
+                      <div className="relative flex-1">
+                        <select
+                          className="w-full bg-slate-100 dark:bg-slate-900/50 border border-slate-200 dark:border-slate-700/50 rounded-2xl px-4 py-3 text-sm text-slate-900 dark:text-white outline-none focus:border-violet-500/50 focus:ring-2 focus:ring-violet-500/10 transition-all appearance-none cursor-pointer group-hover:bg-slate-200/50 dark:group-hover:bg-slate-800/50"
+                          value={category}
+                          onChange={(e) => setCategory(e.target.value)}
+                          required
+                        >
+                          {categoriesList.map((cat) => (
+                            <option key={cat} value={cat} className="bg-white dark:bg-slate-900 text-slate-900 dark:text-white">
+                              {cat}
+                            </option>
+                          ))}
+                        </select>
+                        <div className="absolute right-4 top-1/2 -translate-y-1/2 pointer-events-none text-slate-400 group-hover:text-violet-500 transition-colors">
+                          <ChevronDown size={16} />
+                        </div>
+                      </div>
+                      
+                      {/* Botão de Excluir Categoria (apenas para customizadas) */}
+                      {customCategories.some(c => c.name === category) && (
+                        <button
+                          type="button"
+                          onClick={() => handleDeleteCategory(category)}
+                          className="p-3 rounded-2xl bg-rose-500/10 text-rose-500 hover:bg-rose-500 hover:text-white transition-all flex items-center justify-center min-w-[48px] border border-rose-500/20"
+                          title="Excluir categoria"
+                        >
+                          <Trash2 size={18} />
+                        </button>
+                      )}
+                    </div>
+                  </div>
+                )}
+                {suggestion && !isAddingNewCategory && (
+                  <button
                     type="button"
-                    onClick={() => setIsAddingNewCategory(true)}
-                    className="text-[10px] font-black uppercase tracking-widest text-violet-500 hover:text-violet-400 transition-colors flex items-center gap-1"
+                    onClick={applySuggestion}
+                    className="text-[10px] font-black text-violet-600 dark:text-violet-400 uppercase tracking-widest mt-1 ml-1 hover:text-violet-500 dark:hover:text-violet-300 transition-colors flex items-center gap-1"
                   >
-                    <Plus size={12} />
-                    Nova Categoria
+                    <Sparkles size={10} className="fill-violet-600 dark:fill-violet-400" />
+                    Sugerimos: {suggestion} (Clique para aplicar)
                   </button>
                 )}
               </div>
+            )}
 
-              {isAddingNewCategory ? (
-                <div className="flex gap-2 animate-in slide-in-from-right-2 duration-200">
-                  <div className="relative flex-1">
-                    <input
-                      type="text"
-                      autoFocus
-                      value={newCategoryName}
-                      onChange={(e) => setNewCategoryName(e.target.value)}
-                      placeholder="Nome da categoria..."
-                      className="w-full bg-slate-100 dark:bg-slate-900/50 border border-slate-200 dark:border-slate-700/50 rounded-2xl px-4 py-3 text-sm font-bold text-slate-900 dark:text-white placeholder:text-slate-400 focus:ring-2 focus:ring-violet-500/20 focus:border-violet-500 outline-none transition-all"
-                      onKeyDown={(e) => {
-                        if (e.key === 'Enter') { e.preventDefault(); handleSaveCategory(); }
-                        if (e.key === 'Escape') setIsAddingNewCategory(false);
-                      }}
-                    />
-                  </div>
-                  <button
-                    type="button"
-                    onClick={handleSaveCategory}
-                    disabled={isSavingCategory || !newCategoryName.trim()}
-                    className="p-3 rounded-2xl bg-violet-600 text-white hover:bg-violet-500 disabled:opacity-50 disabled:cursor-not-allowed transition-all shadow-lg shadow-violet-600/20 flex items-center justify-center min-w-[48px]"
-                  >
-                    {isSavingCategory ? <Loader2 size={18} className="animate-spin" /> : <Check size={18} />}
-                  </button>
-                  <button
-                    type="button"
-                    onClick={() => setIsAddingNewCategory(false)}
-                    className="p-3 rounded-2xl bg-slate-100 dark:bg-slate-800 text-slate-500 hover:bg-slate-200 dark:hover:bg-slate-700 transition-all flex items-center justify-center min-w-[48px]"
-                  >
-                    <X size={18} />
-                  </button>
-                </div>
-              ) : (
-                <div className="relative group">
-                  <div className="flex gap-2">
-                    <div className="relative flex-1">
-                      <select
-                        className="w-full bg-slate-100 dark:bg-slate-900/50 border border-slate-200 dark:border-slate-700/50 rounded-2xl px-4 py-3 text-sm text-slate-900 dark:text-white outline-none focus:border-violet-500/50 focus:ring-2 focus:ring-violet-500/10 transition-all appearance-none cursor-pointer group-hover:bg-slate-200/50 dark:group-hover:bg-slate-800/50"
-                        value={category}
-                        onChange={(e) => setCategory(e.target.value)}
-                        required
-                      >
-                        {categoriesList.map((cat) => (
-                          <option key={cat} value={cat} className="bg-white dark:bg-slate-900 text-slate-900 dark:text-white">
-                            {cat}
-                          </option>
-                        ))}
-                      </select>
-                      <div className="absolute right-4 top-1/2 -translate-y-1/2 pointer-events-none text-slate-400 group-hover:text-violet-500 transition-colors">
-                        <ChevronDown size={16} />
-                      </div>
-                    </div>
-                    
-                    {/* Botão de Excluir Categoria (apenas para customizadas) */}
-                    {customCategories.some(c => c.name === category) && (
-                      <button
-                        type="button"
-                        onClick={() => handleDeleteCategory(category)}
-                        className="p-3 rounded-2xl bg-rose-500/10 text-rose-500 hover:bg-rose-500 hover:text-white transition-all flex items-center justify-center min-w-[48px] border border-rose-500/20"
-                        title="Excluir categoria"
-                      >
-                        <Trash2 size={18} />
-                      </button>
-                    )}
-                  </div>
-                </div>
-              )}
-              {suggestion && !isAddingNewCategory && (
-                <button
-                  type="button"
-                  onClick={applySuggestion}
-                  className="text-[10px] font-black text-violet-600 dark:text-violet-400 uppercase tracking-widest mt-1 ml-1 hover:text-violet-500 dark:hover:text-violet-300 transition-colors flex items-center gap-1"
-                >
-                  <Sparkles size={10} className="fill-violet-600 dark:fill-violet-400" />
-                  Sugerimos: {suggestion} (Clique para aplicar)
-                </button>
-              )}
-            </div>
-
-            <div className="flex flex-col gap-1.5">
-              <label className="text-xs font-semibold uppercase tracking-wider text-slate-500 dark:text-slate-400 ml-1">Descrição</label>
-              <input
-                className="bg-slate-100 dark:bg-slate-900/50 border border-slate-200 dark:border-slate-700/50 rounded-2xl px-4 py-3 text-sm text-slate-900 dark:text-white outline-none focus:border-violet-500/50 focus:ring-2 focus:ring-violet-500/10 transition-all placeholder:text-slate-400 dark:placeholder:text-slate-700"
-                value={description}
-                onChange={(e) => setDescription(e.target.value)}
-                placeholder={isIncome ? "Ex: Salário Mensal, Freelance..." : "Ex: Almoço, Supermercado..."}
-              />
-            </div>
+            {!isIncome && (
+              <div className="flex flex-col gap-1.5">
+                <label className="text-xs font-semibold uppercase tracking-wider text-slate-500 dark:text-slate-400 ml-1">Descrição</label>
+                <input
+                  className="bg-slate-100 dark:bg-slate-900/50 border border-slate-200 dark:border-slate-700/50 rounded-2xl px-4 py-3 text-sm text-slate-900 dark:text-white outline-none focus:border-violet-500/50 focus:ring-2 focus:ring-violet-500/10 transition-all placeholder:text-slate-400 dark:placeholder:text-slate-700"
+                  value={description}
+                  onChange={(e) => setDescription(e.target.value)}
+                  placeholder={isIncome ? "Ex: Salário Mensal, Freelance..." : "Ex: Almoço, Supermercado..."}
+                />
+              </div>
+            )}
 
             <div className="flex flex-col gap-1.5">
               <label className="text-xs font-semibold uppercase tracking-wider text-slate-500 dark:text-slate-400 ml-1">
