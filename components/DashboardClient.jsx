@@ -540,7 +540,7 @@ export default function DashboardClient({ user, initialSalary, initialTransactio
       {/* 4. BOTTOM SECTION: Recent transactions list - Overview Tab on Mobile */}
       {(activeTab === 'overview' || !isMobile) && (
         <TransactionList 
-          title={formattedMonth} 
+          title="Minhas Atividades" 
           transactions={transactions} 
           selectedDate={selectedDate}
           onDeleted={handleDeleted}

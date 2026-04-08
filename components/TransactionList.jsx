@@ -98,24 +98,30 @@ export default function TransactionList({ title, transactions, onDeleted, onEdit
 
               {timeFilter === 'month' && (
                 <div className="flex items-center gap-2 animate-in fade-in slide-in-from-left-2 duration-300 w-full sm:w-auto">
-                  <select
-                    value={localSelectedMonth}
-                    onChange={(e) => setLocalSelectedMonth(parseInt(e.target.value))}
-                    className="flex-1 sm:flex-none bg-slate-100 dark:bg-slate-950 border border-slate-200 dark:border-slate-800 rounded-xl px-2 py-1.5 text-[10px] font-bold text-slate-700 dark:text-slate-200 outline-none focus:border-violet-500/50"
-                  >
-                    {months.map((m, i) => (
-                      <option key={m} value={i}>{m}</option>
-                    ))}
-                  </select>
-                  <select
-                    value={localSelectedYear}
-                    onChange={(e) => setLocalSelectedYear(parseInt(e.target.value))}
-                    className="flex-1 sm:flex-none bg-slate-100 dark:bg-slate-950 border border-slate-200 dark:border-slate-800 rounded-xl px-2 py-1.5 text-[10px] font-bold text-slate-700 dark:text-slate-200 outline-none focus:border-violet-500/50"
-                  >
-                    {years.map((y) => (
-                      <option key={y} value={y}>{y}</option>
-                    ))}
-                  </select>
+                  <div className="flex flex-col gap-0.5 flex-1 sm:flex-none">
+                    <label className="text-[8px] font-black uppercase tracking-tighter text-slate-500 ml-1">Mês</label>
+                    <select
+                      value={localSelectedMonth}
+                      onChange={(e) => setLocalSelectedMonth(parseInt(e.target.value))}
+                      className="w-full bg-slate-100 dark:bg-slate-950 border border-slate-200 dark:border-slate-800 rounded-xl px-2 py-1.5 text-[10px] font-bold text-slate-700 dark:text-slate-200 outline-none focus:border-violet-500/50 transition-all"
+                    >
+                      {months.map((m, i) => (
+                        <option key={m} value={i}>{m}</option>
+                      ))}
+                    </select>
+                  </div>
+                  <div className="flex flex-col gap-0.5 flex-1 sm:flex-none">
+                    <label className="text-[8px] font-black uppercase tracking-tighter text-slate-500 ml-1">Ano</label>
+                    <select
+                      value={localSelectedYear}
+                      onChange={(e) => setLocalSelectedYear(parseInt(e.target.value))}
+                      className="w-full bg-slate-100 dark:bg-slate-950 border border-slate-200 dark:border-slate-800 rounded-xl px-2 py-1.5 text-[10px] font-bold text-slate-700 dark:text-slate-200 outline-none focus:border-violet-500/50 transition-all"
+                    >
+                      {years.map((y) => (
+                        <option key={y} value={y}>{y}</option>
+                      ))}
+                    </select>
+                  </div>
                 </div>
               )}
             </div>
