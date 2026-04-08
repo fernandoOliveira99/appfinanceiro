@@ -1,11 +1,22 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { theme } from "@config/design-system";
 import { Trash2, Edit2 } from "lucide-react";
 import { formatDate } from "@lib/finance-utils";
 
-export default function TransactionList({ title, transactions, onDeleted, onEdit, hideValues = false }) {
+export default function TransactionList({ title, transactions, onDeleted, onEdit, hideValues = false, selectedDate = new Date() }) {
   const [searchTerm, setSearchString] = useState("");
   const [filter, setFilter] = useState("all"); // 'all' | 'income' | 'expense'
+  const [timeFilter, setTimeFilter] = useState("month"); // 'month' | 'all'
+  
+  // Estado local para o mês e ano selecionados no filtro manual da lista
+  const [localSelectedMonth, setLocalSelectedMonth] = useState(selectedDate.getMonth());
+  const [localSelectedYear, setLocalSelectedYear] = useState(selectedDate.getFullYear());
+
+  // Atualiza o filtro local quando o dashboard muda a data global
+  useEffect(() => {
+    setLocalSelectedMonth(selectedDate.getMonth());
+    setLocalSelectedYear(selectedDate.getFullYear());
+  }, [selectedDate]);
 
   const filteredTransactions = transactions.filter(tx => {
     const name = tx.name || tx.description || "";
@@ -13,8 +24,26 @@ export default function TransactionList({ title, transactions, onDeleted, onEdit
     const matchesSearch = name.toLowerCase().includes(searchTerm.toLowerCase()) || 
                          category.toLowerCase().includes(searchTerm.toLowerCase());
     const matchesFilter = filter === "all" || tx.type === filter;
-    return matchesSearch && matchesFilter;
+    
+    // Filtro de tempo
+    let matchesTime = true;
+    if (timeFilter === "month") {
+      const txDate = new Date(tx.date || tx.created_at);
+      matchesTime = txDate.getMonth() === localSelectedMonth && 
+                    txDate.getFullYear() === localSelectedYear;
+    }
+    
+    return matchesSearch && matchesFilter && matchesTime;
   });
+
+  const months = [
+    "Janeiro", "Fevereiro", "Março", "Abril", "Maio", "Junho",
+    "Julho", "Agosto", "Setembro", "Outubro", "Novembro", "Dezembro"
+  ];
+
+  // Gera uma lista de anos (do ano atual até 2 anos atrás)
+  const currentYear = new Date().getFullYear();
+  const years = Array.from({ length: 5 }, (_, i) => currentYear - 2 + i);
 
   const formatCurrencyBRL = (value) => {
     if (hideValues) return "R$ ••••••";
@@ -46,6 +75,51 @@ export default function TransactionList({ title, transactions, onDeleted, onEdit
           </div>
 
           <div className="flex flex-col sm:flex-row items-center gap-3">
+            {/* Time Filter Buttons */}
+            <div className="flex flex-col sm:flex-row items-center gap-2 w-full sm:w-auto">
+              <div className="flex bg-slate-100 dark:bg-slate-950 p-1 rounded-xl w-full sm:w-auto">
+                {[
+                  { id: 'month', label: 'Filtrar por Mês' },
+                  { id: 'all', label: 'Todos os Meses' }
+                ].map((tf) => (
+                  <button
+                    key={tf.id}
+                    onClick={() => setTimeFilter(tf.id)}
+                    className={`flex-1 sm:flex-none px-3 py-1.5 rounded-lg text-[9px] font-black uppercase tracking-widest transition-all ${
+                      timeFilter === tf.id 
+                      ? 'bg-white dark:bg-slate-800 text-violet-600 dark:text-white shadow-sm' 
+                      : 'text-slate-400 dark:text-slate-500 hover:text-slate-600'
+                    }`}
+                  >
+                    {tf.label}
+                  </button>
+                ))}
+              </div>
+
+              {timeFilter === 'month' && (
+                <div className="flex items-center gap-2 animate-in fade-in slide-in-from-left-2 duration-300 w-full sm:w-auto">
+                  <select
+                    value={localSelectedMonth}
+                    onChange={(e) => setLocalSelectedMonth(parseInt(e.target.value))}
+                    className="flex-1 sm:flex-none bg-slate-100 dark:bg-slate-950 border border-slate-200 dark:border-slate-800 rounded-xl px-2 py-1.5 text-[10px] font-bold text-slate-700 dark:text-slate-200 outline-none focus:border-violet-500/50"
+                  >
+                    {months.map((m, i) => (
+                      <option key={m} value={i}>{m}</option>
+                    ))}
+                  </select>
+                  <select
+                    value={localSelectedYear}
+                    onChange={(e) => setLocalSelectedYear(parseInt(e.target.value))}
+                    className="flex-1 sm:flex-none bg-slate-100 dark:bg-slate-950 border border-slate-200 dark:border-slate-800 rounded-xl px-2 py-1.5 text-[10px] font-bold text-slate-700 dark:text-slate-200 outline-none focus:border-violet-500/50"
+                  >
+                    {years.map((y) => (
+                      <option key={y} value={y}>{y}</option>
+                    ))}
+                  </select>
+                </div>
+              )}
+            </div>
+
             {/* Search Input */}
             <div className="relative w-full sm:w-64">
               <input 
