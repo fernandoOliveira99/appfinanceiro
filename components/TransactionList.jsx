@@ -1,6 +1,6 @@
 import { useState, useEffect } from "react";
 import { theme } from "@config/design-system";
-import { Trash2, Edit2 } from "lucide-react";
+import { Trash2, Edit2, WifiOff } from "lucide-react";
 import { formatDate } from "@lib/finance-utils";
 
 export default function TransactionList({ title, transactions, onDeleted, onEdit, hideValues = false, selectedDate = new Date() }) {
@@ -183,7 +183,15 @@ export default function TransactionList({ title, transactions, onDeleted, onEdit
                     {tx.type === 'income' ? '💰' : '💸'}
                   </div>
                   <div>
-                    <p className="text-sm font-bold text-slate-900 dark:text-slate-100 line-clamp-1">{tx.name || tx.description}</p>
+                    <div className="flex items-center gap-2">
+                      <p className="text-sm font-bold text-slate-900 dark:text-slate-100 line-clamp-1">{tx.name || tx.description}</p>
+                      {tx.isOffline && (
+                        <span className="flex items-center gap-1 px-1.5 py-0.5 rounded-md bg-amber-500/10 text-amber-600 dark:text-amber-400 text-[8px] font-black uppercase tracking-tighter border border-amber-500/20">
+                          <WifiOff size={8} />
+                          Offline
+                        </span>
+                      )}
+                    </div>
                     <div className="flex items-center gap-2 mt-0.5">
                       <span className="text-[10px] font-black uppercase tracking-widest text-slate-500 dark:text-slate-400">{tx.category}</span>
                       <span className="text-[10px] font-bold text-slate-300 dark:text-slate-700">•</span>

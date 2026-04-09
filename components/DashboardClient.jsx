@@ -45,9 +45,10 @@ import CategoryBudgets from "@components/CategoryBudgets";
 import RecurringTransactionsManager from "@components/RecurringTransactionsManager";
 import SmartTips from "@components/SmartTips";
 import { generateDashboardReport } from "@lib/report";
-import { Home, Zap, Plus, ArrowUpCircle, ArrowDownCircle, Target, PieChart, Smile, Sparkles, CalendarClock, Sliders } from "lucide-react";
+import { Home, Zap, Plus, ArrowUpCircle, ArrowDownCircle, Target, PieChart, Smile, Sparkles, CalendarClock, Sliders, WifiOff } from "lucide-react";
 import { personalities } from "@lib/personalities";
-import { AnimatePresence } from "framer-motion";
+import { AnimatePresence, motion } from "framer-motion";
+import { syncOfflineData } from "@lib/offline-storage";
 
 export default function DashboardClient({ user, initialSalary, initialTransactions }) {
   const [salary, setSalary] = useState(initialSalary ?? 0);
@@ -68,12 +69,75 @@ export default function DashboardClient({ user, initialSalary, initialTransactio
   const [hideValues, setHideValues] = useState(false);
   const [isMobile, setIsMobile] = useState(false);
   const [loading, setLoading] = useState(true);
+  const [isOnline, setIsOnline] = useState(true);
 
   useEffect(() => {
     const checkMobile = () => setIsMobile(window.innerWidth < 768);
     checkMobile();
     window.addEventListener('resize', checkMobile);
-    return () => window.removeEventListener('resize', checkMobile);
+
+    // Controle de conexão offline
+    const handleOnline = () => {
+      setIsOnline(true);
+      syncOfflineData(() => {
+        // Callback ao sincronizar com sucesso
+        refresh();
+      });
+    };
+    const handleOffline = () => setIsOnline(false);
+
+    window.addEventListener('online', handleOnline);
+    window.addEventListener('offline', handleOffline);
+    setIsOnline(navigator.onLine);
+
+    // Evento de transação offline salva
+    const handleOfflineTx = (e) => {
+      const newTx = e.detail;
+      // Adiciona temporariamente à lista para feedback visual
+      setTransactions(prev => [{ ...newTx, id: `offline-${Date.now()}`, isOffline: true }, ...prev]);
+    };
+    window.addEventListener('offline-transaction-saved', handleOfflineTx);
+
+    return () => {
+      window.removeEventListener('resize', checkMobile);
+      window.removeEventListener('online', handleOnline);
+      window.removeEventListener('offline', handleOffline);
+      window.removeEventListener('offline-transaction-saved', handleOfflineTx);
+    };
+  }, []);
+
+  async function refresh() {
+    setLoading(true);
+    try {
+      const [txRes, salaryRes, catChartRes, goalsRes] = await Promise.all([
+        fetch("/api/transactions"),
+        fetch("/api/settings/salary"),
+        fetch("/api/charts/categories"),
+        fetch("/api/goals")
+      ]);
+      if (txRes.ok) {
+        setTransactions(await txRes.json());
+      }
+      if (salaryRes.ok) {
+        const data = await salaryRes.json();
+        setSalary(data.salary ?? 0);
+      }
+      if (catChartRes.ok) {
+        const catData = await catChartRes.json();
+        setCategoryChartData(catData);
+      }
+      if (goalsRes.ok) {
+        setGoals(await goalsRes.json());
+      }
+    } catch (err) {
+      console.error("Error refreshing dashboard:", err);
+    } finally {
+      setLoading(false);
+    }
+  }
+
+  useEffect(() => {
+    refresh();
   }, []);
 
   useEffect(() => {
@@ -415,6 +479,21 @@ export default function DashboardClient({ user, initialSalary, initialTransactio
         selectedDate={selectedDate}
         setSelectedDate={setSelectedDate}
       />
+
+      {/* Indicador de Offline */}
+      <AnimatePresence>
+        {!isOnline && (
+          <motion.div 
+            initial={{ height: 0, opacity: 0 }}
+            animate={{ height: 'auto', opacity: 1 }}
+            exit={{ height: 0, opacity: 0 }}
+            className="bg-amber-500/10 border border-amber-500/20 rounded-2xl p-3 flex items-center justify-center gap-3 text-amber-600 dark:text-amber-400 font-bold text-xs"
+          >
+            <WifiOff size={16} />
+            Você está navegando em modo offline. Algumas funções podem estar limitadas.
+          </motion.div>
+        )}
+      </AnimatePresence>
 
       {/* Economy Mode Toggle - Hidden in 'Goals' and 'Analysis' on Mobile */}
       <div className={`${activeTab !== 'overview' ? 'hidden md:flex' : 'flex'} items-center justify-end gap-3 md:gap-4`}>

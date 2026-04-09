@@ -2,8 +2,9 @@
 
 import { useState, useEffect, useRef, useMemo } from "react";
 import { theme } from "@config/design-system";
-import { Sparkles, Camera, X, ChevronDown, Loader2, Plus, Check, Trash2 } from "lucide-react";
+import { Sparkles, Camera, X, ChevronDown, Loader2, Plus, Check, Trash2, WifiOff } from "lucide-react";
 import { getTodayLocalDate } from "@lib/finance-utils";
+import { saveOfflineTransaction } from "@lib/offline-storage";
 
 const DEFAULT_EXPENSE_CATEGORIES = [
   "Moradia",
@@ -349,15 +350,33 @@ export default function TransactionModal({ open, mode, onClose, onSave, initialD
 
     setIsSaving(true);
     
+    const transactionData = {
+      id: initialData?.id,
+      name: description || (isIncome ? "Adição de saldo" : "Saída"),
+      amount: amountValue,
+      category: isIncome ? "Salário" : category,
+      date,
+      type: isIncome ? "income" : "expense"
+    };
+
+    // Lógica Offline: Se estiver sem internet e não for uma edição
+    if (!navigator.onLine && !initialData?.id) {
+      try {
+        await saveOfflineTransaction(transactionData);
+        alert("Você está offline. A transação foi salva no seu dispositivo e será sincronizada assim que a internet voltar! 📡");
+        onClose();
+        // Dispara um evento customizado para o dashboard atualizar a lista localmente se quiser
+        window.dispatchEvent(new CustomEvent('offline-transaction-saved', { detail: transactionData }));
+        return;
+      } catch (error) {
+        console.error("Erro ao salvar offline:", error);
+      } finally {
+        setIsSaving(false);
+      }
+    }
+    
     try {
-      await onSave({
-        id: initialData?.id,
-        name: description || (isIncome ? "Adição de saldo" : "Saída"),
-        amount: amountValue,
-        category: isIncome ? "Salário" : category,
-        date,
-        type: isIncome ? "income" : "expense"
-      });
+      await onSave(transactionData);
       onClose();
     } catch (error) {
       console.error("Erro ao salvar transação:", error);
