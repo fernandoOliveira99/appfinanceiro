@@ -134,40 +134,40 @@ export default function MobileTopBar() {
     }
   }
 
-  if (isAuthPage) return null;
-
-  // Renderiza um placeholder idêntico no servidor para evitar erro de hidratação
-  if (!mounted) {
+  // No servidor ou durante a hidratação inicial, renderizamos o shell para evitar erro de hidratação
+  if (!mounted || isAuthPage) {
     return (
-      <div className="md:hidden sticky top-0 z-40 bg-white/90 dark:bg-slate-950/90 backdrop-blur-xl border-b border-slate-200 dark:border-slate-800/70 h-[65px]">
-        <div className="px-4 py-3 flex items-center justify-between h-full">
-          <div className="flex items-center gap-3">
-            <div className="relative">
-              <div className="flex items-center gap-2 p-2 px-3 rounded-xl border border-slate-200 dark:border-slate-800/50 bg-slate-50 dark:bg-slate-900/30">
-                <div className="w-5 h-5 bg-slate-200 dark:bg-slate-800 rounded animate-pulse" />
-                <div className="w-8 h-3 bg-slate-200 dark:bg-slate-800 rounded animate-pulse" />
+      <div className={`${isAuthPage ? 'hidden' : 'md:hidden'} sticky top-0 z-40 bg-white/90 dark:bg-slate-950/90 backdrop-blur-xl border-b border-slate-200 dark:border-slate-800/70 h-[65px]`}>
+        {!isAuthPage && (
+          <div className="px-4 py-3 flex items-center justify-between h-full">
+            <div className="flex items-center gap-3">
+              <div className="relative">
+                <div className="flex items-center gap-2 p-2 px-3 rounded-xl border border-slate-200 dark:border-slate-800/50 bg-slate-50 dark:bg-slate-900/30">
+                  <div className="w-5 h-5 bg-slate-200 dark:bg-slate-800 rounded animate-pulse" />
+                  <div className="w-8 h-3 bg-slate-200 dark:bg-slate-800 rounded animate-pulse" />
+                </div>
+              </div>
+              <div className="flex items-center gap-3">
+                <div className="h-8 w-8 rounded-2xl bg-slate-200 dark:bg-slate-800 animate-pulse" />
+                <div className="flex flex-col gap-1">
+                  <div className="w-16 h-2 bg-slate-200 dark:bg-slate-800 rounded animate-pulse" />
+                  <div className="w-12 h-2 bg-slate-200 dark:bg-slate-800 rounded animate-pulse" />
+                </div>
               </div>
             </div>
             <div className="flex items-center gap-3">
-              <div className="h-8 w-8 rounded-2xl bg-slate-200 dark:bg-slate-800 animate-pulse" />
-              <div className="flex flex-col gap-1">
-                <div className="w-16 h-2 bg-slate-200 dark:bg-slate-800 rounded animate-pulse" />
-                <div className="w-12 h-2 bg-slate-200 dark:bg-slate-800 rounded animate-pulse" />
+              <div className="relative">
+                <div className="w-9 h-9 rounded-xl border border-slate-200 dark:border-slate-800/50 bg-slate-50 dark:bg-slate-900/30 animate-pulse" />
+              </div>
+              <div className="relative">
+                <div className="flex items-center gap-2 p-1 pr-2 rounded-xl border border-slate-200 dark:border-slate-800/50 bg-slate-50 dark:bg-slate-900/30">
+                  <div className="w-8 h-8 bg-slate-200 dark:bg-slate-800 rounded-lg animate-pulse" />
+                  <div className="w-3 h-3 bg-slate-200 dark:bg-slate-800 rounded animate-pulse" />
+                </div>
               </div>
             </div>
           </div>
-          <div className="flex items-center gap-3">
-            <div className="relative">
-              <div className="w-9 h-9 rounded-xl border border-slate-200 dark:border-slate-800/50 bg-slate-50 dark:bg-slate-900/30 animate-pulse" />
-            </div>
-            <div className="relative">
-              <div className="flex items-center gap-2 p-1 pr-2 rounded-xl border border-slate-200 dark:border-slate-800/50 bg-slate-50 dark:bg-slate-900/30">
-                <div className="w-8 h-8 bg-slate-200 dark:bg-slate-800 rounded-lg animate-pulse" />
-                <div className="w-3 h-3 bg-slate-200 dark:bg-slate-800 rounded animate-pulse" />
-              </div>
-            </div>
-          </div>
-        </div>
+        )}
       </div>
     );
   }

@@ -1,6 +1,7 @@
-const CACHE_NAME = 'app-financas-v2';
+const CACHE_NAME = 'app-financas-v3';
 const STATIC_ASSETS = [
   '/',
+  '/dashboard',
   '/manifest.json',
   '/styles/globals.css',
   '/favicon.ico',
@@ -36,14 +37,22 @@ self.addEventListener('activate', (event) => {
 });
 
 // Estratégia de Fetch:
-// 1. Para arquivos estáticos: Cache First (ou Stale-While-Revalidate)
-// 2. Para API: Network First (tenta rede, se falhar usa cache)
 self.addEventListener('fetch', (event) => {
   const { request } = event;
   const url = new URL(request.url);
 
-  // Ignora chamadas de IA e autenticação (sempre precisam de rede ou falham)
+  // Ignora chamadas de IA e autenticação
   if (url.pathname.includes('/api/ai-insights') || url.pathname.includes('/api/auth')) {
+    return;
+  }
+
+  // Se for uma navegação (página HTML), tenta Rede e falha para o Cache da página principal
+  if (request.mode === 'navigate') {
+    event.respondWith(
+      fetch(request).catch(() => {
+        return caches.match('/dashboard') || caches.match('/');
+      })
+    );
     return;
   }
 
@@ -65,11 +74,10 @@ self.addEventListener('fetch', (event) => {
     return;
   }
 
-  // Para outros arquivos (HTML, JS, CSS, Imagens): Cache First
+  // Para outros arquivos (JS, CSS, Imagens): Cache First
   event.respondWith(
     caches.match(request).then((response) => {
       return response || fetch(request).then((networkResponse) => {
-        // Cacheia novos arquivos estáticos encontrados
         if (request.method === 'GET' && networkResponse.status === 200) {
           const clonedResponse = networkResponse.clone();
           caches.open(CACHE_NAME).then((cache) => {

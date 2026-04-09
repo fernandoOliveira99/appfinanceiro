@@ -116,7 +116,7 @@ export default function Sidebar() {
     }
   }
 
-  if (isAuthPage) return null;
+  if (isAuthPage) return <aside className="hidden" />;
 
   return (
     <aside className="hidden lg:flex flex-col w-64 border-r border-slate-200/50 dark:border-slate-800/70 bg-white/80 dark:bg-slate-950/80 backdrop-blur-xl h-screen sticky top-0">

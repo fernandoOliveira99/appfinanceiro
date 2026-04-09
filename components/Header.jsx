@@ -8,7 +8,7 @@ export default function Header() {
   const pathname = usePathname();
   const isAuthPage = pathname === "/login" || pathname === "/register" || pathname === "/forgot-password" || pathname === "/reset-password";
 
-  if (isAuthPage) return null;
+  if (isAuthPage) return <header className="hidden" />;
 
   return (
     <header className="sticky top-0 z-20 md:hidden">
